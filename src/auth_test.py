@@ -2,58 +2,101 @@ import auth
 import pytest
 from error import InputError
 
+# AUTH_LOGIN tests
+def test_successful_auth_login():
+    auth.auth_register('snow@white.com', 'dwarves', 'Snow', 'White')
+    user = auth.auth_login('snow@white.com', 'dwarves')
+    assert user['u_id'] == 1
+    assert user['token'] == 'snow@white.com'
+
+    auth.auth_register('George.Humohrey@bigpond.edu.au', 'washington', 'George', 'Humohrey')
+    user = auth.auth_login('George.Humohrey@bigpond.edu.au', 'washington')
+    assert user['u_id'] == 2
+    assert user['token'] == 'George.Humohrey@bigpond.edu.au'
+
+    auth.auth_register('Artur.Hawking@bing.edu.au', 'manetherin', 'Artur', 'Hawking')
+    user = auth.auth_login('Artur.Hawking@bing.edu.au', 'manetherin')
+    assert user['u_id'] == 3
+    assert user['token'] == 'Artur.Hawking@bing.edu.au'
+
+def test_non_existant_email_auth_login():
+    auth.auth_register('tom-ellis@duckduckgoose.com', 'project', 'Tom', 'Ellis')
+    with pytest.raises(InputError) as e:
+        assert auth.auth_login('fake.email@duckduckgoose.com', 'project')
+
+    auth.auth_register('DavidWhitecross@gmail.com', 'totenham', 'Ronen', 'Bhaumik')
+    with pytest.raises(InputError) as e:
+        assert auth.auth_login('Ronen@gmail.com', 'totenham')
+
+    auth.auth_register('Gag..Halfrunt@hhgttg.com', 'justzisguy', 'Gag', 'Halfrunt')
+    with pytest.raises(InputError) as e:
+        assert auth.auth_login('Gag.Halfrunt@hhgttg.com', 'justzisguy')
+
+def test_incorrect_password_auth_login():
+    auth.auth_register('Jeltz@vogon.com', 'hyperspaceplanningcouncil', 'Prostetnic', 'Jeltz')
+    with pytest.raises(InputError) as e:
+        assert auth.auth_login('Jeltz@vogon.com', 'regrettably')
+
+    auth.auth_register('LewsTherin@dragon.com.au', 'ilenya', 'Lews', 'Therin')
+    with pytest.raises(InputError) as e:
+        assert auth.auth_login('LewsTherin@dragon.com.au', 'aviendha')
+
+    auth.auth_register('Trent-Zimmerman@council.com.nz', 'election', 'Trent', 'Zimmerman')
+    with pytest.raises(InputError) as e:
+        assert auth.auth_login('Trent-Zimmerman@council.com.nz', 'lotsofmail')
+
 # AUTH_REGISTER tests
 # Successful
 def test_successful_auth_register():
     user = auth.auth_register('elliot@balgara.com', 'spooky', 'Elliot', 'Rotenstein')
     assert user['u_id'] == 1
-    assert user['token'] == 'ElliotRotenstein'
+    assert user['token'] == 'elliot@balgara.com'
 
     user = auth.auth_register('apple@gmail.com', 'APPLES', 'A', 'Fruit')
     assert user['u_id'] == 2
-    assert user['token'] == 'AFruit'
+    assert user['token'] == 'apple@gmail.com'
 
     user = auth.auth_register('pear@yahoo.com', 'prickly', 'Pear', 'Vegetable')
     assert user['u_id'] == 3
-    assert user['token'] == 'PearVegetable'
+    assert user['token'] == 'pear@yahoo.com'
 
 def test_same_names_auth_register():
     user = auth.auth_register('ben@gmail.com', 'thisisben', 'Ben', 'Batson')
     assert user['u_id'] == 4
-    assert user['token'] == 'BenBatson'
+    assert user['token'] == 'ben@gmail.com'
 
     user = auth.auth_register('ben1@gmail.com', 'thisisalsoben', 'Ben', 'Batson')
     assert user['u_id'] == 5
-    assert user['token'] == 'BenBatson1'
+    assert user['token'] == 'ben1@gmail.com'
 
     user = auth.auth_register('ben2@gmail.com', 'thistooisben', 'Ben', 'Batson')
     assert user['u_id'] == 6
-    assert user['token'] == 'BenBatson2'
+    assert user['token'] == 'ben2@gmail.com'
 
     user = auth.auth_register('ben3@gmail.com', 'ThirdBenIsACharm', 'Ben', 'Batson')
     assert user['u_id'] == 7
-    assert user['token'] == 'BenBatson3'
+    assert user['token'] == 'ben3@gmail.com'
 
     user = auth.auth_register('ben4@gmail.com', 'ForAllBenKind', 'Ben', 'Batson')
     assert user['u_id'] == 8
-    assert user['token'] == 'BenBatson4'
+    assert user['token'] == 'ben4@gmail.com'
 
     user = auth.auth_register('bentennyson@gmail.com', 'BenTen', 'Ben', 'Batson')
     assert user['u_id'] == 9
-    assert user['token'] == 'BenBatson5'
+    assert user['token'] == 'bentennyson@gmail.com'
 
 def test_same_passwords_auth_register():
     user = auth.auth_register('hacker@gmail.com', 'password', 'Alfred', 'Hural')
     assert user['u_id'] == 10
-    assert user['token'] == 'AlfredHural'
+    assert user['token'] == 'hacker@gmail.com'
 
     user = auth.auth_register('albert@gmail.com', 'password', 'Albert', 'Einsten')
     assert user['u_id'] == 11
-    assert user['token'] == 'AlbertEinstein'
+    assert user['token'] == 'albert@gmail.com'
 
     user = auth.auth_register('zaphod@gmail.com', 'password', 'Zaphod', 'Beeblebrox')
     assert user['u_id'] == 12
-    assert user['token'] == 'ZaphodBeeblebrox'
+    assert user['token'] == 'zaphod@gmail.com'
 
 # Unsuccessful
 
@@ -78,16 +121,16 @@ def test_invalid_email_auth_register():
 
 
 def test_existing_email_auth_register():
-    user = auth.auth_register('alex@gmail.com', 'Ahoy there', 'Alex', 'Hurkins')
+    auth.auth_register('alex@gmail.com', 'Ahoy there', 'Alex', 'Hurkins')
     with pytest.raises(InputError) as e:
         assert auth.auth_register('alex@gmail.com', 'Thisissosad', 'Alex', 'Robbie')
     
-    user = auth.auth_register('james@hotmail.com.au', 'GiantPeach', 'James', 'Manetherin')
+    auth.auth_register('james@hotmail.com.au', 'GiantPeach', 'James', 'Manetherin')
     with pytest.raises(InputError) as e:
         assert auth.auth_register('james@gmail.com', 'Jupiter', 'James', 'Planetarium')
         assert auth.auth_register('james@gmail.com', 'enter password', 'James', 'Jameson')
 
-    user = auth.auth_register('captain@gmail.com', 'yoghurt', 'Hubert', 'Love')
+    auth.auth_register('captain@gmail.com', 'yoghurt', 'Hubert', 'Love')
     with pytest.raises(InputError) as e:
         assert auth.auth_register('captain@gmail.com', 'captain', 'Arthur', 'Wolban')
 
@@ -109,6 +152,10 @@ def test_invalid_first_name_auth_register():
     with pytest.raises(InputError) as e:
         assert auth.auth_register('no@name.com', 'Hello, World!', '', 'Tapher')
 
+
 def test_invalid_last_name_auth_register():
     with pytest.raises(InputError) as e:
         assert auth.auth_register('ripley@optus.com', 'This is the end.', 'Hugh', 'Imsickoftestingthisfunctionsoitsagoodthingitsdone!')
+
+    with pytest.raises(InputError) as e:
+        assert auth.auth_register('first@name.com', 'antihippopotomonstrosesquippedaliophobia', 'Jay', '')
