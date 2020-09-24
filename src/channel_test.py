@@ -1,5 +1,5 @@
 import auth
-import channels
+import channels 
 import channel
 import pytest
 from error import InputError
@@ -28,37 +28,56 @@ def test_channel_details():
     assert channel_details(bestest_group123@gmail.com, channel_id)
 
 #Checks a token with authority can join a channel
-def test_channel_join():
-    test_user1 = auth.auth_register('test1@hotmail.com', 'password', 'Optimus', 'Prime')
-    test_user2 = auth.auth_register('test2@hotmail.com', 'password', 'Bumble', 'Bee')
-    test_user3 = auth.auth_register('test3@hotmail.com', 'password', 'Cliff', 'Jumper')
-    test_channel_id1 = channels.channels_create(test_user1["token"] ,'Test Channel Public', 1)
+def test_channel_join_valid():
+    user_channel_creater = auth.auth_register('creator@bigpond.com', 'password', 'Quick', 'Shadow')
+    test_user1 = auth.auth_register('optumis4ime@hotmail.com', 'password', 'Optimus', 'Prime')
+    test_user2 = auth.auth_register('thebumble@hotmail.com', 'password', 'Bumble', 'Bee')
+    test_user3 = auth.auth_register('cliffbooth@hotmail.com', 'password', 'Cliff', 'Jumper')
+    test_channel_id1 = channels.channels_create(user_channel_creater["token"] ,test_channel_id1, True)
     
-    #Checks a user can join a public channel
-    channel.channel_join(test_user1["u_id"],test_channel_id1)
-    channel.channel_join(test_user2["u_id"],test_channel_id1)
-    channel.channel_join(test_user3["u_id"],test_channel_id1)
-    list_result1 = channels.channels_list('test1@hotmail.com')
-    list_result2 = channels.channels_list('test2@hotmail.com')
-    list_result3 = channels.channels_list('test3@hotmail.com')
-    assert list_result1[0]['name'] == 'Test Channel Public'
-    assert list_result2[0]['name'] == 'Test Channel Public'
-    assert list_result3[0]['name'] == 'Test Channel Public'
+    #Checks a user can join a public channel Valid
+    channel.channel_join(test_user1['token'],test_channel_id1)
+    channel.channel_join(test_user2['token'],test_channel_id1)
+    channel.channel_join(test_user3['token'],test_channel_id1)
+    list_result1 = channels.channels_list(test_user1['token'])
+    list_result2 = channels.channels_list(test_user2['token'])
+    list_result3 = channels.channels_list(test_user3['token'])
+    assert list_result1[0] == test_channel_id1
+    assert list_result2[0] == test_channel_id1
+    assert list_result3[0] == test_channel_id1
+    test_public_channel_details = channel.channel_details(test_user1['token'],test_channel_id1)
+    
+    member1 = None
+    for member in check_members.all_members:
+        if member["u_id"] == test_user1["u_id"]:
+            member1 = member            
+    assert(member1 is not None)
+    member2 = None
+    for member in check_members.all_members:
+        if member["u_id"] == test_user2["u_id"]:
+            member2 = member            
+    assert(member2 is not None)
+    member3 = None
+    for member in check_members.all_members:
+        if member["u_id"] == test_user3["u_id"]:
+            member1 = member            
+    assert(member3 is not None)
 
-    test_channel_id2 = channels.channels_create(test_user2["token"] ,'Test Channel Private', 0)
-    channel.channel_addowner(test_user2["token"],test_channel_id2,test_user2["u_id"])
-    channel.channel_addowner(test_user3["token"],test_channel_id2,test_user3["u_id"])
-    #test_user1 should raise an error since they don't have the authority AccessError
-    channel.channel_join(test_user1["u_id"],test_channel_id1)
-    channel.channel_join(test_user2["u_id"],test_channel_id1)
-    channel.channel_join(test_user3["u_id"],test_channel_id1)
-    #test_user1 should not have the test channel as a channel 
-    assert list_result1[1]['name'] != 'Test Channel Private'
-    assert list_result2[1]['name'] == 'Test Channel Private'
-    assert list_result3[1]['name'] == 'Test Channel Private'
-    #the Input Error should be raised by the users trying to join a channel not created
-    channel.channel_join(test_user1["u_id"],test_channel_invalid)
-    channel.channel_join(test_user2["u_id"],test_channel_invalid)
+def test_channel_join_invalid_channel():
+    test_user1 = auth.auth_register('testHotRod@hotmail.com', 'password', 'Hot','Rod')
+    with pytest.raises(InputError) as e:
+        channel.channel_join(test_user1["token"],invalid_channel_id)
+    list_result1 = channels.channels_list(test_user1['token'])
+    assert list_result1[0] != invalid_channel_id
+
+
+
+
+def test_channel_join_invalid_token():
+    pass
+
+
+
 
 
 
