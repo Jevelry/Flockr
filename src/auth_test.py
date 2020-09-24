@@ -3,45 +3,57 @@ import pytest
 from error import InputError
 
 # AUTH_LOGIN tests
+# SUCCESSFUL
 def test_successful_auth_login():
-    auth.auth_register('snow@white.com', 'dwarves', 'Snow', 'White')
+    user = auth.auth_register('snow@white.com', 'dwarves', 'Snow', 'White')
+    auth.auth_logout(user['token'])
     user = auth.auth_login('snow@white.com', 'dwarves')
     assert user['u_id'] == 1
     assert user['token'] == 'snow@white.com'
 
-    auth.auth_register('George.Humohrey@bigpond.edu.au', 'washington', 'George', 'Humohrey')
+    user = auth.auth_register('George.Humohrey@bigpond.edu.au', 'washington', 'George', 'Humohrey')
+    auth.auth_logout(user['token'])
     user = auth.auth_login('George.Humohrey@bigpond.edu.au', 'washington')
     assert user['u_id'] == 2
     assert user['token'] == 'George.Humohrey@bigpond.edu.au'
 
-    auth.auth_register('Artur.Hawking@bing.edu.au', 'manetherin', 'Artur', 'Hawking')
+    user = auth.auth_register('Artur.Hawking@bing.edu.au', 'manetherin', 'Artur', 'Hawking')
+    auth.auth_logout(user['token'])
     user = auth.auth_login('Artur.Hawking@bing.edu.au', 'manetherin')
     assert user['u_id'] == 3
     assert user['token'] == 'Artur.Hawking@bing.edu.au'
 
+# UNSUCCESSFUL
+
 def test_non_existant_email_auth_login():
-    auth.auth_register('tom-ellis@duckduckgoose.com', 'project', 'Tom', 'Ellis')
+    user = auth.auth_register('tom-ellis@duckduckgoose.com', 'project', 'Tom', 'Ellis')
+    auth.auth_logout(user['token'])
     with pytest.raises(InputError) as e:
         assert auth.auth_login('fake.email@duckduckgoose.com', 'project')
 
-    auth.auth_register('DavidWhitecross@gmail.com', 'totenham', 'Ronen', 'Bhaumik')
+    user = auth.auth_register('DavidWhitecross@gmail.com', 'totenham', 'Ronen', 'Bhaumik')
+    auth.auth_logout(user['token'])
     with pytest.raises(InputError) as e:
         assert auth.auth_login('Ronen@gmail.com', 'totenham')
 
-    auth.auth_register('Gag..Halfrunt@hhgttg.com', 'justzisguy', 'Gag', 'Halfrunt')
+    user = auth.auth_register('Gag..Halfrunt@hhgttg.com', 'justzisguy', 'Gag', 'Halfrunt')
+    auth.auth_logout(user['token'])
     with pytest.raises(InputError) as e:
         assert auth.auth_login('Gag.Halfrunt@hhgttg.com', 'justzisguy')
 
 def test_incorrect_password_auth_login():
-    auth.auth_register('Jeltz@vogon.com', 'hyperspaceplanningcouncil', 'Prostetnic', 'Jeltz')
+    user = auth.auth_register('Jeltz@vogon.com', 'hyperspaceplanningcouncil', 'Prostetnic', 'Jeltz')
+    auth.auth_logout(user['token'])
     with pytest.raises(InputError) as e:
         assert auth.auth_login('Jeltz@vogon.com', 'regrettably')
 
-    auth.auth_register('LewsTherin@dragon.com.au', 'ilenya', 'Lews', 'Therin')
+    user = auth.auth_register('LewsTherin@dragon.com.au', 'ilenya', 'Lews', 'Therin')
+    auth.auth_logout(user['token'])
     with pytest.raises(InputError) as e:
         assert auth.auth_login('LewsTherin@dragon.com.au', 'aviendha')
 
-    auth.auth_register('Trent-Zimmerman@council.com.nz', 'election', 'Trent', 'Zimmerman')
+    user = auth.auth_register('Trent-Zimmerman@council.com.nz', 'election', 'Trent', 'Zimmerman')
+    auth.auth_logout(user['token'])
     with pytest.raises(InputError) as e:
         assert auth.auth_login('Trent-Zimmerman@council.com.nz', 'lotsofmail')
 
