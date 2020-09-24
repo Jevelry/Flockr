@@ -73,13 +73,13 @@ def test_channel_join_invalid_channel():
 
 
 #test for an invalid token
+#assumes that the token is from an actual player 
 def test_channel_join_invalid_token():
     test_user1 = auth.auth_register('Breeeak@hotmail.com', 'password', 'Trail','Breaker')
     user_channel_creater = auth.auth_register('createrprivate@bigpond.com', 'password', 'Ultra', 'Magnus')
     test_channel_private = channels.channels_create(user_channel_creater['token'] ,'test_channel_id1', False)
     with pytest.raises(AccessError) as e:
         channel.channel_join(test_user1['token'],test_channel_private)
-    pass
 
 
 
