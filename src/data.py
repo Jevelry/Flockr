@@ -7,6 +7,7 @@ data = {
         #     'email': '',
         #     'u_id' : '',
         #     'password' : ''
+        #     'handle' : ''
         # }
     ],
     'logged_in' : [

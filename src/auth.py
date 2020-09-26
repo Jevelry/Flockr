@@ -2,7 +2,9 @@ import data
 from error import InputError
 import re
 
-# Used in auth_register
+
+# Used in auth_register.
+# Must register with a valid email.
 def valid_email(email):
     # If email already taken.
     for user in data.data['users']:
@@ -10,12 +12,13 @@ def valid_email(email):
             return False
     
     # Must be standard email (may change to custom later).
-    # Mostly taken from geeksforgeeks site (linked in spec).
+    # Regex mostly taken from geeksforgeeks site (linked in spec (6.2)).
     regex = r'^[a-z0-9]+[._]?[a-z0-9]+[@]\w+[.]\w{2,3}(\.\w{2})?$'
+    # If email doesn't match regex, it's not valid.
     if not re.search(regex,email):
-        print ("bad email")
         return False
     return True
+
 
 # Used in auth_login.
 # Email must already exist.
@@ -24,6 +27,7 @@ def existing_email(email):
         if user['email'] == email:
             return True
     return False
+
 
 # Used in auth_login.
 # Must provide correct password.
@@ -35,13 +39,16 @@ def correct_password(email, password):
 
 
 # Used in auth_register.
-# Can't register with an invalid name.
+# Can't register with an invalid first or last name.
 def valid_name(first, last):
+    # If first name is invalid.
     if len(first) < 1 or len(first) > 50:
         return False
+    # If last name is invalid.
     if len(last) < 1 or len(last) > 50:
         return False
     return True
+
 
 # Used in auth_register.
 # Can't register with an invalid password.
@@ -50,6 +57,20 @@ def valid_password(password):
         return False
     return True
     
+
+# Used in auth_register.
+# Generates a unique handle (username) for each user.
+def generate_handle(first, last):
+    names = first + last
+    # Handle is 20 letters max.
+    handle = names[:20]
+    for user in data.data['users']:
+        # If handle is taken, add numbers on the end.
+        if user['handle'] == handle:
+            length = str(len(data.data['users']))
+            handle = handle[:len(length) * -1] + length
+    return handle
+
 # Logs user in (must be an existing account).
 def auth_login(email, password):
     # Convert email to lowercase.
@@ -77,6 +98,7 @@ def auth_login(email, password):
         'u_id' : user['u_id'],
         'token' : email
     }
+
 
 # Logs an active user out.
 def auth_logout(token):
@@ -115,8 +137,9 @@ def auth_register(email, password, name_first, name_last):
     new['u_id'] = len(data.data['users']) + 1
     new['password'] = password
     new['email'] = new_email
+    new['handle'] = generate_handle(name_first, name_last)
     data.data['users'].append(new)
-    
+
     return {
         'u_id' : new['u_id'],
         'token': new['email']
@@ -124,6 +147,17 @@ def auth_register(email, password, name_first, name_last):
 
 
 if __name__ == '__main__':
-    user = auth_register('snow@white.com', 'dwarves', 'Snow', 'White')
-    auth_logout(user['token'])
-    user = auth_login('snow@white.com', 'dwarves')
+    user = auth_register('snow@white.com', 'dwarves', 'thisaisreallylongname', 'White')
+    for person in data.data['users']:
+        if user['u_id'] == person['u_id']:
+            print(person['handle'])
+
+    user = auth_register('snow1@white.com', 'dwarves', 'Snow', 'White')
+    for person in data.data['users']:
+        if user['u_id'] == person['u_id']:
+            print(person['handle'])
+    
+    user = auth_register('snow45@white.com', 'dwarves', 'Snow', 'White')
+    for person in data.data['users']:
+        if user['u_id'] == person['u_id']:
+            print(person['handle'])

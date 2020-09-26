@@ -1,5 +1,6 @@
 # Enter assumptions here!
 
 * All users use an English keyboard (no symbols from other languages esp in email)
-* Automatically convert emails to lowercase 
-* Valid emails follow geeksforgeeks regex
+* Emails don't have any uppercase letters 
+* Valid emails follow the regex
+* Names do not contain any numbers
