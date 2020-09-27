@@ -6,7 +6,7 @@ import data
 from error import InputError
 from error import AccessError
 
-#Check if invited member is in channel details
+#Check if invited member is in through channel details
 def check_if_member_exists(channel_details, user):
     mem = None
     for member in channel_details.all_members:
@@ -101,7 +101,7 @@ def test_different_authorised_users_inviting:
     user3 = auth.auth_register("rickymai@gmail.com","rm123","Ricky","Mai")
     user4 = auth.auth_register("elliotrotenstein@gmail.com","er123","Elliot","Rotenstein")
     user5 = auth.auth_register("hugosullivan@gmail.com","hs123","Hugo","Sullivan")
-    new_PUBLIC_channel = channels.channels_create(user1["token"], "comp1531", False) 
+    new_channel = channels.channels_create(user1["token"], "comp1531", False) 
     channel.channel_invite(user1["token"], new_PUBLIC_channel, user2["u_id"])
     channel.channel_invite(user2["token"], new_PUBLIC_channel, user3["u_id"])
     channel.channel_invite(user3["token"], new_PUBLIC_channel, user4["u_id"])
@@ -174,19 +174,133 @@ def test_channel_invite_invalid_u_id():
     
     data.clear_data()
 
+def test_channel_invite_unauthorised_user:
+    user1 = auth.auth_register("kevin.huang@gmail.com","nice","Kevin","Huang")
+    user2 = auth.auth_register("lucyjang@gmail.com","lj123","Lucy","Jang")
+    user3 = auth.auth_register("rickymai@gmail.com","rm123","Ricky","Mai")
+    new_channel = channels.channels_create(user1["token"], "temp_channel", False)
+    with pytest.raises(AccessError) as e:
+        channel.channel_invite(user2["token"], new_channel, user3)
 
+    data.clear_data()
+    
+# Channel_details_tests
+# Successful
+def test_channel_details_valid_token:
+    user1 = auth.auth_register("kevin.huang@gmail.com","nice","Kevin","Huang")
+    new_channel = channels.channels_create(user1["token"], "temp_channel", False)
+    channel_details = channel.channel_details(user1["token"], new_channel)
+    member = {
+        'u_id': 1,
+        'name_first': 'Kevin',
+        'name_last': 'Huang',
+    }
+    assert channel_details["name"] == "temp_channel"
+    assert channel_details["owner_members"] == member
+    assert channel_details["all_members"] == member
+    
+    data.clear_data()
 
+def test_channel_details_valid_channel_id:
+    user1 = auth.auth_register("kevin.huang@gmail.com","nice","Kevin","Huang")
+    VALID_channel_id = channels.channels_create(user1["token"], "temp_channel", False)
+    channel_details = channel.channel_details(user1["token"], VALID_channel_id)
+    member = [
+        {
+            'u_id': 1,
+            'name_first': 'Kevin',
+            'name_last': 'Huang',
+        }
+    ]        
+    assert channel_details["name"] == "temp_channel"
+    assert channel_details["owner_members"] == member
+    assert channel_details["all_members"] == member
+    
+    data.clear_data()
 
+def test_channel_details_multiple_members:
+    user1 = auth.auth_register("kevin.huang@gmail.com","kh123","Kevin","Huang")
+    user2 = auth.auth_register("lucyjang@gmail.com","lj123","Lucy","Jang")
+    user3 = auth.auth_register("rickymai@gmail.com","rm123","Ricky","Mai")
+    user4 = auth.auth_register("elliotrotenstein@gmail.com","er123","Elliot","Rotenstein")
+    user5 = auth.auth_register("hugosullivan@gmail.com","hs123","Hugo","Sullivan")
+    new_channel = channels.channels_create(user1["token"], "temp_channel", False)
+    channel.channel_invite(user1["token"], new_channel, user2)
+    channel.channel_invite(user1["token"], new_channel, user3)
+    channel.channel_invite(user1["token"], new_channel, user4)
+    channel.channel_invite(user1["token"], new_channel, user5)
+               
+    channel_details = channel.channel_details(user1["token"], new_channel)
+    owner_members = [
+        {
+            'u_id': 1,
+            'name_first': 'Kevin',
+            'name_last': 'Huang',
+        }
+    ] 
+    all_members = [
+        {
+            'u_id': 2,
+            'name_first': 'Lucy',
+            'name_last': 'Jang',
+        }
+        {
+            'u_id': 3,
+            'name_first': 'Ricky',
+            'name_last': 'Mai',
+        }
+        {
+            'u_id': 4,
+            'name_first': 'Elliot',
+            'name_last': 'Rotenstein',
+        }
+        {
+            'u_id': 5,
+            'name_first': 'Hugo',
+            'name_last': 'Sullivan',
+        }        
+    ] 
+    assert channel_details["name"] == "temp_channel"
+    assert channel_details["owner_members"] == owner_members
+    assert channel_details["all_members"] == all_members
+    
+    channel_details_2 = channel.channel_details(user2["token"], new_channel)
+    assert channel_details["name"] == "temp_channel"
+    assert channel_details["owner_members"] == owner_members
+    assert channel_details["all_members"] == all_members
+    
+    data.clear_data()
+
+# Unsuccessful
+def test_channel_details_invalid_token:
+    user1 = auth.auth_register("kevin.huang@gmail.com","kh123","Kevin","Huang")
+    user2 = auth.auth_register("lucyjang@gmail.com","lj123","Lucy","Jang")
+    new_channel = channels.channels_create(user1["token"], "temp_channel", False)
+    with pytest.raises(AccessError) as e:
+    channel_details = channel.channel_details("Invalid Token", new_channel)
+
+    data.clear_data()
+
+def test_channel_details_invalid_channel_id:
+    user1 = auth.auth_register("kevin.huang@gmail.com","kh123","Kevin","Huang")    
+    new_channel = channels.channels_create(user1["token"], "temp_channel", False)
+    invalid_channel_id = 123456789
+    with pytest.raises(InputError) as e:
+    channel_details = channel.channel_details(user1["token"], invalid_channel_id)
+
+    data.clear_data()
+    
+def test_channel_details_unauthorised_user:
+    user1 = auth.auth_register("kevin.huang@gmail.com","kh123","Kevin","Huang")    
+    user2 = auth.auth_register("lucyjang@gmail.com","lj123","Lucy","Jang")
+    new_channel = channels.channels_create(user1["token"], "temp_channel", False)
+    with pytest.raises(AccessError) as e:
+    channel_details = channel.channel_details(user2["token"], new_channel)
+
+    data.clear_data()
+    
 
    """
-   1 valid token
-   2 invalid token
-   3 valid channel id
-   4 invalid channel id
-   5 valid u_id
-   6 invalid u_id
-   invite person whos already in channel  #invalid
-   invites yourself #invalid
    
     mem = None
     for member in check_members.all_members:
@@ -199,10 +313,12 @@ def test_channel_invite_invalid_u_id():
    all existing members can invite other members
    inviting self does nothing
    inviting existing member does nothing
+   correct number of inputs given
 
     
    """
 
+#**************************************************************************************
 #Checks a token with authority can join a channel
 def test_channel_join_valid():
     user_channel_creater = auth.auth_register('creator@bigpond.com', 'password', 'Quick', 'Shadow')
