@@ -81,7 +81,16 @@ def test_channel_join_invalid_token():
     with pytest.raises(AccessError) as e:
         channel.channel_join(test_user1['token'],test_channel_private)
 
+#tests that an error will appear if the user is already in the channel
+def test_channel_join_invalid_user():
+    test_user1 = auth.auth_register('firefly@hotmail.com', 'password', 'Fire','Flight')
+    user_channel_creater = auth.auth_register('streetsmart@bigpond.com', 'password', 'Street', 'Wise')
+    test_channel_id = channels.channels_create(user_channel_creater["token"] ,'test_channel_id1', True)
+    channel.channel_join(test_user1['token'],test_channel_id)
+    with pytest.raises(InputError) as e:
+        channel.channel_join(test_user1['token'],test_channel_id)
 
+#tests the function works when the conditions are valid
 def test_channel_addowner_valid():
     user_channel_creater = auth.auth_register('bechcomber@bigpond.com', 'password', 'Beach', 'Comber')
     test_user1 = auth.auth_register('streaksahead@hotmail.com', 'password', 'Blue','Streak')
@@ -110,6 +119,7 @@ def test_channel_addowner_valid():
             member3 = member            
     assert(member3 is not None)
 
+#Tests that an input error occurs when the member is already an owner
 def channel_addowner_invalid_owner():
     user_channel_creater = auth.auth_register('backout@bigpond.com', 'password', 'Out', 'Back')
     test_user = auth.auth_register('poweerglider87@hotmail.com', 'password', 'Power','Glide')
@@ -128,7 +138,7 @@ def channel_addowner_invalid_channel():
         channel.channel_addowner(user_channel_creater['token'],test_channel_private,test_user['u_id'])
 
 
-#Tests the owner adding the owner must be in the channel
+#Tests the token adding the owner must be in the channel
 def channel_addowner_invalid_owner_not_in_channel():
     user_channel_creater = auth.auth_register('starport@bigpond.com', 'password', 'Broad', 'Side')
     invalid_channel_creater = auth.auth_register('aircat@bigpond.com', 'password', 'Sky', 'Lynx')
@@ -138,8 +148,8 @@ def channel_addowner_invalid_owner_not_in_channel():
     with pytest.raises(AccessError) as e:
         channel.channel_addowner(invalid_channel_creater['token'],test_channel_private,test_user['u_id'])
 
-#Tests the owner adding the owner must be an owner
-def channel_addowner_invalid_owner_not_in_channel():
+#Tests the token adding the owner must be an owner
+def channel_addowner_invalid_owner_not_owner():
     user_channel_creater = auth.auth_register('arraid@bigpond.com', 'password', 'Air', 'Raid')
     invalid_channel_creater = auth.auth_register('bart@bigpond.com', 'password', 'Slimg', 'Shot')
     test_user = auth.auth_register('airdiver@hotmail.com', 'password', 'Sky','Dive')
@@ -149,6 +159,78 @@ def channel_addowner_invalid_owner_not_in_channel():
     with pytest.raises(AccessError) as e:
         channel.channel_addowner(invalid_channel_creater['token'],test_channel_private,test_user['u_id'])
 
+#Tests the function works when the conditions are valid
+def test_channel_removeowner_valid():
+    user_channel_creater = auth.auth_register('bechcomber@bigpond.com', 'password', 'Beach', 'Comber')
+    test_user1 = auth.auth_register('streaksahead@hotmail.com', 'password', 'Blue','Streak')
+    test_user2 = auth.auth_register('alert@hotmail.com', 'password', 'Red','Alert')
+    test_user3 = auth.auth_register('screener@hotmail.com', 'password', 'Smoke','Screen')
+    test_channel_private = channels.channels_create(user_channel_creater['token'] ,'test_channel_id1', False)
+    channel.channel_invite(user_channel_creater['token'],test_channel_private,test_user1['u_id'])
+    channel.channel_invite(user_channel_creater['token'],test_channel_private,test_user2['u_id'])
+    channel.channel_invite(user_channel_creater['token'],test_channel_private,test_user3['u_id'])
+    channel.channel_addowner(user_channel_creater['token'],test_channel_private,test_user1['u_id'])
+    channel.channel_addowner(user_channel_creater['token'],test_channel_private,test_user2['u_id'])
+    channel.channel_addowner(user_channel_creater['token'],test_channel_private,test_user3['u_id'])
+    channel.channel_removeowner(user_channel_creater['token'],test_channel_private,test_user1['u_id'])
+    channel.channel_removeowner(user_channel_creater['token'],test_channel_private,test_user2['u_id'])
+    channel.channel_removeowner(user_channel_creater['token'],test_channel_private,test_user3['u_id'])
+    member1 = None
+    for member in check_members.owner_members:
+        if member["u_id"] == test_user1["u_id"]:
+            member1 = member            
+    assert(member1 is None)
+    member2 = None
+    for member in check_members.owner_members:
+        if member["u_id"] == test_user2["u_id"]:
+            member2 = member            
+    assert(member2 is None)
+    member3 = None
+    for member in check_members.owner_members:
+        if member["u_id"] == test_user3["u_id"]:
+            member3 = member            
+    assert(member3 is None)
+
+#Test removing an owner that is just a member
+def channel_removeowner_invalid_owner():
+    user_channel_creater = auth.auth_register('backout@bigpond.com', 'password', 'Out', 'Back')
+    test_user = auth.auth_register('poweerglider87@hotmail.com', 'password', 'Power','Glide')
+    test_channel_private = channels.channels_create(user_channel_creater['token'] ,'test_channel_id', False)
+    channel.channel_invite(user_channel_creater['token'],test_channel_private,test_user['u_id'])
+    with pytest.raises(InputError) as e:
+        channel.channel_removeowner(user_channel_creater['token'],test_channel_private,test_user['u_id'])
+
+#Below this needs to be changed
+#Tests the user being removed from the being an owner must be in the channel
+def channel_removeowner_invalid_channel():
+    user_channel_creater = auth.auth_register('omegasup@bigpond.com', 'password', 'Omega', 'Supreme')
+    test_user = auth.auth_register('gater@hotmail.com', 'password', 'Tail','Gate')
+    test_channel_private = channels.channels_create(user_channel_creater['token'] ,'test_channel_id', False)
+    with pytest.raises(InputError) as e:
+        channel.channel_removeowner(user_channel_creater['token'],test_channel_private,test_user['u_id'])
+
+#Tests that the token being used to remove member an owner is from someone in the channel
+def channel_removeowner_invalid_owner_not_in_channel():
+    user_channel_creater = auth.auth_register('starport@bigpond.com', 'password', 'Broad', 'Side')
+    invalid_channel_creater = auth.auth_register('aircat@bigpond.com', 'password', 'Sky', 'Lynx')
+    test_user = auth.auth_register('stormboy@hotmail.com', 'password', 'Sand','Storm')
+    test_channel_private = channels.channels_create(user_channel_creater['token'] ,'test_channel_id', False)
+    channel.channel_invite(user_channel_creater['token'],test_channel_private,test_user['u_id'])
+    channel.channel_addowner(user_channel_creater['token'],test_channel_private,test_user['u_id'])
+    with pytest.raises(AccessError) as e:
+        channel.channel_addowner(invalid_channel_creater['token'],test_channel_private,test_user['u_id'])
+
+#Tests that the token being used to remove the member an owner is from someone in the channel and is a owner
+def channel_removeowner_invalid_owner_not_owner():
+    user_channel_creater = auth.auth_register('arraid@bigpond.com', 'password', 'Air', 'Raid')
+    invalid_channel_creater = auth.auth_register('bart@bigpond.com', 'password', 'Slimg', 'Shot')
+    test_user = auth.auth_register('airdiver@hotmail.com', 'password', 'Sky','Dive')
+    test_channel_private = channels.channels_create(user_channel_creater['token'] ,'test_channel_id', False)
+    channel.channel_invite(user_channel_creater['token'],test_channel_private,test_user['u_id'])
+    channel.channel_invite(user_channel_creater['token'],test_channel_private,invalid_channel_creater['u_id'])
+    channel.channel_addowner(user_channel_creater['token'],test_channel_private,test_user['u_id'])
+    with pytest.raises(AccessError) as e:
+        channel.channel_addowner(invalid_channel_creater['token'],test_channel_private,test_user['u_id'])
 
 
 
