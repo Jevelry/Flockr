@@ -1,13 +1,11 @@
 import auth
 import pytest
 import data
-#from data import clear_data, data
 from error import InputError
 
 # AUTH_LOGIN tests
 # SUCCESSFUL
 def test_successful_auth_login():
-    data.clear_data()
     user = auth.auth_register('snow@white.com', 'dwarves', 'Snow', 'White')
     auth.auth_logout(user['token'])
     user = auth.auth_login('snow@white.com', 'dwarves')
@@ -31,7 +29,6 @@ def test_successful_auth_login():
 # UNSUCCESSFUL
 
 def test_non_existant_email_auth_login():
-    data.clear_data()
     user = auth.auth_register('tom_ellis@duckduckgoose.com', 'project', 'Tom', 'Ellis')
     auth.auth_logout(user['token'])
     with pytest.raises(InputError) as e:
@@ -50,7 +47,6 @@ def test_non_existant_email_auth_login():
     data.clear_data()
 
 def test_incorrect_password_auth_login():
-    data.clear_data()
     user = auth.auth_register('Jeltz@vogon.com', 'hyperspaceplanningcouncil', 'Prostetnic', 'Jeltz')
     auth.auth_logout(user['token'])
     with pytest.raises(InputError) as e:
@@ -68,13 +64,14 @@ def test_incorrect_password_auth_login():
     print("yes i do")
     data.clear_data()
 
+# Note: I didn't test invalid email/password because even if it was 'correct', 
+# auth_register wouldn't have created the account, so it would fail an assert in  
+# test_non_existant_emaiL_auth_login.
+
+
 # AUTH_REGISTER tests
 # Successful
 def test_successful_auth_register():
-    print(data.data['users'])
-    print("before success",len(data.data['users']))
-    data.clear_data()
-    print("after success",len(data.data['users']))
     user = auth.auth_register('elliot@balgara.com', 'spooky', 'Elliot', 'Rotenstein')
     assert user['u_id'] == 1
     assert user['token'] == 'elliot@balgara.com'
@@ -90,7 +87,6 @@ def test_successful_auth_register():
     data.clear_data()
 
 def test_same_names_auth_register():
-    data.clear_data()
     user = auth.auth_register('ben@gmail.com', 'thisisben', 'Ben', 'Batson')
     assert user['u_id'] == 1
     assert user['token'] == 'ben@gmail.com'
@@ -118,7 +114,6 @@ def test_same_names_auth_register():
     data.clear_data()
 
 def test_same_passwords_auth_register():
-    data.clear_data()
     user = auth.auth_register('hacker@gmail.com', 'password', 'Alfred', 'Hural')
     assert user['u_id'] == 1
     assert user['token'] == 'hacker@gmail.com'
@@ -136,7 +131,6 @@ def test_same_passwords_auth_register():
 # Unsuccessful
 
 def test_invalid_email_auth_register():
-    data.clear_data()
     with pytest.raises(InputError) as e:
         assert auth.auth_register('email', 'Mark@gmail.com', 'Mark', 'Klup')
     
@@ -159,7 +153,6 @@ def test_invalid_email_auth_register():
 
 
 def test_existing_email_auth_register():
-    data.clear_data()
     auth.auth_register('alex@gmail.com', 'Ahoy there', 'Alex', 'Hurkins')
     with pytest.raises(InputError) as e:
         assert auth.auth_register('alex@gmail.com', 'Thisissosad', 'Alex', 'Robbie')
@@ -176,7 +169,6 @@ def test_existing_email_auth_register():
     data.clear_data()
 
 def test_invalid_password_auth_register():
-    data.clear_data()
     with pytest.raises(InputError) as e:
         assert auth.auth_register('yellow@gmail.com', '', 'Yellow', 'Submarine')
 
@@ -190,7 +182,6 @@ def test_invalid_password_auth_register():
 
 
 def test_invalid_first_name_auth_register():
-    data.clear_data()
     with pytest.raises(InputError) as e:
         assert auth.auth_register('long@name.com', 'huuuuge', 'thisisareallylongnameanditjustkeepsgoingandgoingwhenwillitend', 'Stevens')
 
@@ -201,7 +192,6 @@ def test_invalid_first_name_auth_register():
 
 
 def test_invalid_last_name_auth_register():
-    data.clear_data()
     with pytest.raises(InputError) as e:
         assert auth.auth_register('ripley@optus.com', 'This is the end.', 'Hugh', 'Iamsickoftestingthisfunctionsoitsagoodthingitsdone!')
 

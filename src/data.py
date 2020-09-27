@@ -7,6 +7,7 @@ data = {
         #     'email': '',
         #     'u_id' : '',
         #     'password' : ''
+        #     'handle' : ''
         # }
     ],
     'logged_in' : [
@@ -34,19 +35,20 @@ data = {
     ]
 }
 
+# Clears the data variable.
+# Removes all users, channels, etc.
 def clear_data():
     global data
-    print("before data",len(data['users']))
     data = {
         'users' : [],
         'logged_in' : [],
         'channels' : []
     }
-    print("after data",len(data['users']))
+
 
 if __name__ == '__main__':
     data['users'].append("yobbo")
     print(len(data['users']))
     clear_data()
     print(len(data['users']))
-# Clears data
+
