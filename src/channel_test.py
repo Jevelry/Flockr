@@ -2,55 +2,178 @@ import channel
 import pytest
 import auth
 import channels
+import data
 from error import InputError
 from error import AccessError
 
-def test_channel_invite_valid_token():
-    user1 = auth.auth_register("best_group123@gmail.com", "awesome", "best", "group")
-    user2 = auth.auth_register("bestest_group123@gmail.com", "awesome", "best", "group")
-    channel_id = channels.channels_create(user1["token"], "temp_channel", False) 
-    channel.channel_invite(user1["token"], channel_id, user2["u_id"])
-    
-    check_members = channel.channel_details(user1["token"], channel_id)l
-    
+#Check if invited member is in channel details
+def check_if_member_exists(channel_details, user):
     mem = None
-    for member in check_members.all_members:
-        if member["u_id"] == user2["u_id"]:
+    for member in channel_details.all_members:
+        if member["u_id"] == user["u_id"]:
             mem = member            
     assert(mem is not None)
     
-    #clear
-    
-    
-def test_channel_invite_invalid_token():
+
+#Channel_invite tests
+#Successful
+def test_channel_invite_valid_token():
     user1 = auth.auth_register("best_group123@gmail.com", "awesome", "best", "group")
     user2 = auth.auth_register("bestest_group123@gmail.com", "awesome", "best", "group")
-    channel_id = channels.channels_create(user1["token"], "temp_channel", False) 
-    with pytest.raises(AccessError) as e:
-        channel.channel_invite("invalid_token", channel_id, user2["u_id"])
-        
-    #clear
+    new_channel = channels.channels_create(user1["token"], "temp_channel", False) 
+    channel.channel_invite(user1["token"], channel_id, user2["u_id"])    
+    channel_details = channel.channel_details(user1["token"], new_channel)
+    check_if_member_exists(channel_details, user2)
+    
+    data.clear_data()
+    
 def test_channel_invite_valid_channel_id():
+    user1 = auth.auth_register("best_group123@gmail.com", "awesome", "best", "group")
+    user2 = auth.auth_register("bestest_group123@gmail.com", "awesome", "best", "group")
+    VALID_channel_id = channels.channels_create(user1["token"], "temp_channel", False) 
+    channel.channel_invite(user1["token"], channel_id, user2["u_id"])
+    channel_details = channel.channel_details(user1["token"], VALID_channel_id)
+    check_if_member_exists(channel_details, user2)
 
+    data.clear_data()
+    
+def test_channel_invite_valid_u_id():
+    user1 = auth.auth_register("best_group123@gmail.com", "awesome", "best", "group")
+    valid_u_id = auth.auth_register("bestest_group123@gmail.com", "awesome", "best", "group")
+    new_channel = channels.channels_create(user1["token"], "temp_channel", False) 
+    channel.channel_invite(user1["token"], channel_id, valid_u_id["u_id"])
+    channel_details = channel.channel_details(user1["token"], new_channel)
+    check_if_member_exists(channel_details, valid_u_id)    
+    
+    data.clear_data()
+"""    
+above three tests are almost identical... is this ok?    
+"""    
+    
+    
+def test_private_channel_invite():   
+    user1 = auth.auth_register("dog@gmail.com", "awesome", "dog", "puppy")
+    user2 = auth.auth_register("cat@gmail.com", "awesome", "cat", "kitty")
+    user3 = auth.auth_register("eddyisgay@gmail.com","eddygay","eddy","gay")
+    new_private_channel = channels.channels_create(user1["token"], "cool_kids_only", True) 
+    channel.channel_invite(user1["token"], new_private_channel, user2["u_id"])   
+    channel.channel_invite(user1["token"], new_private_channel, user3["u_id"])    
+    channel_details = channel.channel_details(user1["token"], new_private_channel)    
+    check_if_member_exists(channel_details, user2)
+    check_if_member_exists(channel_details, user3)
+    
+    data.clear_data()
 
+def test_channel_invite_many_members:   
+    user1 = auth.auth_register("simonpepe@gmail.com", ":(", "simon", "pepe")
+    user2 = auth.auth_register("ezmoney@gmail.com", "$$$$$$", "ez", "money")
+    user3 = auth.auth_register("eddyisgay@gmail.com","eddygay","eddy","gay")
+    user4 = auth.auth_register("kevin.huang@gmail.com","nice","Kevin","Huang")
+    user5 = auth.auth_register("lucyjang@gmail.com","lj123","Lucy","Jang")
+    user6 = auth.auth_register("rickymai@gmail.com","rm123","Ricky","Mai")
+    user7 = auth.auth_register("elliotrotenstein@gmail.com","er123","Elliot","Rotenstein")
+    user8 = auth.auth_register("hugosullivan@gmail.com","hs123","Hugo","Sullivan")
+        
+    new_channel = channels.channels_create(user1["token"], "rave_club", False) 
+    channel.channel_invite(user1["token"], new_channel, user2["u_id"])
+    channel.channel_invite(user1["token"], new_channel, user3["u_id"])
+    channel.channel_invite(user1["token"], new_channel, user4["u_id"])
+    channel.channel_invite(user1["token"], new_channel, user5["u_id"])
+    channel.channel_invite(user1["token"], new_channel, user6["u_id"])
+    channel.channel_invite(user1["token"], new_channel, user7["u_id"])
+    channel.channel_invite(user1["token"], new_channel, user8["u_id"])
+    channel.channel_invite(user1["token"], new_channel, user9["u_id"])
+    channel_details = channel.channel_details(user1["token"], new_channel)
+    
+    check_if_member_exists(channel_details, user2)
+    check_if_member_exists(channel_details, user3)
+    check_if_member_exists(channel_details, user4)
+    check_if_member_exists(channel_details, user5)
+    check_if_member_exists(channel_details, user6)
+    check_if_member_exists(channel_details, user7)
+    check_if_member_exists(channel_details, user8)
+    
+    data.clear_data()
+    
+def test_different_authorised_users_inviting:  
+    user1 = auth.auth_register("kevin.huang@gmail.com","nice","Kevin","Huang")
+    user2 = auth.auth_register("lucyjang@gmail.com","lj123","Lucy","Jang")
+    user3 = auth.auth_register("rickymai@gmail.com","rm123","Ricky","Mai")
+    user4 = auth.auth_register("elliotrotenstein@gmail.com","er123","Elliot","Rotenstein")
+    user5 = auth.auth_register("hugosullivan@gmail.com","hs123","Hugo","Sullivan")
+    new_PUBLIC_channel = channels.channels_create(user1["token"], "comp1531", False) 
+    channel.channel_invite(user1["token"], new_PUBLIC_channel, user2["u_id"])
+    channel.channel_invite(user2["token"], new_PUBLIC_channel, user3["u_id"])
+    channel.channel_invite(user3["token"], new_PUBLIC_channel, user4["u_id"])
+    channel.channel_invite(user4["token"], new_PUBLIC_channel, user5["u_id"])
+    channel_details = channel.channel_details(user1["token"], new_channel)
+    check_if_member_exists(channel_details, user1)
+    check_if_member_exists(channel_details, user2)
+    check_if_member_exists(channel_details, user3)
+    check_if_member_exists(channel_details, user4)
+    check_if_member_exists(channel_details, user5)
 
+    data.clear_data()
+    
+def test_channel_invite_self_invite():
+    user1 = auth.auth_register("ezmoney@gmail.com", "$$$$$$", "ez", "money")
+    new_channel = channels.channels_create(user1["token"], "temp_channel", False) 
+    #expected to do nothing
+    channel.channel_invite(user1["token"], new_channel, user1["u_id"]) 
+    channel_details = channel.channel_details(user1["token"], new_channel)
+    check_if_member_exists(channel_details, user1)  
+    
+    data.clear_data()
+    
+def test_channel_invite_existing_member():
+    user1 = auth.auth_register("rickymai@gmail.com","rm123","Ricky","Mai")
+    user2 = auth.auth_register("lucyjang@gmail.com","lj123","Lucy","Jang")
+    new_channel = channels.channels_create(user1["token"], "temp_channel", False) 
+    channel.channel_invite(user1["token"], new_channel, user2["u_id"]) 
+    #expected to do nothing
+    channel.channel_invite(user2["token"], new_channel, user1["u_id"]) 
+    channel_details = channel.channel_details(user1["token"], new_channel)
+    check_if_member_exists(channel_details, user1)  
+    check_if_member_exists(channel_details, user2) 
+    
+    data.clear_data()
+    
+#UNSUCCESSFUL    
+def test_channel_invite_invalid_token():
+    user1 = auth.auth_register("kevin.huang@gmail.com","nice","Kevin","Huang")
+    user2 = auth.auth_register("rickymai@gmail.com","rm123","Ricky","Mai")
+    new_public_channel = channels.channels_create(user1["token"], "temp_channel", False) 
+    with pytest.raises(AccessError) as e:
+        channel.channel_invite("invalid_token", new_public_channel, user2["u_id"])
+        
+    user3 = auth.auth_register("eddyisgay@gmail.com","eddygay","eddy","gay")
+    user4 = auth.auth_register("elliotrotenstein@gmail.com","er123","Elliot","Rotenstein")
+    new_private_channel = channels.channels_create(user3["token"], "temp_channel", True) 
+    with pytest.raises(AccessError) as e:
+        channel.channel_invite("another_invalid_token", new_private_channel, user4["u_id"])
+    
+    data.clear_data()
 
 def test_channel_invite_invalid_channel_id():
+    user1 = auth.auth_register("best_group123@gmail.com", "awesome", "best", "group")
+    user2 = auth.auth_register("elliotrotenstein@gmail.com","er123","Elliot","Rotenstein")
+    new_channel = channels.channels_create(user1["token"], "temp_channel", False) 
+    invalid_channel_id = 123456789 
+    with pytest.raises(InputError) as e:
+        channel.channel_invite(user1["token"], invalid_channel_id, user2["u_id"])
 
-
-
-def test_channel_invite_valid_u_id():
-
-
-
+    data.clear_data()
+    
 def test_channel_invite_invalid_u_id():
+    user1 = auth.auth_register("elliotrotenstein@gmail.com","er123","Elliot","Rotenstein")
+    user2 = auth.auth_register("hugosullivan@gmail.com","hs123","Hugo","Sullivan")
+    invalid_u_id = -123456789
+    new_channel = channels.channels_create(user1["token"], "temp_channel", False)
+    with pytest.raises(InputError) as e:
+        channel.channel_invite(user1["token"], new_channel, invalid_u_id)
+    
+    data.clear_data()
 
-
-
-def test_channel_invite_self_invite():
-
-
-def test_channel_invite_member_already_added():
 
 
 
@@ -64,7 +187,18 @@ def test_channel_invite_member_already_added():
    6 invalid u_id
    invite person whos already in channel  #invalid
    invites yourself #invalid
+   
+    mem = None
+    for member in check_members.all_members:
+        if member["u_id"] == user2["u_id"]:
+            mem = member            
+    assert(mem is not None)
     
+    
+   assumptions:
+   all existing members can invite other members
+   inviting self does nothing
+   inviting existing member does nothing
 
     
    """

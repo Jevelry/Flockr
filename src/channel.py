@@ -1,4 +1,58 @@
+import data
+from error import AccessError
+from error import InputError
+import auth
+import channels
+
+# Used in channel_invite
+# Check if token is valid and if user is authorised user
+def valid_token(token,channel_id):
+    u_id = None
+    # Check valid token, take u_id
+    for user in data.logged_in:
+        if user["token"] == token:
+            u_id = user["u_id"]
+    if u_id = None:
+        return False
+    # Check if user is existing member of channel
+    for user in data.users:
+        if user["u_id"] == u_id:
+            for channel in user[channel_list]:
+                if channel["channel_id"] == channel_id
+                return True
+            return False
+            
+
+# Used in channel_invite
+# Check if valid channel id
+def valid_channel_id(channel_id):
+    for channel in data.channels:
+        if channel["channel_id"] == channel_id
+            return True
+    return False
+
+
+
+# Used in channel_invite
+# Check if valid u_id of invitee
+def valid_u_id(u_id):
+    
+
+
+
 def channel_invite(token, channel_id, u_id):
+    
+    
+    
+
+
+
+
+
+
+
+
+
     return {
     }
 
