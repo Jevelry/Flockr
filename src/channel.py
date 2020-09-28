@@ -12,14 +12,14 @@ def valid_token(token, channel_id):
     for user in data.data["logged_in"]:
         if user["token"] == token:
             u_id = user["u_id"]
-    if u_id = None:
+    if u_id == None:
         return False
     # Check if user is existing member of channel
     for user in data.data["users"]:
         if user["u_id"] == u_id:
             for channel in user["channel_list"]:
-                if channel["channel_id"] == channel_id
-                return True
+                if channel["channel_id"] == channel_id:
+                    return True
             return False
             
 
@@ -27,7 +27,7 @@ def valid_token(token, channel_id):
 # Check if valid channel id
 def valid_channel_id(channel_id):
     for channel in data.data["channels"]:
-        if channel["channel_id"] == channel_id
+        if channel["channel_id"] == channel_id:
             return True
     return False
 
@@ -62,8 +62,8 @@ def channel_invite(token, channel_id, u_id):
     if not valid_u_id(u_id):
         raise InputError
     # Check if invitee is already part of channel. If so, do nothing    
-    if is_existing_channel_member(u_id, channel_id)
-        return{
+    if is_existing_channel_member(u_id, channel_id):
+        return {
         }    
     # Everything valid, Proceed with adding to channel
     for channel in data.data["channels"]:
@@ -72,11 +72,8 @@ def channel_invite(token, channel_id, u_id):
             
     for user in data.data["users"]:
         if user["u_id"] == u_id:
-            user["channel_list"].append(channel_id
-
-    return {
-    }
-
+            user["channel_list"].append(channel_id)
+            
 def channel_details(token, channel_id):    
     # Check if given valid channel_id
     if not valid_channel_id(channel_id):
@@ -91,7 +88,7 @@ def channel_details(token, channel_id):
     ]
     # Find channel and copy infomation into channel_details
     for channel in data.data["channels"]:
-        if channel["channel_id"] == channel_id
+        if channel["channel_id"] == channel_id:
             channel_details["name"] = channel["name"]
             channel_details["owner_members"] = channel["owners"]
             channel_details["all_members"] = channel["members"]
