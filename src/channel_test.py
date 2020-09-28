@@ -319,6 +319,52 @@ def test_channel_details_unauthorised_user:
    """
 
 #**************************************************************************************
+def 
+
+def test_channel_leave_valid():
+	user1 = auth.auth_register("lucyjang@gmail.com", "lucyj123", "Lucy", "Jang")
+	user2 = auth.auth_register("validuser@gmail.com", "vu123", "Kevin", "Huang")
+	new_channel = channels.channels_create(user1["token"], "test channel", True)
+	
+	channel.channel_leave(user1["token"], channel_id)
+	channel.channel_leave(user2["token"], channel_id)
+	list_result1 = channels.channels_list(user1["token"])
+	list_result2 = channels.channels_list(user2["token"])
+	
+	assert len(list_result1) == 0 
+	assert len(list_result2) == 0
+	
+	
+	
+def test_channel_leave_invalid():
+	user1 = auth.auth_register("lucyjang@gmail.com", "lucyj123", "Lucy", "Jang")
+	new_channel = channels.channels_create(user1["token"], "test channel", True)
+	assert with pytest.raises(InputError) as e:
+	    channel.channel_leave(user1["token"],invalid_channel_id)
+	    list_result = channels.channels_list([user1["token"], channel_id)
+	    
+	assert len(list_result) != invalid_channel_id
+	    
+	    
+def test_channel_leave_not_existing():
+    user1 = auth.auth_register("lucyjang@gmail.com", "lucyj12", "Lucy", "Jang")
+    new_channel = channels.channels_create(user1["token"], "test channel", True)
+    
+    channel.channel_leave(user1["token"], new_channel['channel_id'])
+    
+    with pytest.raises(AccessError):
+        channel.channel_leave(user1["token"], new_channel['channel_id'])
+    
+    
+def test_channel_leave_invalid_token():
+    user1 = auth.auth_register("lucyjang@gmail.com", "lucyj12", "Lucy", "Jang")
+    user2 = auth.auth_register("validuser@gmail.com", "vu123", "Mike", "Wazowski")
+    new_channel = channels.channels_create(user1["token"], "test channel", True)
+    
+    with pytest.raises(AccessError) as e:
+        channel.channel_leave(user1["token"], new_channel)
+    
+#**************************************************************************************
 #Checks a token with authority can join a channel
 def test_channel_join_valid():
     user_channel_creater = auth.auth_register('creator@bigpond.com', 'password', 'Quick', 'Shadow')
