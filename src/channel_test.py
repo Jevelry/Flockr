@@ -354,6 +354,7 @@ def test_channel_join_valid():
         if member["u_id"] == test_user3["u_id"]:
             member1 = member            
     assert(member3 is not None)
+    data.clear_data()
 
 #test for an invalid channel id
 def test_channel_join_invalid_channel():
@@ -362,6 +363,7 @@ def test_channel_join_invalid_channel():
         channel.channel_join(test_user1["token"],invalid_channel_id)
     list_result1 = channels.channels_list(test_user1['token'])
     assert list_result1[0] != invalid_channel_id
+    data.clear_data()
 
 
 #test for an invalid token
@@ -372,6 +374,7 @@ def test_channel_join_invalid_token():
     test_channel_private = channels.channels_create(user_channel_creater['token'] ,'test_channel_id1', False)
     with pytest.raises(AccessError) as e:
         channel.channel_join(test_user1['token'],test_channel_private)
+    data.clear_data()
 
 #tests that an error will appear if the user is already in the channel
 def test_channel_join_invalid_user():
@@ -381,6 +384,7 @@ def test_channel_join_invalid_user():
     channel.channel_join(test_user1['token'],test_channel_id)
     with pytest.raises(InputError) as e:
         channel.channel_join(test_user1['token'],test_channel_id)
+    data.clear_data()
 
 #tests the function works when the conditions are valid
 def test_channel_addowner_valid():
@@ -410,6 +414,7 @@ def test_channel_addowner_valid():
         if member["u_id"] == test_user3["u_id"]:
             member3 = member            
     assert(member3 is not None)
+    data.clear_data()
 
 #Tests that an input error occurs when the member is already an owner
 def channel_addowner_invalid_owner():
@@ -420,6 +425,7 @@ def channel_addowner_invalid_owner():
     channel.channel_addowner(user_channel_creater['token'],test_channel_private,test_user['u_id'])
     with pytest.raises(InputError) as e:
         channel.channel_addowner(user_channel_creater['token'],test_channel_private,test_user['u_id'])
+    data.clear_data()
 
 #Tests the user becoming an owner must be in the channel
 def channel_addowner_invalid_channel():
@@ -428,6 +434,7 @@ def channel_addowner_invalid_channel():
     test_channel_private = channels.channels_create(user_channel_creater['token'] ,'test_channel_id', False)
     with pytest.raises(InputError) as e:
         channel.channel_addowner(user_channel_creater['token'],test_channel_private,test_user['u_id'])
+    data.clear_data()
 
 
 #Tests the token adding the owner must be in the channel
@@ -439,6 +446,7 @@ def channel_addowner_invalid_owner_not_in_channel():
     channel.channel_invite(user_channel_creater['token'],test_channel_private,test_user['u_id'])
     with pytest.raises(AccessError) as e:
         channel.channel_addowner(invalid_channel_creater['token'],test_channel_private,test_user['u_id'])
+    data.clear_data()
 
 #Tests the token adding the owner must be an owner
 def channel_addowner_invalid_owner_not_owner():
@@ -450,6 +458,7 @@ def channel_addowner_invalid_owner_not_owner():
     channel.channel_invite(user_channel_creater['token'],test_channel_private,invalid_channel_creater['u_id'])
     with pytest.raises(AccessError) as e:
         channel.channel_addowner(invalid_channel_creater['token'],test_channel_private,test_user['u_id'])
+    data.clear_data()
 
 #Tests the function works when the conditions are valid
 def test_channel_removeowner_valid():
@@ -482,6 +491,7 @@ def test_channel_removeowner_valid():
         if member["u_id"] == test_user3["u_id"]:
             member3 = member            
     assert(member3 is None)
+    data.clear_data()
 
 #Test removing an owner that is just a member
 def channel_removeowner_invalid_owner():
@@ -491,6 +501,7 @@ def channel_removeowner_invalid_owner():
     channel.channel_invite(user_channel_creater['token'],test_channel_private,test_user['u_id'])
     with pytest.raises(InputError) as e:
         channel.channel_removeowner(user_channel_creater['token'],test_channel_private,test_user['u_id'])
+    data.clear_data()
 
 #Below this needs to be changed
 #Tests the user being removed from the being an owner must be in the channel
@@ -500,6 +511,7 @@ def channel_removeowner_invalid_channel():
     test_channel_private = channels.channels_create(user_channel_creater['token'] ,'test_channel_id', False)
     with pytest.raises(InputError) as e:
         channel.channel_removeowner(user_channel_creater['token'],test_channel_private,test_user['u_id'])
+    data.clear_data()
 
 #Tests that the token being used to remove member an owner is from someone in the channel
 def channel_removeowner_invalid_owner_not_in_channel():
@@ -511,6 +523,7 @@ def channel_removeowner_invalid_owner_not_in_channel():
     channel.channel_addowner(user_channel_creater['token'],test_channel_private,test_user['u_id'])
     with pytest.raises(AccessError) as e:
         channel.channel_addowner(invalid_channel_creater['token'],test_channel_private,test_user['u_id'])
+    data.clear_data()
 
 #Tests that the token being used to remove the member an owner is from someone in the channel and is a owner
 def channel_removeowner_invalid_owner_not_owner():
@@ -523,6 +536,7 @@ def channel_removeowner_invalid_owner_not_owner():
     channel.channel_addowner(user_channel_creater['token'],test_channel_private,test_user['u_id'])
     with pytest.raises(AccessError) as e:
         channel.channel_addowner(invalid_channel_creater['token'],test_channel_private,test_user['u_id'])
+    data.clear_data()
 
 
 
