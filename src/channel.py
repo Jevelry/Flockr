@@ -40,7 +40,8 @@ def valid_u_id(u_id):
         if user["u_id"] == u_id:
             return True
         return False
-                
+# Used in channel_invite
+# Check if invitee is already part of channel                 
 def is_existing_channel_member(u_id, channel_id):
     for user in data.data["users"]:
         if user["u_id"] == u_id:
@@ -52,7 +53,7 @@ def is_existing_channel_member(u_id, channel_id):
 
 def channel_invite(token, channel_id, u_id):
     # Check if given valid channel_id
-    if not valid_channel_id(token, channel_id):
+    if not valid_channel_id(channel_id):
         raise InputError
     # Check if token is valid and user is authorised(member of channel)    
     if not valid_token(token, channel_id):
@@ -60,11 +61,10 @@ def channel_invite(token, channel_id, u_id):
     # Check if given valid u_id    
     if not valid_u_id(u_id):
         raise InputError
-    # Check if invitee is already part of channel    
+    # Check if invitee is already part of channel. If so, do nothing    
     if is_existing_channel_member(u_id, channel_id)
         return{
-        }
-    
+        }    
     # Everything valid, Proceed with adding to channel
     for channel in data.data["channels"]:
         if channel["channel_id"] == channel_id:
@@ -77,24 +77,26 @@ def channel_invite(token, channel_id, u_id):
     return {
     }
 
-def channel_details(token, channel_id):
-    return {
-        'name': 'Hayden',
-        'owner_members': [
-            {
-                'u_id': 1,
-                'name_first': 'Hayden',
-                'name_last': 'Jacobs',
-            }
-        ],
-        'all_members': [
-            {
-                'u_id': 1,
-                'name_first': 'Hayden',
-                'name_last': 'Jacobs',
-            }
-        ],
-    }
+def channel_details(token, channel_id):    
+    # Check if given valid channel_id
+    if not valid_channel_id(channel_id):
+        raise InputError
+    # Check if token is valid and user is authorised(member of channel)        
+    if not valid_token(token, channel_id):
+        raise AccessError
+    # Everything valid, Proceed with getting details
+    channel_details = [
+        {
+        }
+    ]
+    # Find channel and copy infomation into channel_details
+    for channel in data.data["channels"]:
+        if channel["channel_id"] == channel_id
+            channel_details["name"] = channel["name"]
+            channel_details["owner_members"] = channel["owners"]
+            channel_details["all_members"] = channel["members"]
+    
+    return channel_details
 
 def channel_messages(token, channel_id, start):
     return {
