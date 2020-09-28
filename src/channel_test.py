@@ -18,30 +18,30 @@ def check_if_member_exists(channel_details, user):
 #Channel_invite tests
 #Successful
 def test_channel_invite_valid_token():
-    user1 = auth.auth_register("best_group123@gmail.com", "awesome", "best", "group")
+    VALID_token = auth.auth_register("best_group123@gmail.com", "awesome", "best", "group")
     user2 = auth.auth_register("bestest_group123@gmail.com", "awesome", "best", "group")
-    new_channel = channels.channels_create(user1["token"], "temp_channel", False) 
-    channel.channel_invite(user1["token"], channel_id, user2["u_id"])    
-    channel_details = channel.channel_details(user1["token"], new_channel)
+    new_channel = channels.channels_create(VALID_token["token"], "temp_channel", False) 
+    channel.channel_invite(VALID_token["token"], new_channel, user2["u_id"])    
+    channel_details = channel.channel_details(VALID_token["token"], new_channel)
     check_if_member_exists(channel_details, user2)
     
     data.clear_data()
     
 def test_channel_invite_valid_channel_id():
-    user1 = auth.auth_register("best_group123@gmail.com", "awesome", "best", "group")
-    user2 = auth.auth_register("bestest_group123@gmail.com", "awesome", "best", "group")
+    user1 = auth.auth_register("polarbae23@gmail.com", "grrr", "polar", "bae")
+    user2 = auth.auth_register("wsadwert@yahoo.com", "egegeg", "wsad", "wert")
     VALID_channel_id = channels.channels_create(user1["token"], "temp_channel", False) 
-    channel.channel_invite(user1["token"], channel_id, user2["u_id"])
+    channel.channel_invite(user1["token"], VALID_channel_id, user2["u_id"])
     channel_details = channel.channel_details(user1["token"], VALID_channel_id)
     check_if_member_exists(channel_details, user2)
 
     data.clear_data()
     
 def test_channel_invite_valid_u_id():
-    user1 = auth.auth_register("best_group123@gmail.com", "awesome", "best", "group")
-    valid_u_id = auth.auth_register("bestest_group123@gmail.com", "awesome", "best", "group")
+    user1 = auth.auth_register("i<3unsw@unsw.edu.au", "unsw", "love", "UNSW")
+    valid_u_id = auth.auth_register("i<3usyd@usyd.edu.au", "sydney", "love", "usyd")
     new_channel = channels.channels_create(user1["token"], "temp_channel", False) 
-    channel.channel_invite(user1["token"], channel_id, valid_u_id["u_id"])
+    channel.channel_invite(user1["token"], new_channel, valid_u_id["u_id"])
     channel_details = channel.channel_details(user1["token"], new_channel)
     check_if_member_exists(channel_details, valid_u_id)    
     
