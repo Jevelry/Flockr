@@ -55,6 +55,6 @@ def channels_create(token, name, is_public):
         channel_copy = new_channel.copy()
         data.data['channels'].append(channel_copy)
 
-    return {
-        'channel_id': new_channel['channel_id'],
-    }
+        return {
+            'channel_id': new_channel['channel_id'],
+        }
