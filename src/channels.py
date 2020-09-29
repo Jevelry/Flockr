@@ -40,6 +40,7 @@ def channels_create(token, name, is_public):
             'state' : is_public,
             'owners' : [u_id],
         }
-        data.data['channels'].append(new_channel)
+        channel_copy = new_channel.copy()
+        data.data['channels'].append(channel_copy)
 
     return {'is_success' : True}
