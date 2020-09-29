@@ -111,6 +111,26 @@ def channel_messages(token, channel_id, start):
     }
 
 def channel_leave(token, channel_id):
+    # Check if given valid channel_id
+    if not valid_channel_id(channel_id):
+        raise InputError
+    # Check if token is valid and user is authorised(member of channel)        
+    if not valid_token(token, channel_id):
+        raise AccessError
+    # Everything valid, Proceed with leaving channel
+    # Find user and take u_id
+    for user in data.data["logged_in"]:
+        if user["token"] == token:
+            u_id = user["u_id"]
+            
+    for channel in data.data["channels"]:
+        if channel["channel_id"] == channel_id:
+            channel["owners"].remove(u_id)
+            channel["members"].remove(u_id)
+    for user in data.data["users"]:
+        if user["u_id"] == u_id:
+            user["channel_list"].remove(channel_id)
+                   
     return {
     }
 
