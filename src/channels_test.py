@@ -40,10 +40,10 @@ def test_channels_listall():
     channel.channel_join(user2['token'], ' my_channel')
     channels.channels_create(user2['token'], 'our_channel', True)
     list_result2 = channels.channels_listall(user2['token'])
-    assert list_result2['channels'][0]['channel_id'] == 1
-    assert list_result2['channels'][0]['name'] == 'my_channel'
-    assert list_result2['channels'][1]['channel_id'] == 2
-    assert list_result2['channels'][1]['name'] == 'our_channel'
+    assert list_result2[0]['channel_id'] == 1
+    assert list_result2[0]['name'] == 'my_channel'
+    assert list_result2[1]['channel_id'] == 2
+    assert list_result2[1]['name'] == 'our_channel'
     
     data.clear_data()
 

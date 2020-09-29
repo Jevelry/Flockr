@@ -10,12 +10,18 @@ def channels_list(token):
         for channel in data.data['channels']:
             for k in range(len(channel['owners'])):
                 if channel['owners'][k] == u_id:
-                    channel_copy = channel.copy()
+                    channel_copy = {
+                        'channel_id' : channel['channel_id']
+                        'name' : channel['name']
+                    }
                     channels_list.append(channel_copy)
         
             for l in range(len(channel['members'])):
                 if channel['members'][l] == u_id:
-                    channel_copy = channel.copy()
+                    channel_copy = {
+                        'channel_id' : channel['channel_id']
+                        'name' : channel['name']
+                    }
                     channels_list.append(channel_copy)
 
     for channel in channels_list:
@@ -24,10 +30,16 @@ def channels_list(token):
     return channels_list
  
 def channels_listall(token):
+    channels_list = []
+    
     for channel in data.data['channels']:
+        channel_copy = {
+            'channel_id' : channel['channel_id']
+            'name' : channel['name']
+        }
         print(channel)
     
-    return data.data['channels']
+    return channels_list
 
 def channels_create(token, name, is_public):
     for user in data.data['logged_in']:
@@ -43,4 +55,6 @@ def channels_create(token, name, is_public):
         channel_copy = new_channel.copy()
         data.data['channels'].append(channel_copy)
 
-    return {'is_success' : True}
+    return {
+        'channel_id': new_channel['channel_id'],
+    }
