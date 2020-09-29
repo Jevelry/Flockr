@@ -12,8 +12,8 @@ def test_channels_list():
     user = auth.auth_register('testmail@gmail.com', 'password', 'first_name', 'last_name')
     channels.channels_create(user['token'], 'test_channel', True)
     list_result = channels.channels_list(user['token'])
-    assert list_result[0]['channel_id'] == 1
-    assert list_result[0]['name'] == 'test_channel'
+    assert list_result[0][0]['channel_id'] == 1
+    assert list_result[0][0]['name'] == 'test_channel'
 
     user2 = auth.auth_register('another_test@hotmail.com', 'password123', 'first_name', 'last_name')
     channels.channels_create(user2['token'], 'test_channel_two', True)
