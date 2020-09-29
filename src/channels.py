@@ -8,13 +8,13 @@ def channels_list(token):
             u_id = user['u_id']
 
         for channel in data.data['channels']:
-            for owner_u_id in channel['owners']:
-                if owner_u_id == u_id:
+            for k in range(len(channel['owners'])):
+                if channel['owners'][k] == u_id:
                     channel_copy = channel.copy()
                     channels_list.append(channel_copy)
         
-            for member_u_id in channel['members']:
-                if member_u_id == u_id:
+            for l in range(len(channel['members'])):
+                if channel['members'][l] == u_id:
                     channel_copy = channel.copy()
                     channels_list.append(channel_copy)
 
