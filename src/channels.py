@@ -5,7 +5,7 @@ def channels_list(token):
 
     for user in data.data['logged_in']:
         if user['token'] == token:
-            u_id = user['u_id']
+            global u_id = user['u_id']
 
     for channel in data.data['channels']:
         for owner_u_id in channel['owners']:
@@ -30,7 +30,7 @@ def channels_listall(token):
 def channels_create(token, name, is_public):
     for user in data.data['logged_in']:
         if user['token'] == token:
-            u_id = user['u_id']
+            global u_id = user['u_id']
     
     new_channel = {
         'channel_id' : (len(data.data['channels']) + 1),
