@@ -11,16 +11,16 @@ def channels_list(token):
             for k in range(len(channel['owners'])):
                 if channel['owners'][k] == u_id:
                     channel_copy = {
-                        'channel_id' : channel['channel_id']
-                        'name' : channel['name']
+                        'channel_id' : channel['channel_id'],
+                        'name' : channel['name'],
                     }
                     channels_list.append(channel_copy)
         
             for l in range(len(channel['members'])):
                 if channel['members'][l] == u_id:
                     channel_copy = {
-                        'channel_id' : channel['channel_id']
-                        'name' : channel['name']
+                        'channel_id' : channel['channel_id'],
+                        'name' : channel['name'],
                     }
                     channels_list.append(channel_copy)
 
@@ -31,11 +31,11 @@ def channels_list(token):
  
 def channels_listall(token):
     channels_list = []
-    
+
     for channel in data.data['channels']:
         channel_copy = {
-            'channel_id' : channel['channel_id']
-            'name' : channel['name']
+            'channel_id' : channel['channel_id'],
+            'name' : channel['name'],
         }
         print(channel)
     
