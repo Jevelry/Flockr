@@ -273,6 +273,7 @@ def test_channel_details_multiple_members():
     assert channel_details["all_members"] == all_members
     
 def test_channel_details_multiple_owners_and_members():
+    pass
 # Unsuccessful
 def test_channel_details_invalid_token():
     data.clear_data()
