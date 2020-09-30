@@ -162,6 +162,31 @@ def channel_leave(token, channel_id):
     return {
     }
 
+#Will take a token and return the id
+def token_to_id(token):
+    for user in data.data["logged_in"]:
+        if user["token"] == token:
+            return user["u_id"]
+    raise AccessError
+    break
+
+#Will determine if someone is a member of a given channel
+def is_channel_member(user_id,channel_id):
+    for channel in data.data["channels"]:
+        if channel["channel_id"] == channel_id:
+            for member in channel["members"]:
+                if member == user_id:
+                    return True
+    return False
+
+def is_channel_owner(user_id,channel_id):
+    for channel in data.data["channels"]:
+        if channel["channel_id"] == channel_id:
+            for owner in channel["owners"]:
+                if owner == user_id:
+                    return True
+    return False
+
 def channel_join(token, channel_id):
     """
     Given a channel_id of a channel that the authorised user can join, 
@@ -174,8 +199,30 @@ def channel_join(token, channel_id):
     Returns:
         Nothing
     """  
-    return {
-    }
+    user_id = token_to_id(token)
+    
+    #Checks the person wasn't already in the channel
+    if is_channel_member(user_id, channel_id):
+        raise InputError
+        return
+    
+    #Checks the channel is public and adds the user to the members
+    for channel in data.data["channels"]:
+        if channel["channel_id"] == channel_id:
+            if channel["state"] == "public":
+                channel["members"].append(user_id)
+            else:
+                raise AccessInput
+                return
+    
+    #Puts the channel in the users channels
+    for user in data.data["user"]:
+        if user["u_id"] == user_id:
+            user["channel_list"].append(channel_id)
+    
+    return
+    
+
 
 def channel_addowner(token, channel_id, u_id):
     """
@@ -189,8 +236,24 @@ def channel_addowner(token, channel_id, u_id):
     Returns:
         Nothing
     """  
-    return {
-    }
+    owner_id = token_to_id(token)
+    
+    #checks the owner is an owner of the channel
+    if not is_channel_owner(owner_id, channel_id):
+        raise AccessError
+        return
+    
+    #checks the member is a member of the channel
+    if not is_channel_member(u_id, channel_id):
+        raise InputError
+        return
+    
+    #Will change the u_id from member to owner
+    for channel in data.data["channels"]:
+        if channel["channel_id"] == channel_id:
+            channel["members"].remove(u_id)
+            channel["owners"].append(u_id)
+    return 
 
 def channel_removeowner(token, channel_id, u_id):
     """
@@ -204,5 +267,21 @@ def channel_removeowner(token, channel_id, u_id):
     Returns:
         Nothing
     """  
-    return {
-    }
+    owner_id = token_to_id(token)
+    
+    #checks the owner is an owner of the channel
+    if not is_channel_owner(owner_id, channel_id):
+        raise AccessError
+        return
+    
+    #checks the u_id is a member of the channel
+    if not is_channel_owner(u_id, channel_id):
+        raise InputError
+        return
+    
+    #Will change the u_id from member to owner
+    for channel in data.data["channels"]:
+        if channel["channel_id"] == channel_id:
+            channel["members"].append(u_id)
+            channel["owners"].remove(u_id)
+    return 
