@@ -18,9 +18,9 @@ def valid_token(token, channel_id):
     for user in data.data["users"]:
         if user["u_id"] == u_id:
             for channel in user["channel_list"]:
-                if channel["channel_id"] == channel_id:
+                if channel == channel_id:
                     return True
-            return False
+    return False
             
 # Check if valid channel id given
 def valid_channel_id(channel_id):
@@ -34,7 +34,7 @@ def valid_u_id(u_id):
     for user in data.data["users"]:
         if user["u_id"] == u_id:
             return True
-        return False
+    return False
 
 # Check if invitee is already part of channel                 
 def is_existing_channel_member(u_id, channel_id):
@@ -103,16 +103,33 @@ def channel_details(token, channel_id):
     if not valid_token(token, channel_id):
         raise AccessError
     # Everything valid, Proceed with getting details
-    channel_details = [
-        {
-        }
-    ]
-    # Find channel and copy infomation into channel_details
+    channel_details = {
+        "name" : "",
+        "owner_members" : [],
+        "all_members" : []
+    }
+
+    # Find channel and copy infomation into channel_details    
     for channel in data.data["channels"]:
         if channel["channel_id"] == channel_id:
             channel_details["name"] = channel["name"]
-            channel_details["owner_members"] = channel["owners"]
-            channel_details["all_members"] = channel["members"]
+            for u_id in channel["owners"]:  
+                for user in data.data["users"]:
+                    owner = {}
+                    if user["u_id"] == u_id:
+                        owner["u_id"] = u_id
+                        owner["name_first"] = user["first"]
+                        owner["name_last"] = user["last"]
+                        channel_details["owner_members"].append(owner)
+                        
+            for u_id in channel["members"]:  
+                for user in data.data["users"]:
+                    member = {}
+                    if user["u_id"] == u_id:
+                        member["u_id"] = u_id
+                        member["name_first"] = user["first"]
+                        member["name_last"] = user["last"]
+                        channel_details["all_members"].append(member)                               
     
     return channel_details
 
