@@ -78,20 +78,12 @@ def test_channels_create_name_error():
     
     user = auth.auth_register('testmail123@gmail.com', 'passwordpass', 'first_name', 'last_name')
     user = auth.auth_login('testmail123@gmail.com', 'passwordpass')
-    channels.channels_create(user['token'], 'test_name_12345678910x', True)
-    list_result = channels.channels_list(user['token'])
-    assert list_result[0]['channel_id'] == 1
-
     with pytest.raises(InputError) as e:
-        assert len(list_result[0]['name']) > 20
+        assert channels.channels_create(user['token'], 'test_name_12345678910x', True)
 
     user2 = auth.auth_register('mailtest123@gmail.com', 'passwpassword', 'first_name', 'last_name')
     user2 = auth.auth_login('mailtest123@gmail.com', 'passwpassword')
-    channels.channels_create(user2['token'], 'test_name_0987654321x', False)
-    list_result2 = channels.channels_list(user2['token'])
-    assert list_result2[0]['channel_id'] == 2
-
     with pytest.raises(InputError) as e:
-        assert len(list_result2[0]['name']) > 20
+        assert channels.channels_create(user2['token'], 'test_name_0987654321x', False)
 
     data.clear_data()
