@@ -143,7 +143,7 @@ def auth_register(email, password, name_first, name_last):
     # Log user in.
     data.data['logged_in'].append({
         'token' : email,
-        'u_id' : user['u_id']
+        'u_id' : new['u_id']
     })
 
     return {
