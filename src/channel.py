@@ -244,6 +244,10 @@ def channel_addowner(token, channel_id, u_id):
     if not is_channel_member(u_id, channel_id):
         raise InputError
     
+    #checks the member is not an owner
+    if is_channel_owner(u_id, channel_id):
+        raise InputError
+    
     #Will change the u_id from member to owner
     for channel in data.data["channels"]:
         if channel["channel_id"] == channel_id:
