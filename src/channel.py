@@ -97,7 +97,55 @@ def channel_details(token, channel_id):
     }
 
 def channel_messages(token, channel_id, start):
-    return {
+    """
+    Given a Channel with ID channel_id that the authorised user is part of, 
+    return up to 50 messages between index "start" and "start + 50". Message 
+    with index 0 is the most recent message in the channel. This function 
+    returns a new index "end" which is the value of "start + 50", or, if this 
+    function has returned the least recent messages in the channel, returns -1 
+    in "end" to indicate there are no more messages to load after this return. 
+    
+    Parameters:
+        token(string): an authorisation hash
+        channel_id(int): identifier for channel
+        start(int): index of starting message
+        
+    Returns:
+        (dict): {messages, start, end}
+    """
+    #Check if given valid channel_id
+    if not valid_channel_id(channel_id):
+        raise InputError
+        
+    # Check if token is valid and user is authorised(member of channel)    
+    if not valid_token(token, channel_id):
+        raise AccessError
+        
+    # Proceed to getting messages
+    channel_messages = {
+        "messages" : [],
+        "start" : start,
+        "end": ""
+    }    
+    
+    for channel in data.data["channels"]:
+        if channel["channel_id"] == channel_id:
+			if len(channel["messages"] < start):
+				raise InputError
+            for message_id in channel["messages"][start:start + 50]:
+                message = {}
+                message["message_id"] = start
+                message["u_id"] = message_id["u_id"]
+                message["message"] = message_id["message"]
+                message["time_created"] = message_id["date"]
+                channel_messages["messages"].append(message)
+			if len(channel["messages"]) < start + 50:
+				channel_messages["end"] = -1
+    return channel_messages
+    
+		"""
+  
+    {
         'messages': [
             {
                 'message_id': 1,
@@ -109,6 +157,7 @@ def channel_messages(token, channel_id, start):
         'start': 0,
         'end': 50,
     }
+"""
 
 def channel_leave(token, channel_id):
     # Check if given valid channel_id
