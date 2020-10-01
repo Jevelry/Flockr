@@ -140,6 +140,12 @@ def auth_register(email, password, name_first, name_last):
     new['handle'] = generate_handle(name_first, name_last)
     data.data['users'].append(new)
 
+    # Log user in.
+    data.data['logged_in'].append({
+        'token' : email,
+        'u_id' : user['u_id']
+    })
+
     return {
         'u_id' : new['u_id'],
         'token': new['email']
