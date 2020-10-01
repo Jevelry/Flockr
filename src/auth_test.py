@@ -8,22 +8,25 @@ from error import InputError
 def test_successful_auth_login():
     user = auth.auth_register('snow@white.com', 'dwarves', 'Snow', 'White')
     auth.auth_logout(user['token'])
-    user = auth.auth_login('snow@white.com', 'dwarves')
-    assert user['u_id'] == 1
-    assert user['token'] == 'snow@white.com'
+    user1 = auth.auth_login('snow@white.com', 'dwarves')
 
     user = auth.auth_register('George.Humohrey@bigpond.edu.au', 'washington', 'George', 'Humohrey')
     auth.auth_logout(user['token'])
-    user = auth.auth_login('George.Humohrey@bigpond.edu.au', 'washington')
-    assert user['u_id'] == 2
-    assert user['token'] == 'George.Humohrey@bigpond.edu.au'
+    user2 = auth.auth_login('George.Humohrey@bigpond.edu.au', 'washington')
 
     user = auth.auth_register('Artur.Hawking@bing.edu.au', 'manetherin', 'Artur', 'Hawking')
     auth.auth_logout(user['token'])
-    user = auth.auth_login('Artur.Hawking@bing.edu.au', 'manetherin')
-    assert user['u_id'] == 3
-    assert user['token'] == 'Artur.Hawking@bing.edu.au'
+    user3 = auth.auth_login('Artur.Hawking@bing.edu.au', 'manetherin')
 
+    assert len(user1) == 2
+    assert len(user2) == 2
+    assert len(user3) == 2
+    assert user1['u_id'] != user2['u_id']
+    assert user1['u_id'] != user3['u_id']
+    assert user2['u_id'] != user3['u_id']
+    assert user1['token'] != user2['token']
+    assert user1['token'] != user3['token']
+    assert user2['token'] != user3['token']
     other.clear()
 
 # UNSUCCESSFUL
@@ -68,63 +71,80 @@ def test_incorrect_password_auth_login():
 # test_non_existant_emaiL_auth_login.
 
 
+# AUTH_LOGOUT tests
+# Successful
+def test_successful_auth_logout():
+    user1 = auth.auth_register('hayden@unsw.edu.au', 'fanofnano?', 'Hayden', 'UNSW')
+    logout = auth.auth_logout(user1['token'])
+    assert logout['is_success']
+
+    user2 = auth.auth_register('fruit@salad.edu.au', 'yummyyummy', 'Fruit', 'Salad')
+    logout = auth.auth_logout(user2['token'])
+    assert logout['is_success']
+
+    other.clear()
+
+# Unsuccessful
+def test_unsuccessful_auth_logout():
+    logout = auth.auth_logout('notatoken')
+    assert logout['is_success'] == False
+
+    user1 = auth.auth_register('fruit@salad.edu.au', 'yummyyummy', 'Fruit', 'Salad')
+    logout = auth.auth_logout(user1['u_id'])
+    assert logout['is_success'] == False
+
+    other.clear()
+
 # AUTH_REGISTER tests
 # Successful
 def test_successful_auth_register():
-    user = auth.auth_register('elliot@balgara.com', 'spooky', 'Elliot', 'Rotenstein')
-    assert user['u_id'] == 1
-    assert user['token'] == 'elliot@balgara.com'
-
-    user = auth.auth_register('apple@gmail.com', 'APPLES', 'A', 'Fruit')
-    assert user['u_id'] == 2
-    assert user['token'] == 'apple@gmail.com'
-
-    user = auth.auth_register('pear@yahoo.com', 'prickly', 'Pear', 'Vegetable')
-    assert user['u_id'] == 3
-    assert user['token'] == 'pear@yahoo.com'
+    # user = auth.auth_register('elliot@balgara.com', 'spooky', 'Elliot', 'Rotenstein')
+    # assert user['u_id'] == 1
+    # assert user['token'] == 'elliot@balgara.com'
+    user1 = auth.auth_register('elliot@gmail.com', 'spooky', 'Elliot', 'Robb')
+    user2 = auth.auth_register('apple@gmail.com', 'APPLES', 'A', 'Fruit')
+    user3 = auth.auth_register('pear@yahoo.com', 'prickly', 'Pear', 'Vegetable')
+    assert len(user1) == 2
+    assert len(user2) == 2
+    assert len(user3) == 2
+    assert user1['u_id'] != user2['u_id']
+    assert user1['u_id'] != user3['u_id']
+    assert user2['u_id'] != user3['u_id']
+    assert user1['token'] != user2['token']
+    assert user1['token'] != user3['token']
+    assert user2['token'] != user3['token']
 
     other.clear()
 
 def test_same_names_auth_register():
-    user = auth.auth_register('ben@gmail.com', 'thisisben', 'Ben', 'Batson')
-    assert user['u_id'] == 1
-    assert user['token'] == 'ben@gmail.com'
-
-    user = auth.auth_register('ben1@gmail.com', 'thisisalsoben', 'Ben', 'Batson')
-    assert user['u_id'] == 2
-    assert user['token'] == 'ben1@gmail.com'
-
-    user = auth.auth_register('ben2@gmail.com', 'thistooisben', 'Ben', 'Batson')
-    assert user['u_id'] == 3
-    assert user['token'] == 'ben2@gmail.com'
-
-    user = auth.auth_register('ben3@gmail.com', 'ThirdBenIsACharm', 'Ben', 'Batson')
-    assert user['u_id'] == 4
-    assert user['token'] == 'ben3@gmail.com'
-
-    user = auth.auth_register('ben4@gmail.com', 'ForAllBenKind', 'Ben', 'Batson')
-    assert user['u_id'] == 5
-    assert user['token'] == 'ben4@gmail.com'
-
-    user = auth.auth_register('bentennyson@gmail.com', 'BenTen', 'Ben', 'Batson')
-    assert user['u_id'] == 6
-    assert user['token'] == 'bentennyson@gmail.com'
+    user1 = auth.auth_register('ben@gmail.com', 'thisisben', 'Ben', 'Batson')
+    user2 = auth.auth_register('ben1@gmail.com', 'thisisalsoben', 'Ben', 'Batson')
+    user3 = auth.auth_register('ben2@gmail.com', 'thistooisben', 'Ben', 'Batson')
+    user4 = auth.auth_register('ben3@gmail.com', 'ThirdBenIsACharm', 'Ben', 'Batson')
+    user5 = auth.auth_register('ben4@gmail.com', 'ForAllBenKind', 'Ben', 'Batson')
+    user6 = auth.auth_register('bentennyson@gmail.com', 'BenTen', 'Ben', 'Batson')
+    # Chose random comparisons. Otherwise it'd need 48 asserts (which is un-nessecary)
+    assert user2['u_id'] != user5['u_id']
+    assert user1['u_id'] != user3['u_id']
+    assert user4['u_id'] != user1['u_id']
+    assert user6['u_id'] != user3['u_id'] 
+    assert user2['token'] != user5['token']
+    assert user1['token'] != user3['token']
+    assert user4['token'] != user2['token']
+    assert user6['token'] != user3['token']
 
     other.clear()
 
 def test_same_passwords_auth_register():
-    user = auth.auth_register('hacker@gmail.com', 'password', 'Alfred', 'Hural')
-    assert user['u_id'] == 1
-    assert user['token'] == 'hacker@gmail.com'
-
-    user = auth.auth_register('albert@gmail.com', 'password', 'Albert', 'Einsten')
-    assert user['u_id'] == 2
-    assert user['token'] == 'albert@gmail.com'
-
-    user = auth.auth_register('zaphod@gmail.com', 'password', 'Zaphod', 'Beeblebrox')
-    assert user['u_id'] == 3
-    assert user['token'] == 'zaphod@gmail.com'
-
+    user1 = auth.auth_register('hacker@gmail.com', 'password', 'Alfred', 'Hural')
+    user2 = auth.auth_register('albert@gmail.com', 'password', 'Albert', 'Einsten')
+    user3 = auth.auth_register('zaphod@gmail.com', 'password', 'Zaphod', 'Beeblebrox')
+    assert user1['u_id'] != user2['u_id']
+    assert user1['u_id'] != user3['u_id']
+    assert user2['u_id'] != user3['u_id']
+    assert user1['token'] != user2['token']
+    assert user1['token'] != user3['token']
+    assert user2['token'] != user3['token']
     other.clear()
 
 # Unsuccessful

@@ -91,12 +91,12 @@ def auth_login(email, password):
     # Update global state.
     # Adds user to data['logged_in'].
     data.data['logged_in'].append({
-        'token' : email,
+        'token' : new_email,
         'u_id' : user['u_id']
     })
     return {
         'u_id' : user['u_id'],
-        'token' : email
+        'token' : new_email
     }
 
 
@@ -138,32 +138,24 @@ def auth_register(email, password, name_first, name_last):
     new['password'] = password
     new['email'] = new_email
     new['handle'] = generate_handle(name_first, name_last)
+    if new['u_id'] == 1:
+        new['owner'] = True
+    else:
+        new['owner'] = False
     data.data['users'].append(new)
 
     # Log user in.
     data.data['logged_in'].append({
-        'token' : email,
+        'token' : new_email,
         'u_id' : new['u_id']
     })
 
     return {
         'u_id' : new['u_id'],
-        'token': new['email']
+        'token': new_email
     }
 
 
 if __name__ == '__main__':
-    user = auth_register('snow@white.com', 'dwarves', 'thisaisreallylongname', 'White')
-    for person in data.data['users']:
-        if user['u_id'] == person['u_id']:
-            print(person['handle'])
-
-    user = auth_register('snow1@white.com', 'dwarves', 'Snow', 'White')
-    for person in data.data['users']:
-        if user['u_id'] == person['u_id']:
-            print(person['handle'])
-    
-    user = auth_register('snow45@white.com', 'dwarves', 'Snow', 'White')
-    for person in data.data['users']:
-        if user['u_id'] == person['u_id']:
-            print(person['handle'])
+    creator = auth_register('bechcomber@bigpond.com', 'password', 'Beach', 'Comber')
+    print ('happy')
