@@ -2,7 +2,6 @@ import auth
 import channel
 import channels
 import pytest
-import data
 import other
 from error import InputError
 from error import AccessError
@@ -66,7 +65,7 @@ def test_channels_listall_valid_token():
     assert list_result2[1]['channel_id'] == 2
     assert list_result2[1]['name'] == 'our_channel'
     
-    data.clear_data()
+    other.clear()
 
 # Unsuccessful
 def test_channels_listall_invalid_token():
@@ -83,8 +82,8 @@ def test_channels_listall_invalid_token():
     with pytest.raises(AccessError) as e:
         assert channels.channels_listall('another_invalid_token')
 
-    data.clear_data()
-
+    other.clear()
+    
 # Tests for channels_create:
 # Successful
 def test_channels_create_name_valid():
