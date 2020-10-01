@@ -323,6 +323,7 @@ def test_channel_details_unauthorised_user:
 #Test for valid channel_id
 def test_channel_messages_valid_channel():
     user1 = auth.auth_register("lucyjang@gmail.com", "lucyj123", "Lucy", "Jang")
+    user1 = auth.auth_login("lucyjang@gmail.com", "lucyj123", "Lucy", "Jang")
     user2 = auth.auth_register("monstersinc@gmail.com", "boo123", "James", "Sullivan")
     new_channel = channels.channels_create(user1["token"], "test channel". True)
     
@@ -332,6 +333,7 @@ def test_channel_messages_valid_channel():
 #Test for invalid channel_id 
 def test_channel_messages_invalid_channel():
     user1 = auth.auth_register("monstersinc@gmail.com", "boo123", "Mike", "Wazowski")
+    user1 = auth.auth_login("monstersinc@gmail.com", "boo123", "Mike", "Wazowski")
     new_channel = channels.channels_create(user1["token"], "test channel". True)
     
     invalid_channel_id = 1234
@@ -341,6 +343,7 @@ def test_channel_messages_invalid_channel():
 #Test for invalid start parameter (i.e. start > total number of messages in the channel)    
 def test_channel_messages_invalid_start():
     user1 = auth.auth_register("monstersinc@gmail.com", "boo123", "James", "Sullivan")
+    user1 = auth.auth_login("monstersinc@gmail.com", "boo123", "James", "Sullivan")
     new_channel = channels.channels_create(user1["token"], "test channel". True)
     
     with pytest.raises(InputError) as e:
@@ -350,7 +353,9 @@ def test_channel_messages_invalid_start():
 #Test for when user is not a member of the channel        
 def test_channel_messages_not_member():
     user1 = auth.auth_register("lucyjang@gmail.com", "lucyj123", "Lucy", "Jang")
+    user1 = auth.auth_login("lucyjang@gmail.com", "lucyj123", "Lucy", "Jang")
     user2 = auth.auth_register("monstersinc@gmail.com", "boo123", "James", "Sullivan")
+    user2 = auth.auth_login("monstersinc@gmail.com", "boo123", "James", "Sullivan")
     new_channel = channels.channels_create(user1["token"], "test channel". False)
     
     channel.channel_messages(user1["token"], new_channel["channel_id"], 0) 
@@ -360,7 +365,9 @@ def test_channel_messages_not_member():
 #Test for invalid token
 def test_channel_messages_invalid_token():
     user1 = auth.auth_register("lucyjang@gmail.com", "lucyj12", "Lucy", "Jang")
+    user1 = auth.auth_login("lucyjang@gmail.com", "lucyj12", "Lucy", "Jang")
     user2 = auth.auth_register("validuser@gmail.com", "vu123", "Mike", "Wazowski")
+    user2 = auth.auth_login("validuser@gmail.com", "vu123", "Mike", "Wazowski")
     new_channel = channels.channels_create(user1["token"], "test channel", False)
     
     with pytest.raises(AccessError) as e:
@@ -371,6 +378,8 @@ def test_channel_messages_invalid_token():
 def test_channel_leave_valid():
 	user1 = auth.auth_register("lucyjang@gmail.com", "lucyj123", "Lucy", "Jang")
 	user2 = auth.auth_register("validuser@gmail.com", "vu123", "Kevin", "Huang")
+	user1 = auth.auth_login("lucyjang@gmail.com", "lucyj123", "Lucy", "Jang")
+	user2 = auth.auth_login("validuser@gmail.com", "vu123", "Kevin", "Huang")
 	new_channel = channels.channels_create(user1["token"], "test channel", True)
 	
 	channel.channel_leave(user1["token"], channel_id)
@@ -385,6 +394,7 @@ def test_channel_leave_valid():
 #Test for invalid channel id	
 def test_channel_leave_invalid():
 	user1 = auth.auth_register("lucyjang@gmail.com", "lucyj123", "Lucy", "Jang")
+	user1 = auth.auth_login("lucyjang@gmail.com", "lucyj123", "Lucy", "Jang")
 	new_channel = channels.channels_create(user1["token"], "test channel", True)
 	assert with pytest.raises(InputError) as e:
 	    channel.channel_leave(user1["token"],invalid_channel_id)
@@ -395,6 +405,7 @@ def test_channel_leave_invalid():
 #Test for when trying to leave non existing channel   
 def test_channel_leave_not_existing():
     user1 = auth.auth_register("lucyjang@gmail.com", "lucyj12", "Lucy", "Jang")
+    user1 = auth.auth_login("lucyjang@gmail.com", "lucyj12", "Lucy", "Jang")
     new_channel = channels.channels_create(user1["token"], "test channel", True)
     
     channel.channel_leave(user1["token"], new_channel['channel_id'])
@@ -405,6 +416,7 @@ def test_channel_leave_not_existing():
 #Test for invalid token    
 def test_channel_leave_invalid_token():
     user1 = auth.auth_register("lucyjang@gmail.com", "lucyj12", "Lucy", "Jang")
+    user1 = auth.auth_login("lucyjang@gmail.com", "lucyj12", "Lucy", "Jang")
     user2 = auth.auth_register("validuser@gmail.com", "vu123", "Mike", "Wazowski")
     new_channel = channels.channels_create(user1["token"], "test channel", True)
     
