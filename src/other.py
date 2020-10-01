@@ -1,5 +1,9 @@
+import data
+
 def clear():
-    pass
+    # Keeping everything related to the 
+    # global variable in the same file.
+    data.clear_data()
 
 def users_all(token):
     return {
