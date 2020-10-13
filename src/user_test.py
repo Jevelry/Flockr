@@ -6,7 +6,6 @@
     other(other.py): Gives access to other.clear command
     error(error.py): Gives access to error classes
     user(user.py): Gives access to user functions
-    testing somtrhing
 """
 import pytest
 import auth
@@ -46,15 +45,18 @@ def test_user_profile_request_others():
 
 #Unsuccessful
 def test_user_profile_invalid_token():
-    
-
-
-
-
-
+    user1 = auth.auth_register("kevin.huang@gmail.com", "nice123", "Kevin", "Huang")
+    with pytest.raises(AccessError):
+        assert user.user_profile("invalid_token", user1["u_id"])
+    other.clear()
 
 def test_user_profile_invalid_uid():
-
+    user1 = auth.auth_register("kevin.huang@gmail.com", "nice123", "Kevin", "Huang")
+    invalid_uid = 9
+    with pytest.raises(InputError):
+        assert user.user_profile(user1["token"], invalid_uid)
+    other.clear()
+    
 #USER_PROFILE_SETNAME TESTS
 #SUCCESSFUL
 
