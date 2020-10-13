@@ -6,6 +6,7 @@
     other(other.py): Gives access to other.clear command
     error(error.py): Gives access to error classes
     user(user.py): Gives access to user functions
+    testing somtrhing
 """
 import pytest
 import auth
