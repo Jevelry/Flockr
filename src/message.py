@@ -1,14 +1,22 @@
+"""
+data(data.py): Gives access to global data variable
+error(error.py): Gives access to error classes
+"""
 from error import AccessError, InputError
 import data
-"""
-Replace this with your own docstring.
-I just want to pass pylint
-"""
+
 
 def message_send(token, channel_id, message):
     """
-    Replace this with your own docstring.
-    I just want to pass pylint
+    Adds a new message to the message to the messages in a channel
+
+    Parameters:
+        token(string): An authorisation hash
+        channel_id(string): The channel_id of the channel the message is being added too
+        message(string): The message of the message being added
+
+    Returns:
+        message_id(string): An identifier for the new message
     """
     if len(message) > 1000:
         raise InputError
@@ -94,10 +102,19 @@ def is_channel_member(user_id, channel_id):
 
 #When given the channel id it will create a unique string for the message_id
 def make_message_id(channel_id):
+    """
+    Creates a unique string to be a message_id for a new message
+
+    Parameters:
+        channel_id(string): to find the channel the message is being added to
+        find out how many messages are in the chain
+
+    Returns:
+        A String that is the channel_id + '_' + the number of the new message
+    """
     message_int = 0
     for channel in data.data["channels"]:
         if channel["channel_id"] == channel_id:
             message_int = len(channel['messages']) + 1
-    
-    channel_int = len(data.data['channels'])
-    return str(channel_int) + '_' + str(message_int)
+
+    return str(channel_id) + '_' + str(message_int)
