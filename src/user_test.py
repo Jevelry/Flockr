@@ -34,7 +34,38 @@ def check_name_change(u_id, first, last):
             assert user["first"] == first
             assert user["last"] == last
             break
+
+def check_email_change(u_id, new_email):
+    """
+    Checks if set_email has successfully changed email
+
+    Parameters:
+        user(int): u_id (Identifier for user)
+        new_email: new email
+
+    Returns:
+        Nothing
+    """
+    for user in data.data['users']:
+        if user['u_id'] == u_id:
+            assert user["email"] == new_email
+            break
             
+def check_handle_changed(u_id, new_handle):
+    """
+    Checks if set_handle has successfully changed handle
+
+    Parameters:
+        user(int): u_id (Identifier for user)
+        new_handle: new handle
+
+    Returns:
+        Nothing
+    """
+    for user in data.data['users']:
+        if user['u_id'] == u_id:
+            assert user["handle"] == new_handle
+            break           
             
 #USER_PROFILE TESTS
 #SUCCESSFUL
@@ -170,3 +201,119 @@ def test_user_setname_invalid_lastname():
     other.clear()
 
     
+#USER_PROFILE_SETEMAIL TESTS
+#SUCCESSFUL
+def test_user_setemail_valid_email():
+    """
+    Testing successful uses of user_profile_setemail
+    focusing on valid emails
+    """
+    user1 = auth.auth_register("kevin.huang@gmail.com", "nice123", "Kevin", "Huang")
+    user.user_profile_setemail(user1["token"], "newemail@unsw.edu.au")
+    check_email_change(user1["u_id"], "newemail@unsw.edu.au")
+    other.clear()
+    
+def test_user_setemail_sameemail():
+    """
+    Testing successful uses of user_profile_setemail
+    focusing on using same existing email
+    """
+    user1 = auth.auth_register("kevin.huang@gmail.com", "nice123", "Kevin", "Huang")
+    user.user_profile_setemail(user1["token"], "kevin.huang@gmail.com")
+    #Should do nothing
+    check_email_change(user1["u_id"], "kevin.huang@gmail.com")
+    other.clear()
+    
+#Unsuccessful
+def test_user_setemail_invalid_token():
+    """
+    Testing unsuccessful uses of user_profile_setemail
+    focusing on invalid tokens
+    """
+    user1 = auth.auth_register("kevin.huang@gmail.com", "nice123", "Kevin", "Huang")
+    with pytest.raises(AccessError):
+        assert user.user_profile_setemail("invalid_token", "newemail@unsw.edu.au")
+    other.clear()
+
+
+
+def test_user_setemail_invalid_email():
+    """
+    Testing unsuccessful uses of user_profile_setemail
+    focusing on invalid emails
+    """
+    user1 = auth.auth_register("kevin.huang@gmail.com", "nice123", "Kevin", "Huang")
+    with pytest.raises(InputError):
+        assert user.user_profile_setemail(user1["token"], "thisisaninvalidemail.com")
+        assert user.user_profile_setemail(user1["token"], "invalidemail")
+    other.clear()
+
+
+def test_user_setemail_email_taken():
+    """
+    Testing unsuccessful uses of user_profile_setemail
+    focusing on email already in use
+    """
+    user1 = auth.auth_register("kevin.huang@gmail.com", "nice123", "Kevin", "Huang")
+    auth.auth_register("1531grouptask@hotmail.com","amazingstuff", "onefive", "threeone")
+    with pytest.raises(InputError):
+        assert user.user_profile_setemail(user1["token"], "1531grouptask@hotmail.com")
+    other.clear()
+
+
+#USER_PROFILE_SETHANDLE TESTS
+#SUCCESSFUL
+def test_user_sethandle_valid_handle():
+    """
+    Testing successful uses of user_profile_sethandle
+    focusing on valid handles
+    """
+    user1 = auth.auth_register("kevin.huang@gmail.com", "nice123", "Kevin", "Huang")
+    user.user_profile_sethandle(user1["token"], "newhandle")
+    check_handle_changed(user1["u_id"], "newhandle")
+    other.clear()
+
+def test_user_sethandle_samehandle():
+    """
+    Testing successful uses of user_profile_sethandle
+    focusing on changing to same existing handle
+    """
+    user1 = auth.auth_register("kevin.huang@gmail.com", "nice123", "Kevin", "Huang")
+    user.user_profile_sethandle(user1["token"], "KevinHuang")
+    #Should do nothing
+    check_handle_changed(user1["u_id"], "KevinHuang")
+    other.clear()
+
+#Unsuccessful
+def test_user_sethandle_invalid_token():
+    """
+    Testing unsuccessful uses of user_profile_sethandle
+    focusing on invalid tokens
+    """
+    user1 = auth.auth_register("kevin.huang@gmail.com", "nice123", "Kevin", "Huang")
+    with pytest.raises(AccessError):
+        assert user.user_profile_sethandle("invalid_token", "newhandle")
+    other.clear()
+
+def test_user_sethandle_invalid_handle():
+    """
+    Testing unsuccessful uses of user_profile_sethandle
+    focusing on invalid handles
+    """
+    user1 = auth.auth_register("kevin.huang@gmail.com", "nice123", "Kevin", "Huang")
+    with pytest.raises(InputError):
+        assert user.user_profile_sethandle(user1["token"], "abcdefghijklmnopqrstuvwxyz")
+        assert user.user_profile_sethandle(user1["token"], "me")    
+    other.clear()
+
+def test_user_sethandle_handle_taken(): 
+    """
+    Testing unsuccessful uses of user_profile_sethandle
+    focusing on using existing handle
+    """
+    user1 = auth.auth_register("kevin.huang@gmail.com", "nice123", "Kevin", "Huang")
+    auth.auth_register("1531grouptask@hotmail.com","amazingstuff", "onefive", "threeone")
+    with pytest.raises(InputError):
+        assert user.user_profile_sethandle(user1["token"], "onefivethreeone")
+    other.clear()
+
