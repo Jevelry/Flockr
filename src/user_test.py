@@ -171,7 +171,7 @@ def test_user_setname_invalid_token():
     Testing unsuccessful uses of user_profile_setname
     focusing on invalid tokens
     """
-    user1 = auth.auth_register("kevin.huang@gmail.com", "nice123", "Kevin", "Huang")
+    auth.auth_register("kevin.huang@gmail.com", "nice123", "Kevin", "Huang")
     with pytest.raises(AccessError):
         assert user.user_profile_setname("invalid_token", "new", "name")
     other.clear()
@@ -230,7 +230,7 @@ def test_user_setemail_invalid_token():
     Testing unsuccessful uses of user_profile_setemail
     focusing on invalid tokens
     """
-    user1 = auth.auth_register("kevin.huang@gmail.com", "nice123", "Kevin", "Huang")
+    auth.auth_register("kevin.huang@gmail.com", "nice123", "Kevin", "Huang")
     with pytest.raises(AccessError):
         assert user.user_profile_setemail("invalid_token", "newemail@unsw.edu.au")
     other.clear()
@@ -290,7 +290,7 @@ def test_user_sethandle_invalid_token():
     Testing unsuccessful uses of user_profile_sethandle
     focusing on invalid tokens
     """
-    user1 = auth.auth_register("kevin.huang@gmail.com", "nice123", "Kevin", "Huang")
+    auth.auth_register("kevin.huang@gmail.com", "nice123", "Kevin", "Huang")
     with pytest.raises(AccessError):
         assert user.user_profile_sethandle("invalid_token", "newhandle")
     other.clear()
