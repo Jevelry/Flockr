@@ -63,7 +63,6 @@ def channels_listall(token):
     validation.check_valid_token(token)
 
     # Appends channel_id and name of all channels into channel_list
-    u_id = get_uid(token)
     for channel in data.data['channels']:
         channel_copy = {
             'channel_id' : channel['channel_id'],

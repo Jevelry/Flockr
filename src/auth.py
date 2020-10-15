@@ -6,6 +6,7 @@ error(error.py): Gives access to error classes
 
 import data
 import validation
+from error import InputError
 
 
 # Used in auth_register.
