@@ -10,8 +10,6 @@
 """
 import pytest
 import auth
-import channel
-import channels
 import user
 import other
 from error import InputError, AccessError
@@ -213,16 +211,7 @@ def test_user_setemail_valid_email():
     check_email_change(user1["u_id"], "newemail@unsw.edu.au")
     other.clear()
     
-def test_user_setemail_sameemail():
-    """
-    Testing successful uses of user_profile_setemail
-    focusing on using same existing email
-    """
-    user1 = auth.auth_register("kevin.huang@gmail.com", "nice123", "Kevin", "Huang")
-    user.user_profile_setemail(user1["token"], "kevin.huang@gmail.com")
-    #Should do nothing
-    check_email_change(user1["u_id"], "kevin.huang@gmail.com")
-    other.clear()
+
     
 #Unsuccessful
 def test_user_setemail_invalid_token():
@@ -235,7 +224,16 @@ def test_user_setemail_invalid_token():
         assert user.user_profile_setemail("invalid_token", "newemail@unsw.edu.au")
     other.clear()
 
-
+def test_user_setemail_sameemail():
+    """
+    Testing unsuccessful uses of user_profile_setemail
+    focusing on using same existing email
+    """
+    user1 = auth.auth_register("kevin.huang@gmail.com", "nice123", "Kevin", "Huang")
+    with pytest.raises(InputError):
+        assert user.user_profile_setemail(user1["token"], "kevin.huang@gmail.com")
+    
+    other.clear()
 
 def test_user_setemail_invalid_email():
     """
@@ -273,16 +271,7 @@ def test_user_sethandle_valid_handle():
     check_handle_changed(user1["u_id"], "newhandle")
     other.clear()
 
-def test_user_sethandle_samehandle():
-    """
-    Testing successful uses of user_profile_sethandle
-    focusing on changing to same existing handle
-    """
-    user1 = auth.auth_register("kevin.huang@gmail.com", "nice123", "Kevin", "Huang")
-    user.user_profile_sethandle(user1["token"], "KevinHuang")
-    #Should do nothing
-    check_handle_changed(user1["u_id"], "KevinHuang")
-    other.clear()
+
 
 #Unsuccessful
 def test_user_sethandle_invalid_token():
@@ -295,6 +284,17 @@ def test_user_sethandle_invalid_token():
         assert user.user_profile_sethandle("invalid_token", "newhandle")
     other.clear()
 
+def test_user_sethandle_samehandle():
+    """
+    Testing unsuccessful uses of user_profile_sethandle
+    focusing on changing to same existing handle
+    """
+    user1 = auth.auth_register("kevin.huang@gmail.com", "nice123", "Kevin", "Huang")
+    with pytest.raises(InputError):
+        assert user.user_profile_sethandle(user1["token"], "KevinHuang")
+    
+    other.clear()
+    
 def test_user_sethandle_invalid_handle():
     """
     Testing unsuccessful uses of user_profile_sethandle

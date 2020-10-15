@@ -3,112 +3,9 @@ re(regex): Gives access to regex for valid_email
 data(data.py): Gives access to global data variable
 error(error.py): Gives access to error classes
 """
-import re
+
 import data
-from error import InputError
-
-
-
-# Used in auth_register.
-# Must register with a valid email.
-def valid_email(email):
-    """
-    Determine whether email is valid.
-
-    Parameters:
-        email(string): Email in question
-
-    Returns:
-        Boolean depending on validity of email
-    """
-    # If email already taken.
-    for user in data.data['users']:
-        if user['email'] == email:
-            return False
-    # Must be standard email (may change to custom later).
-    # Regex mostly taken from geeksforgeeks site (linked in spec (6.2)).
-    regex = r'^[a-z0-9]+[._]?[a-z0-9]+[@]\w+[.]\w{2,3}(\.\w{2})?$'
-    # If email doesn't match regex, it's not valid.
-    if not re.search(regex, email):
-        return False
-    return True
-
-
-# Used in auth_login.
-# Email must already exist.
-def existing_email(email):
-    """
-    Determine whether email is used with an account.
-
-    Parameters:
-        email(string): Email in question
-
-    Returns:
-        Boolean depending on if email is in use already.
-    """
-    for user in data.data['users']:
-        if user['email'] == email:
-            return True
-    return False
-
-
-# Used in auth_login.
-# Must provide correct password.
-def correct_password(email, password):
-    """
-    Determines whether password matches account
-    created with given email
-
-    Parameters:
-        email(string): Email used for account being logged into
-        password(string): Password given
-
-    Returns:
-        Boolean depending on whether email and password match
-    """
-    for user in data.data['users']:
-        if user['email'] == email and user['password'] == password:
-            return True
-    return False
-
-
-# Used in auth_register.
-# Can't register with an invalid first or last name.
-def valid_name(first, last):
-    """
-    Determines whether first and last name are allowed.
-
-    Parameters:
-        first(string): User's given first name
-        last(string): User's given last name
-
-    Returns:
-        Boolean depending on whether names are allowed
-    """
-    # If first name is invalid.
-    if len(first) < 1 or len(first) > 50:
-        return False
-    # If last name is invalid.
-    if len(last) < 1 or len(last) > 50:
-        return False
-    return True
-
-
-# Used in auth_register.
-# Can't register with an invalid password.
-def valid_password(password):
-    """
-    Determines whether password is allowed.
-
-    Parameters:
-        password(string): Password given by user
-
-    Returns:
-        Boolean depending on whether password is allowed.
-    """
-    if len(password) < 6:
-        return False
-    return True
+import validation
 
 
 # Used in auth_register.
@@ -151,10 +48,10 @@ def auth_login(email, password):
     new_email = email.lower()
 
     # Checks to determine whether email and password are correct.
-    if not existing_email(new_email):
-        raise InputError
-    if not correct_password(new_email, password):
-        raise InputError
+    validation.check_correct_email(new_email)
+        
+    validation.check_correct_password(new_email, password)
+        
 
     # Everything is valid.
     # User has definitely registered. Password is correct.
@@ -220,14 +117,14 @@ def auth_register(email, password, name_first, name_last):
     new_email = email.lower()
 
     # Checks to determine whether names, password and email are valid.
-    if not valid_email(new_email):
-        raise InputError
-    if existing_email(new_email):
-        raise InputError
-    if not valid_name(name_first, name_last):
-        raise InputError
-    if not valid_password(password):
-        raise InputError
+    validation.check_valid_email(new_email)
+        
+    validation.check_existing_email(new_email)
+
+    validation.check_valid_name(name_first, name_last)
+
+    validation.check_valid_password(password)
+
 
     # Update global state.
     # Adds a new user to data['users'].

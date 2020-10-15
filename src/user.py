@@ -5,27 +5,8 @@ auth(auth.py): Gives access to check valid names and emails
 channel(channel.py): Gives access to valid_u_id function
 re(regex): Gives access to regex for valid_email
 """
-from auth import existing_email, valid_name
 import data
-from error import InputError, AccessError
-from channel import valid_u_id
-import re
 import validation
-def valid_token(token):
-    """
-    Determine whether supplied token is valid
-
-    Parameters:
-        token(string): An authorisation hash
-
-    Returns:
-        Boolean based on whether token is valid
-    """
-    for user in data.data["logged_in"]:
-        if user["token"] == token:
-            return True  
-    return False  
-
 
 def get_uid(token):
     """
@@ -41,55 +22,6 @@ def get_uid(token):
         if user["token"] == token:
             return user["u_id"]
 
-def valid_handle(handle_str):
-    """
-    Determine whether supplied handle is valid
-    
-    Parameters:
-        handle_str(string): New handle
-
-    Returns:
-        Boolean based on whether handle is valid  
-    """    
-    if len(handle_str) < 3 or len(handle_str) > 20:
-        return False
-    return True
-    
-def valid_email(email):
-    """
-    Determine whether email is valid.
-
-    Parameters:
-        email(string): Email in question
-
-    Returns:
-        Boolean depending on validity of email
-    NOTE: Very similar to valid_email in auth but does not check for existing email
-    """
-    # Must be standard email (may change to custom later).
-    # Regex mostly taken from geeksforgeeks site (linked in spec (6.2)).
-    regex = r'^[a-z0-9]+[._]?[a-z0-9]+[@]\w+[.]\w{2,3}(\.\w{2})?$'
-    # If email doesn't match regex, it's not valid.
-    if not re.search(regex, email):
-        return False
-    return True
-    
-def existing_handle(handle_str):
-    """
-    Determine whether supplied handle already exists
-    
-    Parameters:
-        handle_str(string): New handle
-
-    Returns:
-        Boolean based on whether handle already exists 
-    """
-    for users in data.data["users"]:
-        if users["handle"] == handle_str:
-            return True
-    return False
-
-
 def user_profile(token, u_id):
     """
     For a valid user, returns information about their user_id, 
@@ -103,11 +35,11 @@ def user_profile(token, u_id):
         Dictionary with information about user
     """
     #Check for valid token
-    if valid_token(token) == False:
-        raise AccessError
+    validation.check_valid_token(token)
+           
     #Check for valid u_id
-    if valid_u_id(u_id) == False:
-        raise InputError
+    validation.check_valid_u_id(u_id) 
+        
     #Everything valid, proceed with getting profile details
     user = {}
     for users in data.data["users"]:
@@ -133,10 +65,6 @@ def user_profile(token, u_id):
     }
     """
     
-    
-    
-    
-    
 def user_profile_setname(token, name_first, name_last):
     """
     For a valid user, update their name
@@ -150,11 +78,11 @@ def user_profile_setname(token, name_first, name_last):
         Nothing
     """
     #Check for valid token
-    if not valid_token(token):
-        raise AccessError
+    validation.check_valid_token(token)
+        
     #Check for valid name
-    if not valid_name(name_first, name_last):
-        raise InputError    
+    validation.check_valid_name(name_first, name_last)
+           
     #Everything valid, proceed with changing name
     u_id = get_uid(token)
     for users in data.data["users"]:
@@ -177,19 +105,12 @@ def user_profile_setemail(token, email):
     """
     u_id = get_uid(token)
     #Check for valid token
-    if not valid_token(token):
-        raise AccessError
+    validation.check_valid_token(token)
+        
     #Check for valid email
-    if not valid_email(email):
-        raise InputError
-    #Check if changing to same emails
-    for users in data.data["users"]:
-        if users["u_id"] == u_id: 
-            if users["email"] == email:
-                return
-    #Check for existing email
-    if existing_email(email):
-        raise InputError
+    validation.check_valid_email(email)
+        
+        
     #Everything valid, proceed with changing email
     for users in data.data["users"]:
         if users["u_id"] == u_id: 
@@ -209,19 +130,15 @@ def user_profile_sethandle(token, handle_str):
     """
     u_id = get_uid(token)
     #Check for valid token
-    if not valid_token(token):
-        raise AccessError
+    validation.check_valid_token(token)
+        
     #Check for valid handle    
-    if not valid_handle(handle_str):
-        raise InputError   
-    #Check if new handle same as old
-    for users in data.data["users"]:
-        if users["u_id"] == u_id: 
-            if users["handle"] == handle_str:
-                return
+    validation.check_valid_handle(handle_str)
+           
+    
     #Check for existing handle 
-    if existing_handle(handle_str):
-        raise InputError
+    validation.check_existing_handle(handle_str)
+        
     #Everything valid, proceed with changing handle
 
     for users in data.data["users"]:

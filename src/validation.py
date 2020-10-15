@@ -4,7 +4,7 @@ This is a file that checks everything
 """
 from error import InputError, AccessError
 import data
-
+import re
 
 def check_valid_token(token):
     """
@@ -37,26 +37,9 @@ def check_valid_handle(handle_str):
         raise InputError
     return 
 
-def check_valid_email_change(email):
-    """
-    Determine whether email is valid.
 
-    Parameters:
-        email(string): Email in question
 
-    Returns:
-        Boolean depending on validity of email
-    NOTE: Very similar to valid_email in auth but does not check for existing email
-    """
-    # Must be standard email (may change to custom later).
-    # Regex mostly taken from geeksforgeeks site (linked in spec (6.2)).
-    regex = r'^[a-z0-9]+[._]?[a-z0-9]+[@]\w+[.]\w{2,3}(\.\w{2})?$'
-    # If email doesn't match regex, it's not valid.
-    if not re.search(regex, email):
-        raise InputError
-    return
-
-def check_valid_email_register(email):
+def check_valid_email(email):
     """
     Determine whether email is valid.
 
@@ -78,7 +61,7 @@ def check_valid_email_register(email):
         raise InputError
     return
     
-def existing_email(email):
+def check_existing_email(email):
     """
     Determine whether email is used with an account.
 
@@ -93,7 +76,7 @@ def existing_email(email):
             raise InputError
     return
     
-def existing_handle(handle_str):
+def check_existing_handle(handle_str):
     """
     Determine whether supplied handle already exists
     
@@ -108,7 +91,7 @@ def existing_handle(handle_str):
             raise InputError
     return
     
-def correct_password(email, password):
+def check_correct_password(email, password):
     """
     Determines whether password matches account
     created with given email
@@ -124,8 +107,22 @@ def correct_password(email, password):
         if user['email'] == email and user['password'] == password:
             return
     raise InputError
+def check_correct_email(email):
+    """
+    Determine whether email exists when logining in
 
-def valid_name(first, last):
+    Parameters:
+        email(string): Email in question
+
+    Returns:
+        Boolean depending on if email is in use already.
+    """
+    for user in data.data['users']:
+        if user['email'] == email:
+            return
+    raise InputError
+
+def check_valid_name(first, last):
     """
     Determines whether first and last name are allowed.
 
@@ -144,7 +141,7 @@ def valid_name(first, last):
         raise InputError
     return 
     
-def valid_password(password):
+def check_valid_password(password):
     """
     Determines whether password is allowed.
 
