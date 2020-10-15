@@ -10,7 +10,7 @@ import data
 from error import InputError, AccessError
 from channel import valid_u_id
 import re
-
+import validation
 def valid_token(token):
     """
     Determine whether supplied token is valid

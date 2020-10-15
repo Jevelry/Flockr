@@ -161,9 +161,9 @@ def test_channel_invite_self_invite():
     user1 = auth.auth_register("ezmoney@gmail.com", "1234567", "ez", "money")
     new_channel = channels.channels_create(user1["token"], "temp_channel", False)
     #expected to do nothing
-    channel.channel_invite(user1["token"], new_channel['channel_id'], user1["u_id"])
-    channel_details = channel.channel_details(user1["token"], new_channel['channel_id'])
-    check_if_member_exists(channel_details, user1)
+    with pytest.raises(InputError):
+        assert channel.channel_invite(user1["token"], new_channel['channel_id'], user1["u_id"])
+    
 
     other.clear()
 
@@ -179,10 +179,9 @@ def test_channel_invite_existing_member():
     new_channel = channels.channels_create(user1["token"], "temp_channel", False)
     channel.channel_invite(user1["token"], new_channel['channel_id'], user2["u_id"])
     #expected to do nothing
-    channel.channel_invite(user2["token"], new_channel['channel_id'], user1["u_id"])
-    channel_details = channel.channel_details(user1["token"], new_channel['channel_id'])
-    check_if_member_exists(channel_details, user1)
-    check_if_member_exists(channel_details, user2)
+    with pytest.raises(InputError):
+        assert channel.channel_invite(user2["token"], new_channel['channel_id'], user1["u_id"])
+    
 
     other.clear()
 
@@ -442,7 +441,7 @@ def test_channel_join_invalid_channel():
     """
     invalid_channel_id = 'invalid_id'
     test_user1 = auth.auth_register('testHotRod@hotmail.com', 'password', 'Hot', 'Rod')
-    with pytest.raises(AccessError):
+    with pytest.raises(InputError):
         assert channel.channel_join(test_user1["token"], invalid_channel_id)
     list_result1 = channels.channels_list(test_user1['token'])
     assert not list_result1
@@ -461,7 +460,7 @@ def test_channel_join_invalid_token():
     user_channel_creater = auth.auth_register('creater@bigpond.com', 'password', 'Ultra', 'Magnus')
     test_channel_private = channels.channels_create(user_channel_creater['token'], 'test', False)
     with pytest.raises(AccessError):
-        assert channel.channel_join(test_user1['token'], test_channel_private)
+        assert channel.channel_join(test_user1['token'], test_channel_private["channel_id"])
 
     other.clear()
 

@@ -3,11 +3,12 @@ data(data.py): Gives access to global data variable
 error(error.py): Gives access to error classes
 """
 import data
+import validation
 from error import AccessError, InputError
 # from error import InputError
 
 
-
+'''
 # Check if token is valid and if the user is authorised
 def valid_token(token, channel_id):
     """
@@ -87,7 +88,7 @@ def is_existing_channel_member(u_id, channel_id):
                 if channel == channel_id:
                     return True
     return False
-
+'''
 def channel_invite(token, channel_id, u_id):
     """
     Invites a user (with user id u_id) to join a channel with ID channel_id.
@@ -102,18 +103,17 @@ def channel_invite(token, channel_id, u_id):
         Nothing
     """
     # Check if given valid channel_id
-    if not valid_channel_id(channel_id):
-        raise InputError
+    validation.check_valid_channel_id(channel_id)
+
     # Check if token is valid and user is authorised(member of channel)
-    if not valid_token(token, channel_id):
-        raise AccessError
+    validation.check_valid_token_inchannel(token, channel_id)
+        
     # Check if given valid u_id
-    if not valid_u_id(u_id):
-        raise InputError
-    # Check if invitee is already part of channel. If so, do nothing
-    if is_existing_channel_member(u_id, channel_id):
-        return {
-        }
+    validation.check_valid_u_id(u_id)
+    
+    # Check if invitee is already part of channel. If so,raise input error
+    validation.check_is_existing_channel_member(u_id, channel_id)
+      
     # Everything valid, Proceed with adding to channel
     for channel in data.data["channels"]:
         if channel["channel_id"] == channel_id:
@@ -138,11 +138,11 @@ def channel_details(token, channel_id):
         (dict): { name, owner_members, all_members }
     """
     # Check if given valid channel_id
-    if not valid_channel_id(channel_id):
-        raise InputError
+    validation.check_valid_channel_id(channel_id)
+      
     # Check if token is valid and user is authorised(member of channel)
-    if not valid_token(token, channel_id):
-        raise AccessError
+    validation.check_valid_token_inchannel(token, channel_id)
+
     # Everything valid, Proceed with getting details
     channel_info = {
         "name" : "",
@@ -191,12 +191,10 @@ def channel_messages(token, channel_id, start):
         (dict): {messages, start, end}
     """
     #Check if given valid channel_id
-    if not valid_channel_id(channel_id):
-        raise InputError
+    validation.check_valid_channel_id(channel_id)
 
     # Check if token is valid and user is authorised(member of channel)
-    if not valid_token(token, channel_id):
-        raise AccessError
+    validation.check_valid_token_inchannel(token, channel_id)
 
     # Proceed to getting messages
     messages = {
@@ -227,11 +225,11 @@ def channel_leave(token, channel_id):
         Empty dictionary
     """
     # Check if given valid channel_id
-    if not valid_channel_id(channel_id):
-        raise InputError
+    validation.check_valid_channel_id(channel_id)
+
     # Check if token is valid and user is authorised(member of channel)
-    if not valid_token(token, channel_id):
-        raise AccessError
+    validation.check_valid_token_inchannel(token, channel_id)
+
     # Everything valid, Proceed with leaving channel
     # Find user and take u_id
     for user in data.data["logged_in"]:
@@ -264,7 +262,7 @@ def token_to_id(token):
         if user["token"] == token:
             return user["u_id"]
     raise AccessError
-
+'''
 #Will determine if someone is a member of a given channel
 def is_channel_owner(user_id, channel_id):
     """
@@ -284,7 +282,8 @@ def is_channel_owner(user_id, channel_id):
                 if owner == user_id:
                     return True
     return False
-
+'''    
+'''
 #Will determine if someone is a member of a given channel
 def is_channel_member(user_id, channel_id):
     """
@@ -305,6 +304,7 @@ def is_channel_member(user_id, channel_id):
                 if member == user_id:
                     return True
     return False
+'''
 
 # Will make owner of Flockr owner of channel
 def add_owner(u_id, channel_id):
@@ -322,7 +322,7 @@ def add_owner(u_id, channel_id):
         if channel['channel_id'] == channel_id:
             channel['owners'].append(u_id)
 
-
+'''
 # Will check if channel exists
 def channel_exists(channel_id):
     """
@@ -339,7 +339,7 @@ def channel_exists(channel_id):
         if channel['channel_id'] == channel_id:
             return True
     return False
-
+'''
 
 def channel_join(token, channel_id):
     """
@@ -357,14 +357,12 @@ def channel_join(token, channel_id):
     user_id = token_to_id(token)
 
     # Checks channel exists
-    if not channel_exists(channel_id):
-        raise AccessError
+    validation.check_valid_channel_id(channel_id)
 
 
     #Checks the person wasn't already in the channel
-    if is_channel_member(user_id, channel_id):
-        raise InputError
-
+    validation.check_is_existing_channel_member(user_id, channel_id)
+       
 
     #Checks the channel is public and adds the user to the members
     for channel in data.data["channels"]:
@@ -401,16 +399,15 @@ def channel_addowner(token, channel_id, u_id):
     owner_id = token_to_id(token)
 
     #checks the owner is an owner of the channel
-    if not is_channel_owner(owner_id, channel_id):
-        raise AccessError
+    validation.check_is_channel_owner(owner_id, channel_id)
+
 
     #checks the member is a member of the channel
-    if not is_channel_member(u_id, channel_id):
-        raise InputError
+    validation.check_valid_token_inchannel(token)
+
 
     #checks the member is not an owner
-    if is_channel_owner(u_id, channel_id):
-        raise InputError
+    validation.check_isnot_channel_owner(u_id, channel_id)
 
     #Will change the u_id from member to owner
     for channel in data.data["channels"]:
@@ -434,12 +431,11 @@ def channel_removeowner(token, channel_id, u_id):
     owner_id = token_to_id(token)
 
     #checks the owner is an owner of the channel
-    if not is_channel_owner(owner_id, channel_id):
-        raise AccessError
+    validation.check_is_channel_owner(owner_id, channel_id)
+
 
     #checks the u_id is a member of the channel
-    if not is_channel_owner(u_id, channel_id):
-        raise InputError
+    validation.check_is_channel_owner(u_id, channel_id)
 
     #Will change the u_id from member to owner
     for channel in data.data["channels"]:
