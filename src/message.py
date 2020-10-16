@@ -1,7 +1,9 @@
 """
+datetime: Gives access to the datetime functions
 data(data.py): Gives access to global data variable
 error(error.py): Gives access to error classes
 """
+import datetime
 from error import AccessError, InputError
 import data
 
@@ -29,7 +31,8 @@ def message_send(token, channel_id, message):
     new_message = {}
     new_message['message'] = message
     new_message['u_id'] = user_input_id
-    new_message_id = make_message_id(channel_id)
+    new_message['date'] = datetime.now()
+    new_message_id = make_message_id()
     new_message['message_id'] = new_message_id
 
     for channel in data.data['channels']:
@@ -101,20 +104,18 @@ def is_channel_member(user_id, channel_id):
     return False
 
 #When given the channel id it will create a unique string for the message_id
-def make_message_id(channel_id):
+def make_message_id():
     """
     Creates a unique string to be a message_id for a new message
 
     Parameters:
-        channel_id(string): to find the channel the message is being added to
-        find out how many messages are in the chain
 
     Returns:
-        A String that is the channel_id + '_' + the number of the new message
+        A String that is the number of strings that have been sent ever
     """
-    message_int = 0
-    for channel in data.data["channels"]:
-        if channel["channel_id"] == channel_id:
-            message_int = len(channel['messages']) + 1
+    if data.data['message_num'] == '':
+        data.data['message_num'] = 1
+    else:
+        data.data['message_num'] += 1
 
-    return str(channel_id) + '_' + str(message_int)
+    return str(data.data['message_num'])

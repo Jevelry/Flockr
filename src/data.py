@@ -37,7 +37,8 @@ data = {
         #         }
         #     ]
         # }
-    ]
+    ],
+    'message_num' : '' #the number of messages that have been sent
 }
 
 # Clears the data variable.
@@ -50,5 +51,6 @@ def clear_data():
     data = {
         'users' : [],
         'logged_in' : [],
-        'channels' : []
+        'channels' : [],
+        'message_num': ''
     }
