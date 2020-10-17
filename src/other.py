@@ -2,6 +2,7 @@
 data(data.py): Gives access to global variable
 """
 import data
+import validation
 
 def clear():
     """
@@ -13,9 +14,15 @@ def clear():
 
 def users_all(token):
     """
-    Returns a dictionary containing a list of all users in the server.
+    Returns a dictionary containing a list of all users in Flockr
+
+    Parameters:
+        token(string): A user authorisation hash
+
+    Returns:
+        users: A dictionary containing a list of all users in Flockr with their user details
     """
-    result = {
+    users = {
         'users': []
     }
 
@@ -28,25 +35,31 @@ def users_all(token):
             'handle_str': user['handle'],
             'ownner': user['owner'],
         }
-        result['users'].append(user_info)
+        users['users'].append(user_info)
 
-    return result
+    return users
 
 def admin_userpermission_change(token, u_id, permission_id):
     """
-    Replace this with your own docstring.
-    I just want to pass pylint
+    Sets a user's permissions described by permission_id
+
+    Parameters:
+        token(string): A user authorisation hash
+        u_id(int): Indentifier for User
+        permission_id(int): A value describing a user's permissions 
+
+    Returns:
+        None
     """
-    auth_u_id = None
+
     valid_permission_id = {1, 2}
-    # Finds u_id associated with user token
+
+    # Checks if user's token exists
     # Returns AccessError if token does not exist
-    for user in data.data['logged_in']:            
-        if user['token'] == token:
-            auth_u_id = user['u_id']
-        
-    if auth_u_id == None:
-        raise AccessError
+    validation.check_valid_token(token)
+
+    # Finds authorised user's u_id associated with user token
+    auth_u_id = get_uid(token)
 
     for auth_user in data.data['users']:
         if auth_u_id == auth_user['u_id']:
@@ -65,40 +78,38 @@ def admin_userpermission_change(token, u_id, permission_id):
 
 def search(token, query_str):
     """
-    Replace this with your own docstring.
-    I just want to pass pylint
+    Returns a dictionary containing a list of all users in Flockr
+
+    Parameters:
+        token(string): A user authorisation hash
+
+    Returns:
+        messages: A dictionary containing a list of all messages that the user has sent 
+                  with the corresponding query string
     """
-    search_result = {
+    messages = {
         'messages': [],
     }
-    u_id = None
+
+    # Checks if user's token exists
+    # Returns AccessError if token does not exist
+    validation.check_valid_token(token)
 
     # Finds u_id associated with user token
-    # Returns AccessError if token does not exist
-    for user in data.data['logged_in']:            
-        if user['token'] == token:
-            u_id = user['u_id']
-        
-    if u_id == None:
-        raise AccessError('Token does not exist!')
-
-    for user in data.data['channels']:
-        if member_id['u_id'] == u_id:
-            for 
+    u_id = get_uid(token)
 
     for channel in data.data['channels']:
-        for member_id in channel['members']:
-            if member_id == u_id:
-                for message in channel['messages']:
-                    if query_str in search_message['message']:
-                        message_result = {
-                            'message_id': search_message['message_id'],
-                            'u_id': search_message['u_id'],
-                            'message': search_message['message'],
-                            'time_created': search_message['date']
-                            'token': token,
-                            'query_str': query_str,
-                        }
-                        search_result['messages'].append(message_result)
+        if u_id in channel['members']:
+            for message in channel['messages']:
+                if query_str in message['message']:
+                    message_result = {
+                        'message_id': message['message_id'],
+                        'u_id': message['u_id'],
+                        'message': message['message'],
+                        'time_created': message['date'],
+                        'token': token,
+                        'query_str': query_str,
+                    }
+                    messages['messages'].append(message_result)
                         
-    return search_result
+    return messages
