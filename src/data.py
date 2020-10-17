@@ -1,3 +1,6 @@
+"""
+Global variable containing the state of flockr
+"""
 data = {
     'users' : [
         # {
@@ -8,6 +11,7 @@ data = {
         #     'u_id' : '',
         #     'password' : ''
         #     'handle' : ''
+        #     'owner' : ''
         # }
     ],
     'logged_in' : [
@@ -27,6 +31,7 @@ data = {
         #     'messages' : [
         #         {
         #             'message' : '',
+        #             'message_id' : '',
         #             'u_id' : '',
         #             'date' : ''
         #         }
@@ -38,17 +43,13 @@ data = {
 # Clears the data variable.
 # Removes all users, channels, etc.
 def clear_data():
+    """
+    Restarts the global variable to it's default state (empty)
+    """
     global data
     data = {
         'users' : [],
         'logged_in' : [],
         'channels' : []
     }
-
-
-if __name__ == '__main__':
-    data['users'].append("yobbo")
-    print(len(data['users']))
-    clear_data()
-    print(len(data['users']))
 
