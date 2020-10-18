@@ -292,3 +292,31 @@ def check_isnot_channel_owner(user_id, channel_id):
             for owner in channel["owners"]:
                 if owner == user_id:
                     raise InputError(description="User is owner of channel")
+
+def valid_message(message):
+    """
+    Will raise an input error if the message string is greater then 1000 characters long
+
+    Parameters:
+        message(string): The string of the message to be sent
+    Returns:
+    """
+    if len(message) > 1000:
+        raise InputError
+
+def valid_message_id(message_id):
+    """
+    Will check that message_id given has a message it refers to in the global variable will 
+    raise an InputError
+
+    Parameters:
+        message_id(string): The message_id of the channel being checked
+    Returns:
+    """
+    found_message = False
+    for channel in data.data['channels']:
+        for message in channel['messages']:
+            if message['message_id'] == message_id:
+                found_message = True
+    if not found_message:
+        raise InputError

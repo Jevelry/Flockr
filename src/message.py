@@ -1,11 +1,13 @@
 """
 datetime: Gives access to the datetime functions
-data(data.py): Gives access to global data variable
 error(error.py): Gives access to error classes
+data(data.py): Gives access to global data variable
+validation(validation.py): Gives access to the premade validations
 """
-#import datetime
+import datetime
 from error import AccessError, InputError
 import data
+import validation
 
 
 def message_send(token, channel_id, message):
@@ -20,8 +22,9 @@ def message_send(token, channel_id, message):
     Returns:
         message_id(string): An identifier for the new message
     """
-    if len(message) > 1000:
-        raise InputError
+    validation.valid_message(message)
+    validation.check_valid_channel_id(channel_id)
+    validation.check_valid_token(token)
 
     user_input_id = token_to_id(token)
 
@@ -31,7 +34,7 @@ def message_send(token, channel_id, message):
     new_message = {}
     new_message['message'] = message
     new_message['u_id'] = user_input_id
-    #new_message['date'] = datetime.now()
+    new_message['date'] = datetime.datetime.now()
     new_message_id = make_message_id()
     new_message['message_id'] = new_message_id
 
@@ -54,6 +57,9 @@ def message_remove(token, message_id):
 
     Returns:
     """
+    validation.valid_message_id(message_id)
+    validation.check_valid_token(token)
+
     user_input_id = token_to_id(token)
     channel = find_message_in_channels(message_id, user_input_id)
     for message in channel['messages']:
@@ -72,11 +78,13 @@ def message_edit(token, message_id, message):
 
     Returns:
     """
+    validation.valid_message(message)
+    validation.check_valid_token(token)
+    validation.valid_message_id(message_id)
+
     if message == '':
         message_remove(token, message_id)
         return {}
-    elif len(message) > 1000:
-        raise InputError
 
     user_input_id = token_to_id(token)
     channel = find_message_in_channels(message_id, user_input_id)
