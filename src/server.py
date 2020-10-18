@@ -8,6 +8,7 @@ from json import dumps
 from flask import Flask, request
 from flask_cors import CORS
 from error import InputError
+import auth
 
 def defaultHandler(err):
     """
@@ -43,6 +44,19 @@ def echo():
     return dumps({
         'data': data
     })
+
+
+@APP.route("/auth/register", methods=["POST"])
+def register():
+    """
+    Registers user using http
+    """
+    data = request.get_json()
+    first = data['name_first']
+    last = data['name_last']
+    email = data['email']
+    password = data['password']
+    return auth.auth_register(email, password, first, last)
 
 if __name__ == "__main__":
     APP.run(port=0) # Do not edit this port
