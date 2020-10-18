@@ -303,3 +303,4 @@ def test_remove_not_owner_not_sender():
                                        message_exp)
     with pytest.raises(AccessError):
         message.message_remove(test_user2['token'], message_id1['message_id'])
+    other.clear()
