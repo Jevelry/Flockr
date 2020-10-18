@@ -38,16 +38,19 @@ def url():
         server.kill()
         raise Exception("Couldn't get URL from local server")
 
-def register_2_users_and_assert_different(url, info1, info2) {
-    resp1 = requests.post(url + '/auth/register', json=info1)
-    resp1 = requests.post(url + '/auth/register', json=info2)
-    payload1 = resp1.json()
-    payload2 = resp1.json()
-    assert user1['u_id'] != user2['u_id']
-    assert user1['token'] != user2['token'] 
-}
+# def register_2_users_and_assert_different(url, info1, info2) {
+#     """
+#     Registers 2 users and uses asserts to prove that they are different
+#     """
+#     resp1 = requests.post(url + '/auth/register', json=info1)
+#     resp1 = requests.post(url + '/auth/register', json=info2)
+#     payload1 = resp1.json()
+#     payload2 = resp1.json()
+#     assert user1['u_id'] != user2['u_id']
+#     assert user1['token'] != user2['token']
+# }
 
-def test_successful_auth_register_http():
+def test_successful_auth_register_http(url):
     """
     Testing successful uses of auth_register via http
     """
@@ -63,79 +66,108 @@ def test_successful_auth_register_http():
         'email' : 'gillo@gmail.com',
         'password' : 'gilliweed'
     }
-    register_2_users_and_assert_different(info1, info2)
+    resp1 = requests.post(url + '/auth/register', json=info1)
+    resp2 = requests.post(url + '/auth/register', json=info2)
+    user1 = resp1.json()
+    user2 = resp2.json()
+    assert user1['u_id'] != user2['u_id']
+    assert user1['token'] != user2['token'] 
 
 def test_same_names_auth_register_http_successful(url):
     """
     Testing successful uses of auth_register via http,
     focusing on same names
     """
-    test_info1 = {
+    info1 = {
         'name_first' : 'George',
         'name_last' : 'Snurl',
         'email' : 'george@gmail.com',
         'password' : 'password123'
     }
-    test_info2 = {
+    info2 = {
         'name_first' : 'George',
         'name_last' : 'Snurl',
         'email' : 'snurl@gmail.com',
         'password' : '123456789'
     }
-    register_2_users_and_assert_different(url, info1, info2)
+    resp1 = requests.post(url + '/auth/register', json=info1)
+    resp2 = requests.post(url + '/auth/register', json=info2)
+    user1 = resp1.json()
+    user2 = resp2.json()
+    assert user1['u_id'] != user2['u_id']
+    assert user1['token'] != user2['token'] 
 
 def test_same_passwords_auth_register(url):
     """
     Tests successful uses of auth_register
     when using the same password
     """
-    test_info1 = {
+    info1 = {
         'name_first' : 'Albert',
         'name_last' : 'Einsteib',
         'email' : 'emc3@gmail.com',
         'password' : 'password'
     }
-    test_info2 = {
+    info2 = {
         'name_first' : 'Lays',
         'name_last' : 'Crusps',
         'email' : 'sourcream@gmail.com',
         'password' : 'password'
     }
-    register_2_users_and_assert_different(url, info1, info2)
+    resp1 = requests.post(url + '/auth/register', json=info1)
+    resp2 = requests.post(url + '/auth/register', json=info2)
+    user1 = resp1.json()
+    user2 = resp2.json()
+    assert user1['u_id'] != user2['u_id']
+    assert user1['token'] != user2['token'] 
 
-def test_same_names_auth_register_http_successful(url):
-    test_info1 = {
-        'name_first' : 'George',
-        'name_last' : 'Snurl',
-        'email' : 'george@gmail.com',
-        'password' : 'password123'
-    }
-    test_info2 = {
-        'name_first' : 'George',
-        'name_last' : 'Snurl',
-        'email' : 'snurl@gmail.com',
-        'password' : '123456789'
-    }
-    register_2_users_and_assert_different(url, test_info1, test_info2)
+# def test_same_names_auth_register_http_successful(url):
+#     """
+#     Testing successful uses of auth_reguster
+#     when using the same name
+#     """
+#     test_info1 = {
+#         'name_first' : 'George',
+#         'name_last' : 'Snurl',
+#         'email' : 'george@gmail.com',
+#         'password' : 'password123'
+#     }
+#     test_info2 = {
+#         'name_first' : 'George',
+#         'name_last' : 'Snurl',
+#         'email' : 'snurl@gmail.com',
+#         'password' : '123456789'
+#     }
+#     resp1 = requests.post(url + '/auth/register', json=info1)
+#     resp1 = requests.post(url + '/auth/register', json=info2)
+#     payload1 = resp1.json()
+#     payload2 = resp1.json()
+#     assert user1['u_id'] != user2['u_id']
+#     assert user1['token'] != user2['token'] 
 
 def test_same_name_and_password_auth_register(url):
     """
     Tests successful uses of auth_register
     when using the same name and password
     """
-    test_info1 = {
+    info1 = {
         'name_first' : 'Albert',
         'name_last' : 'Einsteib',
         'email' : 'emc3@gmail.com',
         'password' : 'password'
     }
-    test_info2 = {
+    info2 = {
         'name_first' : 'Albert',
         'name_last' : 'Einsteib',
         'email' : 'sourcream@gmail.com',
         'password' : 'password'
     }
-    register_2_users_and_assert_different(url, test_info1, test_info2)
+    resp1 = requests.post(url + '/auth/register', json=info1)
+    resp2 = requests.post(url + '/auth/register', json=info2)
+    user1 = resp1.json()
+    user2 = resp2.json()
+    assert user1['u_id'] != user2['u_id']
+    assert user1['token'] != user2['token'] 
 
 def test_invalid_email_auth_register_http(url):
     """
@@ -179,22 +211,34 @@ def test_invalid_email_auth_register_http(url):
         'password' : 'password'
     }
     resp1 = requests.post(url + '/auth/register', json=info1)
-    assert resp1.json() == "Email is invalid"
+    payload1 = resp1.json()
+    assert payload1['message'] == '<p>Email is invalid</p>'
+    assert payload1['code'] == 400
 
     resp2 = requests.post(url + '/auth/register', json=info2)
-    assert resp2.json() == "Email is invalid"
+    payload2 = resp2.json()
+    assert payload2['message'] == '<p>Email is invalid</p>'
+    assert payload2['code'] == 400
 
     resp3 = requests.post(url + '/auth/register', json=info3)
-    assert resp3.json() == "Email is invalid"
+    payload3 = resp3.json()
+    assert payload3['message'] == '<p>Email is invalid</p>'
+    assert payload3['code'] == 400
 
     resp4 = requests.post(url + '/auth/register', json=info4)
-    assert resp4.json() == "Email is invalid"
+    payload4 = resp4.json()
+    assert payload4['message'] == '<p>Email is invalid</p>'
+    assert payload4['code'] == 400
 
     resp5 = requests.post(url + '/auth/register', json=info5)
-    assert resp5.json() == "Email is invalid"
+    payload5 = resp5.json()
+    assert payload5['message'] == '<p>Email is invalid</p>'
+    assert payload5['code'] == 400
 
     resp6 = requests.post(url + '/auth/register', json=info6)
-    assert resp6.json() == "Email is invalid"
+    payload6 = resp6.json()
+    assert payload6['message'] == '<p>Email is invalid</p>'
+    assert payload6['code'] == 400
 
 def test_existing_email_auth_register_http(url):
     """
@@ -213,11 +257,14 @@ def test_existing_email_auth_register_http(url):
         'email' : 'fred@gmail.com',
         'password' : 'Guillotine'
     }
-    resp1 = requests.post(url + '/auth/register', json=info1)
-    assert resp1.json() == {}
+    requests.post(url + '/auth/register', json=info1)
+    #resp1.json() == {}
 
     resp2 = requests.post(url + '/auth/register', json=info2)
-    assert resp2.json() == "Email is already used"
+    payload2 = resp2.json()
+    assert payload2['message'] == '<p>Email already in use</p>'
+    assert payload2['code'] == 400
+    # assert resp2.json() == "Email is already used"
 
 def test_invalid_password_auth_register_http(url):
     """
@@ -237,10 +284,16 @@ def test_invalid_password_auth_register_http(url):
         'password' : 'Arjun'
     }
     resp1 = requests.post(url + '/auth/register', json=info1)
-    assert resp1.json() == "Password is invalid"
+    payload1 = resp1.json()
+    assert payload1['message'] == '<p>Password is not valid</p>'
+    assert payload1['code'] == 400
+    #assert resp1.json() == "Password is invalid"
 
     resp2 = requests.post(url + '/auth/register', json=info2)
-    assert resp2.json() == "Password is invalid"
+    payload2 = resp2.json()
+    assert payload2['message'] == '<p>Password is not valid</p>'
+    assert payload2['code'] == 400
+    #assert resp2.json() == "Password is invalid"
 
 def test_invalid_first_name_auth_register_http(url):
     """
@@ -260,12 +313,18 @@ def test_invalid_first_name_auth_register_http(url):
         'password' : 'Bingbangbong'
     }
     resp1 = requests.post(url + '/auth/register', json=info1)
-    assert resp1.json() == "First name is invalid"
+    payload1 = resp1.json()
+    assert payload1['message'] == '<p>First name is not valid</p>'
+    assert payload1['code'] == 400
+    #assert resp1.json() == "First name is invalid"
 
     resp2 = requests.post(url + '/auth/register', json=info2)
-    assert resp2.json() == "First name is invalid"
+    payload2 = resp2.json()
+    assert payload2['message'] == '<p>First name is not valid</p>'
+    assert payload2['code'] == 400
+    #assert resp2.json() == "First name is invalid"
 
-def test_invalid_last_name_auth_register():
+def test_invalid_last_name_auth_register(url):
     """
     Tests successful uses of auth_register
     when using an invalid last name
@@ -282,8 +341,16 @@ def test_invalid_last_name_auth_register():
         'email' : 'salad@gmail.com',
         'password' : 'YummyYummy'
     }
-    resp1 = requests.post(url + '/auth/register', json=info1
-    assert resp1.json() == "Last name is invalid"
+    resp1 = requests.post(url + '/auth/register', json=info1)
+    payload1 = resp1.json()
+    assert payload1['message'] == '<p>Last name is not valid</p>'
+    assert payload1['code'] == 400
+    # payload = resp1.json()
+    # assert payload.message == "Last name is invalid"
+    #assert resp1.json() == "Last name is invalid"
 
     resp2 = requests.post(url + '/auth/register', json=info2)
-    assert resp2.json() == "Last name is invalid"
+    payload2 = resp2.json()
+    assert payload2['message'] == '<p>Last name is not valid</p>'
+    assert payload1['code'] == 400
+    #assert resp2.json() == "Last name is invalid"
