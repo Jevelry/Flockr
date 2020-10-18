@@ -50,6 +50,7 @@ def message_remove(token, message_id):
     Parameters:
         token(string): An authorisation hash
         message_id(string): The id of the message being removed
+        message(string): The message of the message being added
 
     Returns:
     """
@@ -63,14 +64,26 @@ def message_remove(token, message_id):
 
 def message_edit(token, message_id, message):
     """
-    Replace this with your own docstring.
-    I just want to pass pylint
+    Removes an existing message from the channel it is in
+
+    Parameters:
+        token(string): An authorisation hash
+        message_id(string): The id of the message being removed
+
+    Returns:
     """
-    return {
-        'token' : token, # Delete this line
-        'message_id' : message_id, # Delete this line
-        'message' : message # Delete this line
-    }
+    if message == '':
+        message_remove(token, message_id)
+        return {}
+    elif len(message) > 1000:
+        raise InputError
+
+    user_input_id = token_to_id(token)
+    channel = find_message_in_channels(message_id, user_input_id)
+    for cur_message in channel['messages']:
+        if cur_message['message_id'] == message_id:
+            cur_message['message'] = message
+    return {}
 
 
 #Will take a token and return the id
