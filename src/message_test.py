@@ -15,7 +15,7 @@ import channels
 import other
 from error import InputError, AccessError
 
-def test_message_send_valid():
+def test_send_valid():
     """
     Testing if a single message can be sent and be stored
     """
@@ -33,7 +33,7 @@ def test_message_send_valid():
     assert message_id['message_id'] == message_from_channel['messages'][0]['message_id']
     other.clear()
 
-def test_message_send_valid_multiple():
+def test_send_valid_multiple():
     """
     Testing if multiple messages can be sent and stored in correct order
     """
@@ -79,7 +79,7 @@ def test_message_send_valid_multiple():
 
     other.clear()
 
-def test_message_valid_long_message():
+def test_send_valid_long_message():
     """
     Testing if a 1000 character length message can be sent and be stored
     """
@@ -115,7 +115,7 @@ def test_message_valid_long_message():
     other.clear()
 
 
-def test_message_invalid_long_message():
+def test_send_invalid_long_message():
 
     """
     Testing if a message over 1000 characters long can be sent and be stored
@@ -147,7 +147,7 @@ def test_message_invalid_long_message():
 
     other.clear()
 
-def test_message_not_in_channel():
+def test_send_not_in_channel():
     """
     Testing if a single message can be sent by someone not in the channel
     """
@@ -163,3 +163,143 @@ def test_message_not_in_channel():
     assert message_exp != message_from_channel['messages']
 
     other.clear()
+
+def test_remove_valid_sender():
+    """
+    Testing if a single message can be sent, be stored and removed by sender
+    """
+    user_channel_creater = auth.auth_register('creator@bigpond.com', 'password', 'Quick', 'Shadow')
+    test_user1 = auth.auth_register('optumis4ime@hotmail.com', 'password', 'Optimus', 'Prime')
+    test_channel_id = channels.channels_create(user_channel_creater["token"], 'test', True)
+    channel.channel_join(test_user1['token'], test_channel_id['channel_id'])
+    message_exp = 'Test 1 test 2 swiggity Swagg'
+    message_exp2 = 'This is to stop there being no message in the channel'
+    message_id = message.message_send(test_user1['token'], test_channel_id['channel_id'],
+                                      message_exp)
+    message.message_send(user_channel_creater['token'], test_channel_id['channel_id'],
+                         message_exp2)
+    message_from_channel = channel.channel_messages(user_channel_creater['token'],
+                                                    test_channel_id['channel_id'], 0)
+    #Checks that the message was added
+    assert message_exp == message_from_channel['messages'][0]['message']
+    assert test_user1['u_id'] == message_from_channel['messages'][0]['u_id']
+    assert message_id['message_id'] == message_from_channel['messages'][0]['message_id']
+    message.message_remove(test_user1['token'], message_id['message_id'])
+    new_message_from_channel = channel.channel_messages(user_channel_creater['token'],
+                                                        test_channel_id['channel_id'], 0)
+    #Checks that the message was removed
+    assert message_exp != new_message_from_channel['messages'][0]['message']
+    assert test_user1['u_id'] != new_message_from_channel['messages'][0]['u_id']
+    assert message_id['message_id'] != new_message_from_channel['messages'][0]['message_id']
+    other.clear()
+
+def test_remove_valid_owner():
+
+    """
+    Testing if a single message can be sent, be stored and removed by owner
+    """
+    user_channel_creater = auth.auth_register('creator@bigpond.com', 'password', 'Quick', 'Shadow')
+    test_user1 = auth.auth_register('optumis4ime@hotmail.com', 'password', 'Optimus', 'Prime')
+    test_channel_id = channels.channels_create(user_channel_creater["token"], 'test', True)
+    channel.channel_join(test_user1['token'], test_channel_id['channel_id'])
+    message_exp = 'Test 1 test 2 swiggity Swagg'
+    message_id = message.message_send(test_user1['token'], test_channel_id['channel_id'],
+                                      message_exp)
+    message_exp2 = 'Test this is different from message_exp'
+    message.message_send(user_channel_creater['token'], test_channel_id['channel_id'],
+                         message_exp2)
+    message_from_channel = channel.channel_messages(user_channel_creater['token'],
+                                                    test_channel_id['channel_id'], 0)
+    #Checks that the message was added
+    assert message_exp == message_from_channel['messages'][0]['message']
+    assert test_user1['u_id'] == message_from_channel['messages'][0]['u_id']
+    assert message_id['message_id'] == message_from_channel['messages'][0]['message_id']
+    message.message_remove(user_channel_creater['token'], message_id['message_id'])
+    new_message_from_channel = channel.channel_messages(user_channel_creater['token'],
+                                                        test_channel_id['channel_id'], 0)
+    #Checks that the message was removed
+    assert message_exp != new_message_from_channel['messages'][0]['message']
+    assert test_user1['u_id'] != new_message_from_channel['messages'][0]['u_id']
+    assert message_id['message_id'] != new_message_from_channel['messages'][0]['message_id']
+    other.clear()
+
+def test_remove_already_removed_message():
+    """
+    Testing if a message that has already been removed is removed again an input error appears
+    """
+    user_channel_creater = auth.auth_register('creator@bigpond.com', 'password', 'Quick', 'Shadow')
+    test_user1 = auth.auth_register('optumis4ime@hotmail.com', 'password', 'Optimus', 'Prime')
+    test_channel_id = channels.channels_create(user_channel_creater["token"], 'test', True)
+    channel.channel_join(test_user1['token'], test_channel_id['channel_id'])
+    message_exp = 'Test 1 test 2 swiggity Swagg'
+    message_id = message.message_send(test_user1['token'], test_channel_id['channel_id'],
+                                      message_exp)
+    #Pre-removes the messages
+    message.message_remove(user_channel_creater['token'], message_id['message_id'])
+    with pytest.raises(InputError):
+        message.message_remove(test_user1['token'], message_id['message_id'])
+    other.clear()
+
+def test_remove_multiple_messages_valid():
+    """
+    Testing if a message can be removed then a new message added then the new message removed
+    """
+    user_channel_creater = auth.auth_register('creator@bigpond.com', 'password', 'Quick', 'Shadow')
+    test_user1 = auth.auth_register('optumis4ime@hotmail.com', 'password', 'Optimus', 'Prime')
+    test_channel_id = channels.channels_create(user_channel_creater["token"], 'test', True)
+    channel.channel_join(test_user1['token'], test_channel_id['channel_id'])
+    message_exp = 'Test 1 test 2 swiggity Swagg'
+    message_id1 = message.message_send(test_user1['token'], test_channel_id['channel_id'],
+                                       message_exp)
+    #Pre-removes the message
+    message.message_remove(user_channel_creater['token'], message_id1['message_id'])
+    message_exp10 = 'Spagetti and memeballs'
+    message_id2 = message.message_send(test_user1['token'], test_channel_id['channel_id'],
+                                       message_exp10)
+    message_exp2 = 'Test this is different from message_exp'
+    message.message_send(user_channel_creater['token'], test_channel_id['channel_id'],
+                         message_exp2)
+    message.message_remove(test_user1['token'], message_id2['message_id'])
+    new_message_from_channel = channel.channel_messages(user_channel_creater['token'],
+                                                        test_channel_id['channel_id'], 0)
+    assert message_exp != new_message_from_channel['messages'][0]['message']
+    assert test_user1['u_id'] != new_message_from_channel['messages'][0]['u_id']
+    assert message_id2['message_id'] != new_message_from_channel['messages'][0]['message_id']
+    other.clear()
+
+def test_remove_same_message_multiple_message():
+    """
+    Testing is a message can be removed then a new messaged is added and try remove
+    the old message again, this tests if the new id is not the same as the old id
+    """
+    user_channel_creater = auth.auth_register('creator@bigpond.com', 'password', 'Quick', 'Shadow')
+    test_user1 = auth.auth_register('optumis4ime@hotmail.com', 'password', 'Optimus', 'Prime')
+    test_channel_id = channels.channels_create(user_channel_creater["token"], 'test', True)
+    channel.channel_join(test_user1['token'], test_channel_id['channel_id'])
+    message_exp = 'Test 1 test 2 swiggity Swagg'
+    message_id1 = message.message_send(test_user1['token'], test_channel_id['channel_id'],
+                                       message_exp)
+    #Pre-removes the message
+    message.message_remove(user_channel_creater['token'], message_id1['message_id'])
+    message.message_send(test_user1['token'], test_channel_id['channel_id'],
+                         message_exp)
+    with pytest.raises(InputError):
+        message.message_remove(test_user1['token'], message_id1['message_id'])
+    other.clear()
+
+def test_remove_not_owner_not_sender():
+    """
+    Tests that an error is raised when a person who is not the sender or owner is tries to
+    remove a message
+    """
+    user_channel_creater = auth.auth_register('creator@bigpond.com', 'password', 'Quick', 'Shadow')
+    test_user1 = auth.auth_register('optumis4ime@hotmail.com', 'password', 'Optimus', 'Prime')
+    test_user2 = auth.auth_register('thebumble@hotmail.com', 'password', 'Bumble', 'Bee')
+    test_channel_id = channels.channels_create(user_channel_creater["token"], 'test', True)
+    channel.channel_join(test_user1['token'], test_channel_id['channel_id'])
+    channel.channel_join(test_user2['token'], test_channel_id['channel_id'])
+    message_exp = 'Test 1 test 2 swiggity Swagg'
+    message_id1 = message.message_send(test_user1['token'], test_channel_id['channel_id'],
+                                       message_exp)
+    with pytest.raises(AccessError):
+        message.message_remove(test_user2['token'], message_id1['message_id'])
