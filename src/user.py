@@ -89,8 +89,15 @@ def user_profile_setname(token, name_first, name_last):
             users["first"] = name_first
             users["last"] = name_last  
         
-
-
+    #Check for valid name
+    validation.check_valid_name(name_first, name_last)
+           
+    #Everything valid, proceed with changing name
+    for users in data.data["users"]:
+        if users["u_id"] == u_id: 
+            users["first"] = name_first
+            users["last"] = name_last  
+        
 def user_profile_setemail(token, email):
     """
     For a valid user, update their handle

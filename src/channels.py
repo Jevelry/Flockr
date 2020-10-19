@@ -57,7 +57,6 @@ def channels_listall(token):
             'name' : channel['name'],
         }
         channels.append(channel_copy)
-
     return channels
 
 
@@ -89,14 +88,13 @@ def channels_create(token, name, is_public):
         'members' : [u_id],
         'messages' : [],
     }
-    channel_copy = new_channel.copy()
-    data.data['channels'].append(channel_copy)
+    data.data['channels'].append(new_channel)
 
-    # Add channel to user's channel_list
+    # Stores channel as part of the user's channel list
     for user in data.data['users']:
         if user['u_id'] == u_id:
             user['channel_list'].append(new_channel['channel_id'])
-
+    
     return {
         'channel_id': new_channel['channel_id'],
     }

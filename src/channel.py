@@ -44,7 +44,7 @@ def channel_invite(token, channel_id, u_id):
     for user in data.data["users"]:
         if user["u_id"] == u_id:
             user["channel_list"].append(channel_id)
-            if user['owner']:
+            if user['permission_id'] == 1:
                 add_owner(user['u_id'], channel_id)
     return {
     }
@@ -192,7 +192,6 @@ def add_owner(u_id, channel_id):
             channel['owners'].append(u_id)
 
 
-
 def channel_join(token, channel_id):
     """
     Given a channel_id of a channel that the authorised user can join,
@@ -228,7 +227,7 @@ def channel_join(token, channel_id):
     for user in data.data["users"]:
         if user["u_id"] == user_id:
             user["channel_list"].append(channel_id)
-            if user['owner']:
+            if user['permission_id'] == 1:
                 add_owner(user['u_id'], channel_id)
 
 

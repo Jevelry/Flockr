@@ -140,9 +140,9 @@ def auth_register(email, password, name_first, name_last):
     new['email'] = new_email
     new['handle'] = generate_handle(name_first, name_last)
     if new['u_id'] == 1:
-        new['owner'] = True
+        new['permission_id'] = 1
     else:
-        new['owner'] = False
+        new['permission_id'] = 2
     data.data['users'].append(new)
 
     # Log user in.
