@@ -7,6 +7,8 @@ error(error.py): Gives access to error classes
 import data
 import validation
 from error import InputError
+import hashlib
+import jwt
 
 
 # Used in auth_register.
@@ -65,13 +67,10 @@ def auth_login(email, password):
         raise InputError
     # Update global state.
     # Adds user to data['logged_in'].
-    data.data['logged_in'].append({
-        'token' : new_email,
-        'u_id' : user['u_id']
-    })
+    data.data['logged_in'].append(user['u_id'])
     return {
         'u_id' : user['u_id'],
-        'token' : new_email
+        'token' : jwt.encode({'u_id': user['u_id']}, data.data['jwt_secret'], algorithm='HS256')
     }
 
 
@@ -88,9 +87,12 @@ def auth_logout(token):
         Dictionary with a boolean that depends
         on whether user can be successfully logged out
     """
+    # Check if token is valid.
+    u_id = validation.check_valid_token(token)
+
     # Check if user is active (logged in).
     for user in data.data['logged_in']:
-        if user['token'] == token:
+        if user == u_id:
             # Remove user from data['logged_in'].
             data.data['logged_in'].remove(user)
             return {'is_success' : True}
@@ -134,7 +136,7 @@ def auth_register(email, password, name_first, name_last):
     new['first'] = name_first
     new['last'] = name_last
     new['u_id'] = len(data.data['users']) + 1
-    new['password'] = password
+    new['password'] = hashlib.sha256(password.encode()).hexdigest()
     new['email'] = new_email
     new['handle'] = generate_handle(name_first, name_last)
     if new['u_id'] == 1:
@@ -144,12 +146,9 @@ def auth_register(email, password, name_first, name_last):
     data.data['users'].append(new)
 
     # Log user in.
-    data.data['logged_in'].append({
-        'token' : new_email,
-        'u_id' : new['u_id']
-    })
+    data.data['logged_in'].append(new['u_id'])
 
     return {
         'u_id' : new['u_id'],
-        'token': new_email
+        'token': jwt.encode({'u_id': new['u_id']}, data.data['jwt_secret'], algorithm='HS256')
     }

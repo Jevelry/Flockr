@@ -14,12 +14,7 @@ data = {
         #     'owner' : ''
         # }
     ],
-    'logged_in' : [
-        # {
-        #     'token' : '',
-        #     'u_id' : ''
-        # }
-    ],
+    'logged_in' : [], # List of u_id's
     'channels' : [
         # {
         #     'name' : '',
@@ -38,7 +33,8 @@ data = {
         #     ]
         # }
     ],
-    'message_num' : '' #the number of messages that have been sent
+    'message_num' : '', #the number of messages that have been sent
+    'jwt_secret' : 'Mango2Team'
 }
 
 # Clears the data variable.
@@ -52,5 +48,6 @@ def clear_data():
         'users' : [],
         'logged_in' : [],
         'channels' : [],
-        'message_num': ''
+        'message_num': '',
+        'jwt_secret' : 'Mango2Team'
     }

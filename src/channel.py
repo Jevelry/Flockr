@@ -21,11 +21,14 @@ def channel_invite(token, channel_id, u_id):
     Returns:
         Nothing
     """
+    # Check if token is valid
+    inviter_uid = validation.check_valid_token(token)
+
     # Check if given valid channel_id
     validation.check_valid_channel_id(channel_id)
 
-    # Check if token is valid and user is authorised(member of channel)
-    validation.check_valid_token_inchannel(token, channel_id)
+    # Check if is authorised(member of channel)
+    validation.check_user_in_channel(inviter_uid, channel_id)
         
     # Check if given valid u_id
     validation.check_valid_u_id(u_id)
@@ -56,11 +59,14 @@ def channel_details(token, channel_id):
     Returns:
         (dict): { name, owner_members, all_members }
     """
+    # Check if token is valid
+    u_id = validation.check_valid_token(token)
+
     # Check if given valid channel_id
     validation.check_valid_channel_id(channel_id)
       
-    # Check if token is valid and user is authorised(member of channel)
-    validation.check_valid_token_inchannel(token, channel_id)
+    # Check if user is authorised(member of channel)
+    validation.check_user_in_channel(u_id, channel_id)
 
     # Everything valid, Proceed with getting details
     channel_info = {

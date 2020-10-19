@@ -5,6 +5,8 @@ This is a file that checks everything
 from error import InputError, AccessError
 import data
 import re
+import hashlib
+import jwt
 
 def check_valid_token(token):
     """
@@ -15,11 +17,12 @@ def check_valid_token(token):
 
     Returns:
         Raises an error if token is invalid
-        Returns nothing if valid token
+        Returns u_id if token is valid
     """
-    for user in data.data["logged_in"]:
-        if user["token"] == token:
-            return
+    payload = jwt.decode(token, data.data['jwt_secret'], algorithms=['HS256'])
+    correct_token = jwt.encode(payload, data.data['jwt_secret'], algorithm='HS256')
+    if (token == correct_token):
+        return payload['u_id']
     raise AccessError(description="Token is invalid")
 
 
@@ -109,10 +112,12 @@ def check_correct_password(email, password):
         Raises an error if password doesn't match email
         Returns nothing if password and email match
     """
+    password_hash = hashlib.sha256(password.encode()).hexdigest()
     for user in data.data['users']:
-        if user['email'] == email and user['password'] == password:
+        if user['email'] == email and user['password'] == password_hash:
             return
     raise InputError(description="Password is incorrect")
+
 def check_correct_email(email):
     """
     Determine whether email exists when loging in
@@ -164,24 +169,31 @@ def check_valid_password(password):
         raise InputError(description="Password is not valid")
     return
 
-def check_valid_token_inchannel(token, channel_id):
+def check_user_in_channel(u_id, channel_id):
     """
-    Determine whether supplied token is valid
+    Determine whether user is in a particular channel
 
     Parameters:
-        token(string): An authorisation hash
+        u_id(int): Identifier for user
         channel_id(int): Identifier for channel
 
     Returns:
-        Raises an error if token not in channel
-        Returns nothing if token is in channel
+        Raises an error if usre not in channel
+        Returns nothing if user is in channel
     """
-    u_id = None
+    #u_id = None
     # Check if valid token, take u_id
-    for user in data.data["logged_in"]:
-        if user["token"] == token:
-            u_id = user["u_id"]
-    if u_id is None:
+    # for user in data.data["logged_in"]:
+    #     if user["token"] == token:
+    #         u_id = user["u_id"]
+    # if u_id is None:
+    #     raise AccessError(description="User is not logged in")
+    logged_in = False
+    for user in data.data['logged_in']:
+        if user == u_id:
+            logged_in = True
+            break
+    if not logged_in:
         raise AccessError(description="User is not logged in")
     # Check if user is existing member of channel
     for user in data.data["users"]:
