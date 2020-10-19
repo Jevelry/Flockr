@@ -19,10 +19,13 @@ def check_valid_token(token):
         Raises an error if token is invalid
         Returns u_id if token is valid
     """
-    payload = jwt.decode(token, data.data['jwt_secret'], algorithms=['HS256'])
-    correct_token = jwt.encode(payload, data.data['jwt_secret'], algorithm='HS256')
-    if (token == correct_token):
-        return payload['u_id']
+    try:
+        payload = jwt.decode(token, data.data['jwt_secret'], algorithms=['HS256'])
+        correct_token = jwt.encode(payload, data.data['jwt_secret'], algorithm='HS256')
+        if (token == correct_token):
+            return payload['u_id']
+    except:
+        raise AccessError(description="Token is invalid")
     raise AccessError(description="Token is invalid")
 
 

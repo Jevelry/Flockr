@@ -12,6 +12,7 @@ data = {
         #     'password' : ''
         #     'handle' : ''
         #     'owner' : ''
+        #     'num_logged_in : ''
         # }
     ],
     'logged_in' : [], # List of u_id's

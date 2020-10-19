@@ -5,7 +5,6 @@ error(error.py): gives access to error classes
 import data
 from error import InputError, AccessError
 import validation
-from user import get_uid
 
 def channels_list(token):
     """
@@ -17,23 +16,13 @@ def channels_list(token):
     Returns:
         List of channel dictionaries containing channel_id and name
     """
+    # Check token is valid
+    u_id = validation.check_valid_token(token)
+
     # Initialise channel_list to return to user
     channels = []
-    '''
-    u_id = None
 
-    # Finds u_id associated with user token
-    # Returns AccessError if token does not exist
-    for user in data.data['logged_in']:
-        if user['token'] == token:
-            u_id = user['u_id']
-
-    if u_id is None:
-        raise AccessError
-    '''
-    validation.check_valid_token(token)
     # Appends all channels that the user is in to channel_list
-    u_id = get_uid(token)
     for channel in data.data['channels']:
         for member_id in channel['members']:
             if member_id == u_id:
@@ -55,12 +44,11 @@ def channels_listall(token):
     Returns:
         List of channel dictionaries containing channel_id and name
     """
+    # Check if token is valid
+    validation.check_valid_token(token)
+
     # Initialise channel_list to return to user
     channels = []
-
-    # Finds u_id associated with user token
-    # Returns AccessError if token does not exist
-    validation.check_valid_token(token)
 
     # Appends channel_id and name of all channels into channel_list
     for channel in data.data['channels']:
@@ -85,15 +73,14 @@ def channels_create(token, name, is_public):
     Returns:
         Dictionary with information about the created channel
     """
+    # Check if token is valid
+    u_id = validation.check_valid_token(token)
+
     # Returns InputError if channel name is more than 20 characters
     if len(name) > 20:
-        raise InputError('Name cannot be more than 20 characters long')
-
-    # Finds u_id associated with user token
-    # Returns AccessError if token does not exist
-    validation.check_valid_token(token)
+        raise InputError(description='Name cannot be more than 20 characters long')
+    
     # Creates a new channel and stores to 'channels' in data.py
-    u_id = get_uid(token)
     new_channel = {
         'channel_id' : (len(data.data['channels']) + 1),
         'name' : name,

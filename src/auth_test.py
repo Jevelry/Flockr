@@ -8,6 +8,10 @@ import pytest
 import auth
 import other
 from error import InputError
+import jwt
+
+invalid_token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9."+\
+    "eyJuYW1lIjoxfQ.ztHzOWETIbFrcWTlfek-zLoeOToIf3xcWYWDeTf2DuE"
 
 # AUTH_LOGIN tests
 # SUCCESSFUL
@@ -109,11 +113,10 @@ def test_unsuccessful_auth_logout():
     """
     Tests unsuccessful uses of auth_logout
     """
-    logout = auth.auth_logout('notatoken')
-    assert logout['is_success'] is False
 
-    user1 = auth.auth_register('fruit@salad.edu.au', 'yummyyummy', 'Fruit', 'Salad')
-    logout = auth.auth_logout(user1['u_id'])
+    user1 = auth.auth_register('fruit@salad.edu.au', 'yum.myyu.mmy', 'Fruit', 'Salad')
+    logout = auth.auth_logout(user1['token'])
+    logout = auth.auth_logout(user1['token'])
     assert logout['is_success'] is False
 
     other.clear()

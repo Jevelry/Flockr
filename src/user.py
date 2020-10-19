@@ -8,19 +8,19 @@ re(regex): Gives access to regex for valid_email
 import data
 import validation
 
-def get_uid(token):
-    """
-    Get users u_id from token
+# def get_uid(token):
+#     """
+#     Get users u_id from token
     
-    Parameters:
-        token(string): An authorisation hash
+#     Parameters:
+#         token(string): An authorisation hash
 
-    Returns:
-        u_id(int) 
-    """
-    for user in data.data["logged_in"]:
-        if user["token"] == token:
-            return user["u_id"]
+#     Returns:
+#         u_id(int) 
+#     """
+#     for user in data.data["logged_in"]:
+#         if user["token"] == token:
+#             return user["u_id"]
 
 def user_profile(token, u_id):
     """
@@ -49,7 +49,7 @@ def user_profile(token, u_id):
             user["name_first"] = users["first"]
             user["name_last"] = users["last"]
             user["handle_str"] = users["handle"]
-        return user      
+    return user      
 
     """
     return {
@@ -78,13 +78,12 @@ def user_profile_setname(token, name_first, name_last):
         Nothing
     """
     #Check for valid token
-    validation.check_valid_token(token)
+    u_id = validation.check_valid_token(token)
         
     #Check for valid name
     validation.check_valid_name(name_first, name_last)
            
     #Everything valid, proceed with changing name
-    u_id = get_uid(token)
     for users in data.data["users"]:
         if users["u_id"] == u_id: 
             users["first"] = name_first
@@ -103,9 +102,8 @@ def user_profile_setemail(token, email):
     Returns:
         Nothing
     """
-    u_id = get_uid(token)
     #Check for valid token
-    validation.check_valid_token(token)
+    u_id = validation.check_valid_token(token)
         
     #Check for valid email
     validation.check_valid_email(email)
@@ -128,9 +126,8 @@ def user_profile_sethandle(token, handle_str):
     Returns:
         Nothing
     """
-    u_id = get_uid(token)
     #Check for valid token
-    validation.check_valid_token(token)
+    u_id = validation.check_valid_token(token)
         
     #Check for valid handle    
     validation.check_valid_handle(handle_str)
