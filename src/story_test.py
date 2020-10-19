@@ -207,21 +207,21 @@ def test_registering_and_channel():
     
     resp2 = requests.post(url + '/auth/register', json=reg_email_invalid)
     resp2_payload = resp2.json()
-    assert resp1_payload['message'] == '<p>Email is invalid<p>'
-    assert resp1_payload['code'] == 400
+    assert resp2_payload['message'] == '<p>Email is invalid<p>'
+    assert resp2_payload['code'] == 400
     
     resp3 = requests.post(url + '/auth/register', json=reg_email_existing)
     resp3_payload = resp3.json()
-    assert resp1_payload['message'] == '<p>Email already in use<p>'
-    assert resp1_payload['code'] == 400
+    assert resp3_payload['message'] == '<p>Email already in use<p>'
+    assert resp3_payload['code'] == 400
     
     resp4 = requests.post(url + '/auth/register', json=reg_firstname_invalid)
     resp4_payload = resp4.json()
-    assert resp1_payload['message'] == '<p>First name is not valid<p>'
-    assert resp1_payload['code'] == 400
+    assert resp4_payload['message'] == '<p>First name is not valid<p>'
+    assert resp4_payload['code'] == 400
     
     resp5 = requests.post(url + '/auth/register', json=reg_lastname_invalid)
     resp5_payload = resp5.json()
-    assert resp1_payload['message'] == '<p>Last name is not valid<p>'
-    assert resp1_payload['code'] == 400
+    assert resp5_payload['message'] == '<p>Last name is not valid<p>'
+    assert resp5_payload['code'] == 400
     
