@@ -38,11 +38,132 @@ def url():
         server.kill()
         raise Exception("Couldn't get URL from local server")
 
-def test_edit_profile():
-    register_info = {
+def assert_different_people(user1, user2):
+    assert user1 != user2
+    assert user1['u_id'] != user2['u_id']
+    assert user1['token'] != user2['token']
+
+def test_edit_profile_and_messages():
+    """
+    Tests changing profile information and messages in groups
+    """
+    user1_reg = {
         'name_first' : 'Fred',
         'name_last' : 'Smith',
         'email' : 'fred@gmail.com',
-        'password' : 'fredsmith'
+        'password' : 'Freddo'
     }
-    resp1
+    user2_reg = {
+        'name_first' : 'Alan',
+        'name_last' : 'Borm',
+        'email' : 'alan@yahoo.com',
+        'password' : 'Boromir'
+    }
+    # Fred and Alan register
+    resp1 = requests.post(url + '/auth/register', json=user1_reg)
+    resp2 = requests.post(url + '/auth/register', json=user2_reg)
+    Fred = resp1.json()
+    Alan = resp2.json()
+    assert_different_people(Fred, Alan)
+
+    chan1_info = {
+        'token' : Fred['token'],
+        'name' : 'Welcome',
+        'is_public' : True
+    }
+    # Fred creates and joins channel 'Welcome'
+    resp3 = requests.post(url + '/channels/create', json=chan1_info)
+    chan1 = resp3.json()
+    assert len(chan1) == 1
+    assert chan1['channel_id'] is not None
+
+    message1 = {
+        'token' : Fred['token'],
+        'channel_id' : chan1['channel_id'],
+        'message' : "Hello nobody"
+    }
+    # Fred sends message to empty channel
+    resp4 = requests.post(url + '/message/send', json=message1)
+    mess1 = resp4.json()
+    assert len(mess1) == 1
+    assert mess1['message_id'] is not None
+
+    chan_join_info = {
+        'token' : Alan['token'],
+        'channel_id' : chan1['channel_id']
+    }
+    # Alan joins channel
+    resp5 = requests.post(url + '/channel/join', json=chan_join_info)
+    assert resp5.json == {}
+
+    message_remove1 = {
+        'token' : Fred['token'],
+        'message_id' : mess1['message_id']
+    }
+    # Fred deletes message
+    resp6 = requests.delete(url+'/message/remove', json=message_remove1)
+    assert resp6.json() == {}
+
+    message2 = {
+        'token' : Alan['token'],
+        'channel_id' : chan1['channel_id'],
+        'message' : "Good morning Fred!"
+    }
+    # Alan sends a message
+    resp5 = requests.post(url + '/message/send', json=message2)
+    mess2 = resp5.json()
+    assert len(mess2) == 1
+    assert mess2['message_id'] is not None
+    assert mess1['message_id'] != mess2['message_id']
+
+    change_name1 = {
+        'token' : Fred['token'],
+        'name_first' : "I wonder how long my name should be. Is there a limit or nah",
+        'name_last' : "Wazco"
+    }
+
+    # Fred changes his name unsuccessfully
+    resp6 = requests.put(url + '/user/profile/setname', json=change_name1)
+    resp6_payload = resp6.json()
+    assert resp6_payload['message'] == '<p>First name is not valid<p>'
+    assert resp6_payload['code'] == 400
+
+    change_name2 = {
+        'token' : Fred['token'],
+        'name_first' : 'George',
+        'name_last' : 'Wazco'
+    }
+    # Fred changes his name successfully
+    resp7 = requests.put(url + '/user/profile/setname', json=change_name2)
+    assert resp7.json() == {}
+
+    change_handle = {
+        'token' : Fred['token'],
+        'handle_str' : 'GeorgeTheWizard'
+    }
+
+    # Ex-Fred changes his handle
+    resp8 = requests.put(url + '/user/profile/sethandle', json=change_handle)
+    assert resp8.json() == {}
+
+    message_edit1 = {
+        'token' : Alan['token'],
+        'message_id' : mess2['message_id'],
+        'message' : 'Good morning George!'
+    }
+    # Alan edits his original message
+    resp9 = requests.put(url + '/message/edit', json=message_edit1)
+    assert resp9.json == {}
+
+    chan1_messages = {
+        'token' : Alan['token'],
+        'channel_id' : chan1['channel_id'],
+        'start' : 1
+    }
+    # Alan checks only his message using channel_messages
+    resp10 = requests.get(url + '/channel/details', params=chan1_messages)
+    payload10 = resp10.json()
+    assert payload10['messages'] == [mess2['message_id']]
+    assert payload10['start'] == 1
+    assert payload10['end'] == -1
+
