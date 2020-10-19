@@ -195,3 +195,4 @@ def message_in_channel(message_id, user_id, channel):
             else:
                 raise AccessError
     return False
+

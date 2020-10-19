@@ -123,7 +123,7 @@ def search(token, query_str):
     for channel in data.data['channels']:
         if u_id in channel['members']:
             for message in channel['messages']:
-                if query_str in message['message']:
+                if query_str in message['message'] and message['u_id'] == u_id:
                     message_result = {
                         'message_id': message['message_id'],
                         'u_id': message['u_id'],
