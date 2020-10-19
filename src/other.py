@@ -3,6 +3,9 @@ data(data.py): Gives access to global variable
 """
 import data
 import validation
+from user import get_uid
+from error import InputError
+from error import AccessError
 
 def clear():
     """
@@ -25,18 +28,22 @@ def users_all(token):
     """
     # Initialise list of users to return to user
     users = {
-        'users': []
+        'users' : []
     }
+
+    # Checks if user's token exists
+    # Returns AccessError if token does not exist
+    validation.check_valid_token(token)
 
     # Accesses data.py and appends user info of each user to users
     for user in data.data['users']:
         user_info = {
-            'u_id': user['u_id'],
-            'email': user['email'],
-            'name_first': user['first'],
-            'name_last': user['last'],
-            'handle_str': user['handle'],
-            'owner': user['owner'],
+            'u_id' : user['u_id'],
+            'email' : user['email'],
+            'name_first' : user['first'],
+            'name_last' : user['last'],
+            'handle_str' : user['handle'],
+            'permission_id' : user['permission_id'],
         }
         users['users'].append(user_info)
 
@@ -72,17 +79,18 @@ def admin_userpermission_change(token, u_id, permission_id):
     # Returns AccessError if not an owner of Flockr
     for auth_user in data.data['users']:
         if auth_u_id == auth_user['u_id']:
-            if auth_user['owner'] == 1:
+            if auth_user['permission_id'] == 1:
                 pass
             else:
                 raise AccessError
     
-    # Finds target user and sets 'owner' value to permission_id
+    # Finds target user and sets 'permission_id' value to permission_id
     for user in data.data['users']:
         if user['u_id'] == u_id and permission_id in valid_permission_id:
-            user['owner'] = permission_id
-        else:
-            raise InputError
+            user['permission_id'] = permission_id
+            return {}
+    
+    raise InputError
 
     return {}
 

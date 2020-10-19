@@ -37,8 +37,11 @@ data = {
         #         }
         #     ]
         # }
-    ]
+    ],
+    'message_num' : '', #the number of messages that have been sent
 }
+
+
 
 # Clears the data variable.
 # Removes all users, channels, etc.

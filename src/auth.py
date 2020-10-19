@@ -138,6 +138,11 @@ def auth_register(email, password, name_first, name_last):
     new['password'] = password
     new['email'] = new_email
     new['handle'] = generate_handle(name_first, name_last)
+    if new['u_id'] == 1:
+        new['permission_id'] = 1
+    else:
+        new['permission_id'] = 2
+
     data.data['users'].append(new)
 
     # Log user in.
