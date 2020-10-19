@@ -1,11 +1,13 @@
 """
 datetime: Gives access to the datetime functions
-data(data.py): Gives access to global data variable
 error(error.py): Gives access to error classes
+data(data.py): Gives access to global data variable
+validation(validation.py): Gives access to the premade validations
 """
-#import datetime
+import datetime
 from error import AccessError, InputError
 import data
+import validation
 
 
 def message_send(token, channel_id, message):
@@ -20,8 +22,9 @@ def message_send(token, channel_id, message):
     Returns:
         message_id(string): An identifier for the new message
     """
-    if len(message) > 1000:
-        raise InputError
+    validation.valid_message(message)
+    validation.check_valid_channel_id(channel_id)
+    validation.check_valid_token(token)
 
     user_input_id = token_to_id(token)
 
@@ -31,7 +34,7 @@ def message_send(token, channel_id, message):
     new_message = {}
     new_message['message'] = message
     new_message['u_id'] = user_input_id
-    #new_message['date'] = datetime.now()
+    new_message['date'] = datetime.datetime.now()
     new_message_id = make_message_id()
     new_message['message_id'] = new_message_id
 
@@ -50,9 +53,13 @@ def message_remove(token, message_id):
     Parameters:
         token(string): An authorisation hash
         message_id(string): The id of the message being removed
+        message(string): The message of the message being added
 
     Returns:
     """
+    validation.valid_message_id(message_id)
+    validation.check_valid_token(token)
+
     user_input_id = token_to_id(token)
     channel = find_message_in_channels(message_id, user_input_id)
     for message in channel['messages']:
@@ -63,14 +70,28 @@ def message_remove(token, message_id):
 
 def message_edit(token, message_id, message):
     """
-    Replace this with your own docstring.
-    I just want to pass pylint
+    Removes an existing message from the channel it is in
+
+    Parameters:
+        token(string): An authorisation hash
+        message_id(string): The id of the message being removed
+
+    Returns:
     """
-    return {
-        'token' : token, # Delete this line
-        'message_id' : message_id, # Delete this line
-        'message' : message # Delete this line
-    }
+    validation.valid_message(message)
+    validation.check_valid_token(token)
+    validation.valid_message_id(message_id)
+
+    if message == '':
+        message_remove(token, message_id)
+        return {}
+
+    user_input_id = token_to_id(token)
+    channel = find_message_in_channels(message_id, user_input_id)
+    for cur_message in channel['messages']:
+        if cur_message['message_id'] == message_id:
+            cur_message['message'] = message
+    return {}
 
 
 #Will take a token and return the id
