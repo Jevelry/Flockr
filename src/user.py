@@ -8,19 +8,6 @@ re(regex): Gives access to regex for valid_email
 import data
 import validation
 
-# def get_uid(token):
-#     """
-#     Get users u_id from token
-    
-#     Parameters:
-#         token(string): An authorisation hash
-
-#     Returns:
-#         u_id(int) 
-#     """
-#     for user in data.data["logged_in"]:
-#         if user["token"] == token:
-#             return user["u_id"]
 
 def user_profile(token, u_id):
     """
@@ -51,19 +38,6 @@ def user_profile(token, u_id):
             user["handle_str"] = users["handle"]
     return user      
 
-    """
-    return {
-        'user': {
-            'u_id': 1,
-            'email': 'cs1531@cse.unsw.edu.au',
-            'name_first': 'Hayden',
-            'name_last': 'Jacobs',
-            'handle_str': 'hjacobs',
-            'token' : token, # Delete this line. Pylint is complaining about unused variables.
-            'id' : u_id + 1 # Delete this line
-        },
-    }
-    """
     
 def user_profile_setname(token, name_first, name_last):
     """

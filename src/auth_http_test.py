@@ -1,6 +1,11 @@
 """
-Really don't understand these yet
-but we need a docstring
+re(regex module): Gives access to regex used in url fixture
+subprocess(subprocess module): Gives access to opening other files(?)
+signal(signal module): Gives access to signals
+time(time module): Gives access to sleep (to start server)
+json(json module): Gives access to data unpacking
+requests(requests module): Gives access to automated server requests
+pytest(pytest module): Gives access to pytest commands
 """
 import re
 from subprocess import Popen, PIPE

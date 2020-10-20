@@ -19,14 +19,12 @@ def test_channels_list():
     Testing successful uses of channels_list
     """
     user = auth.auth_register('testmail@gmail.com', 'password', 'first_name', 'last_name')
-    user = auth.auth_login('testmail@gmail.com', 'password')
     channels.channels_create(user['token'], 'test_channel', True)
     list_result = channels.channels_list(user['token'])
     assert list_result[0]['channel_id'] == 1
     assert list_result[0]['name'] == 'test_channel'
 
     user2 = auth.auth_register('another_test@hotmail.com', 'password123', 'first_name', 'last_name')
-    user2 = auth.auth_login('another_test@hotmail.com', 'password123')
     channels.channels_create(user2['token'], 'test_channel_two', True)
     channels.channels_create(user2['token'], 'test_channel_three', True)
     list_result2 = channels.channels_list(user2['token'])
@@ -63,14 +61,12 @@ def test_channels_listall():
     Testing successful uses of channels_listall
     """
     user = auth.auth_register('abc123@gmail.com', 'passwordabc', 'first_name', 'last_name')
-    user = auth.auth_login('abc123@gmail.com', 'passwordabc')
     new_channel = channels.channels_create(user['token'], 'my_channel', True)
     list_result = channels.channels_listall(user['token'])
     assert list_result[0]['channel_id'] == 1
     assert list_result[0]['name'] == 'my_channel'
 
     user2 = auth.auth_register('xyz456@gmail.com', 'passwordxyz', 'first_name', 'last_name')
-    user2 = auth.auth_login('xyz456@gmail.com', 'passwordxyz')
     channel.channel_join(user2['token'], new_channel['channel_id'])
     channels.channels_create(user2['token'], 'our_channel', True)
     list_result2 = channels.channels_listall(user2['token'])
@@ -109,14 +105,12 @@ def test_channels_create_name_valid():
     """
 
     user = auth.auth_register('testmail@gmail.com', 'passwordpassword', 'first_name', 'last_name')
-    user = auth.auth_login('testmail@gmail.com', 'passwordpassword')
     channels.channels_create(user['token'], 'test_name', True)
     list_result = channels.channels_list(user['token'])
     assert list_result[0]['channel_id'] == 1
     assert len(list_result[0]['name']) < 20
 
     user2 = auth.auth_register('mailtest@gmail.com', 'passwordword', 'first_name', 'last_name')
-    user2 = auth.auth_login('mailtest@gmail.com', 'passwordword')
     channels.channels_create(user2['token'], 'test_name_two', False)
     list_result2 = channels.channels_list(user2['token'])
     assert list_result2[0]['channel_id'] == 2
@@ -131,12 +125,10 @@ def test_channels_create_name_error():
     focusing on invalid channel names
     """
     user = auth.auth_register('testmail123@gmail.com', 'passwordpass', 'first_name', 'last_name')
-    user = auth.auth_login('testmail123@gmail.com', 'passwordpass')
     with pytest.raises(InputError):
         assert channels.channels_create(user['token'], 'test_name_12345678910x', True)
 
     user2 = auth.auth_register('mailtest123@gmail.com', 'passwpassword', 'first_name', 'last_name')
-    user2 = auth.auth_login('mailtest123@gmail.com', 'passwpassword')
     with pytest.raises(InputError):
         assert channels.channels_create(user2['token'], 'test_name_0987654321x', False)
 

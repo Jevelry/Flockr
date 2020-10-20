@@ -11,7 +11,7 @@ data = {
         #     'u_id' : '',
         #     'password' : ''
         #     'handle' : ''
-        #     'owner' : ''
+        #     'permission_id' : ''
         #     'num_logged_in : ''
         # }
     ],
@@ -35,7 +35,7 @@ data = {
         # }
     ],
     'message_num' : '', #the number of messages that have been sent
-    'jwt_secret' : 'Mango2Team'
+    'jwt_secret' : 'Mango2Team' # Secret jwt password (for tokens)
 }
 
 # Clears the data variable.

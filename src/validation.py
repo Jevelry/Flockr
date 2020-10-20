@@ -184,13 +184,7 @@ def check_user_in_channel(u_id, channel_id):
         Raises an error if usre not in channel
         Returns nothing if user is in channel
     """
-    #u_id = None
-    # Check if valid token, take u_id
-    # for user in data.data["logged_in"]:
-    #     if user["token"] == token:
-    #         u_id = user["u_id"]
-    # if u_id is None:
-    #     raise AccessError(description="User is not logged in")
+
     logged_in = False
     for user in data.data['logged_in']:
         if user == u_id:

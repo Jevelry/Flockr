@@ -1,5 +1,5 @@
 """
-Literally no idea what this is but i need a docstring
+Stores error classes
 """
 from werkzeug.exceptions import HTTPException
 

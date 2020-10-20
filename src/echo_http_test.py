@@ -1,6 +1,5 @@
 """
-Really don't understand these yet
-but we need a docstring
+Http tests for echo in server.py
 """
 import re
 from subprocess import Popen, PIPE

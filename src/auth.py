@@ -1,7 +1,9 @@
 """
-re(regex): Gives access to regex for valid_email
+re(regex module): Gives access to regex for valid_email
 data(data.py): Gives access to global data variable
 error(error.py): Gives access to error classes
+haslip (hash module): Gives access to sha256 hashing (for password)
+jwt (Pyjwt module): Gives access to jwts (for storing tokens)
 """
 
 import data
@@ -53,6 +55,7 @@ def auth_login(email, password):
     # Checks to determine whether email and password are correct.
     validation.check_correct_email(new_email)
         
+    # Check if supplied password matches the email
     validation.check_correct_password(new_email, password)
         
 
@@ -64,7 +67,7 @@ def auth_login(email, password):
         if user['email'] == email:
             break
     if user is None:
-        raise InputError
+        raise InputError(description="User does not exist")
     # Update global state.
     # Adds user to data['logged_in'].
     data.data['logged_in'].append(user['u_id'])
@@ -121,11 +124,14 @@ def auth_register(email, password, name_first, name_last):
 
     # Checks to determine whether names, password and email are valid.
     validation.check_valid_email(new_email)
-        
+    
+    # Check whether email is already being used
     validation.check_existing_email(new_email)
 
+    # Check whether first and last name are valid
     validation.check_valid_name(name_first, name_last)
 
+    # Check whether password is long enough
     validation.check_valid_password(password)
 
 

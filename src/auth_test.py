@@ -10,8 +10,6 @@ import other
 from error import InputError
 import jwt
 
-invalid_token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9."+\
-    "eyJuYW1lIjoxfQ.ztHzOWETIbFrcWTlfek-zLoeOToIf3xcWYWDeTf2DuE"
 
 # AUTH_LOGIN tests
 # SUCCESSFUL
