@@ -86,14 +86,14 @@ def channels_create(token, name, is_public):
     # Creates a new channel and stores to 'channels' in data.py
     
     new_channel = {
-        'channel_id' : (data.get_num_channels + 1),
+        'channel_id' : data.get_num_channels() + 1,
         'name' : name,
         'state' : is_public,
-        'owners' : [u_id],
-        'members' : [u_id],
-        'messages' : [],
+        'owners' : {u_id},
+        'members' : {u_id},
+        'messages' : {},
     }
-    data.channels_create(new_channel)
+    data.channel_create(new_channel)
 
     # Stores channel as part of the user's channel list
     user = data.get_user_info(u_id)

@@ -1,4 +1,8 @@
 """
+docstring do later
+"""
+import error
+"""
 Global variable containing the state of flockr
 """
 '''
@@ -56,13 +60,14 @@ users = {
 logged_in = set() # Set of u_ids
 
 channels = {
+    # channel_id {
         # channel_id = {
         #     'name' : '',
         #     'state' : '', # public or private
         #     'channel_id' : ''
-        #     'owners' = set()
-        #     'members' : set()
-        #     'messages' = {
+        #     'owners' = set(),
+        #     'members' : set(),
+         #    'messages' = {
         #         message_id = {
             #         {
             #             'message' : '',
@@ -70,8 +75,9 @@ channels = {
             #             'u_id' : '',
             #             'date' : ''
             #         }
-                # }
+            #    }
         #      
+    #}
 }
 
 message_num = 0 #the number of messages that have been sent
@@ -87,7 +93,9 @@ def clear_data():
     """
     global users, channels, logged_in, message_num
     users = {}
-    channels = {}
+    channels = {
+
+    }
     logged_in = set()
     message_num = 0
     
@@ -96,23 +104,31 @@ def get_user_with(attributes):
     """
     Given an attribute(dict), finds user(dict) with matching attribute and returns it
     """
-    user = None  
-    for user in users:
-        for attr,val in attributes.items():
-            if user[attr] != val:
-                break
-        else:
-            usr = user   
+    #user = None  
+    # user = None  
+    # for user in users:
+    #     for attr,val in attributes.items():
+    #         if user[attr] != val:
+    #             break
+    #     else:
+    #         usr = user   
 
-        '''    
-        if user[attributes.key()] == dict.get(attributes)
-        return user
+    #     '''    
+    #     if user[attributes.key()] == dict.get(attributes)
+    #     return user
+    # return None
+    # '''
+    for user in users:
+        if attributes.items() <= users[user].items():
+            return users[user]
     return None
-    '''
+    
 def get_user_info(u_id):  
     """
     Given a u_id, returns the user
     """   
+
+def get_user_info(u_id):     
     return users[u_id]
     
 def update_user(user,attributes):
@@ -268,3 +284,23 @@ def channel_create(new_channel):
     Given a new_channel(dict), adds it to list of existing channels
     """ 
     channels[new_channel['channel_id']] = new_channel 
+
+def find_channel(message_id):
+    for channel in channels:
+        if message_id in channel['messages']:
+            return channel
+    raise InputError(description="Message not in any channel")
+
+def get_message(channel, message_id):
+    return channels[channel][messages][message_id]
+
+def add_message(message, channel_id):
+    channel = channels[channel_id]
+    message_id = message['message_id']
+    channel[messages][message_id] = message
+
+def remove_message(message_id, channel_id):
+    del channels[channel_id][messages][message_id]
+
+def edit_message(channel_id, message_id, message):
+    channels[channel_id][messages][message_id]['message'] = message

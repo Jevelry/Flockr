@@ -60,7 +60,7 @@ def auth_login(email, password):
     # Everything is valid.
     # User has definitely registered. Password is correct.
     # There is at least one user in data.data['users']
-    user = data.get_user_with({ 'email' : email })
+    user = data.get_user_with({ 'email' : email.lower() })
     if user is None:
         raise InputError(description="User does not exist")
 
@@ -133,7 +133,7 @@ def auth_register(email, password, name_first, name_last):
     # Update global state.
     # Adds a new user to data['users'].
     new = {}
-    new['channel_list'] = []
+    new['channel_list'] = set()
     new['first'] = name_first
     new['last'] = name_last
     new['u_id'] = data.get_num_users() + 1
@@ -151,5 +151,5 @@ def auth_register(email, password, name_first, name_last):
 
     return {
         'u_id' : new['u_id'],
-        'token': jwt.encode({'u_id': new['u_id']}, data.data['jwt_secret'], algorithm='HS256')
+        'token': jwt.encode({'u_id': new['u_id']}, data.jwt_secret, algorithm='HS256')
     }
