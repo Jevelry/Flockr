@@ -93,7 +93,7 @@ def clear_data():
     
 
 def get_user_with(attributes):  
-    usr = None  
+    user = None  
     for user in users:
         for attr,val in attributes.items():
             if user[attr] != val:
@@ -119,6 +119,9 @@ def register_user(user):
 def login_user(u_id):
     logged_in.add(u_id) 
 
+def check_logged_in(u_id):
+    return u_id in logged_in 
+
 def get_channel_info(channel_id):
     return channels[channel_id]
     
@@ -129,6 +132,16 @@ def channel_add_member(channel_id, u_id):
     channel[members].add(u_id)
     user = get_user_info(u_id)
     user["channel_list"].add(channel_id)
+
+def check_user_in_channel(channel_id, u_id):
+    channel_info = get_channel_info(channel_id)
+    return u_id in channel_info['members']
+    # if u_id not in channel_info['members']:
+    #     raise AccessError(description="User is not in channel")
+
+def check_channel_owner(channel_id, u_id):
+    channel_info = get_channel_info(channel_id)
+    return u_id in channel_info['owners']
 
 def channel_add_owner(channel_id, u_id):
     channel = channels[channel_id]   
@@ -143,6 +156,10 @@ def channel_remove_member(channel_id, u_id):
 def channel_remove_owner(channel_id,u_id):
     channel = channels[channel_id]   
     channel[owners].remove(u_id)
+
+def get_message_num():
+    return message_num
+    
 def make_message_id():
     """
     Creates a unique string to be a message_id for a new message
