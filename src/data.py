@@ -38,6 +38,20 @@ data = {
     'jwt_secret' : 'Mango2Team' # Secret jwt password (for tokens)
 }
 
+users = {
+
+}
+
+logged_in = {
+
+}
+
+channels = {
+}
+
+data = {
+}
+
 # Clears the data variable.
 # Removes all users, channels, etc.
 def clear_data():
