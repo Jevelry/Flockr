@@ -246,7 +246,7 @@ def hostile_takeover(url):
     * auth_register
     * channels_create (private)
     * channel_invite
-    * message_send
+    * message_send 
     * channel_removeowner
     * channel_addowner
     * channel_leave
@@ -407,7 +407,7 @@ def hostile_takeover(url):
         'token' : Joe['token'],
         'handle_str' : 'WeAreNumberOne'
     }
-    resp15 = requests.put(url + '/user/profile/sethandle', json = change_handle_
+    resp15 = requests.put(url + '/user/profile/sethandle', json = change_handle_)
     assert resp15.json() == {}
 
     # Joe changes his password
@@ -473,3 +473,184 @@ def hostile_takeover(url):
     }
     resp21 = requests.post(url + '/auth/logout', json = logout3)
     assert resp21 == { 'is_success' : True }
+
+def editing_removing_messages(url):
+    """
+    Tests a user going on a message editing and removing spree:
+    * auth_register
+    * channels_create (public)
+    * channel_join
+    * channe_messages
+    * message_send 
+    * message_remove
+    * message_edit
+    * channel_addowner
+    """
+    # Joe and Henry register accounts
+    user1_info = {
+        'name_first' : 'Paul',
+        'name_last' : 'Schlamp',
+        'email' : 'r.s@bigpond.net',
+        'password' : 'm"kay'
+    }
+    user2_info = {
+        'name_first' : 'Seal',
+        'name_last' : 'Sire',
+        'email' : 'FireSire@hotmail.com',
+        'password' : 'phlem$#PHLEM'
+    }
+    resp1 = requests.post(url + '/auth/register', json=user1_info)
+    Paul = resp1.json()
+    
+    resp2 = requests.post(url + '/auth/register', json=user2_info)
+    Seal = resp2.json()
+
+    chan1_info = {
+        'token' : Paul['token'],
+        'name' : 'General',
+        'is_public' : True,
+    }
+
+    resp3 = requests.post(url + '/channels/create', json=chan1_info)
+    chan1 = resp3.json()
+    
+    chan1_join = {
+        'token' : Seal['token'],
+        'channel_id' : chan1['channel_id'],
+    }
+
+    resp4 = requests.post(url + '/channel/join', json=chan1_join)
+    assert resp4.json() == {}
+
+    message1_1_info = {
+        'token' : Paul['token'],
+        'channel_id': chan1['channel_id'],
+        'message' : 'First rule in general channel do not talkaboutgeneralchannel'
+    }
+    resp5 = requests.post(url + 'message/send', json=message1_1_info)
+    message1_1 = resp5.json()
+
+    message1_2_info = {
+        'token' : Paul['token'],
+        'channel_id' : chan1['channel_id'],
+        'message' : 'Second Rule ... First rule again',
+    }
+
+    resp6 = requests.post(url + 'message/send', json=message1_2_info)
+    message1_2 = resp6.json()
+
+    message1_3_info = {
+        'token' : Seal['token'],
+        'channel_id' : chan1['channel_id'],
+        'message' : 'You seem bad at this'
+    }
+
+    resp7 = requests.post(url + 'message/send', json=message1_3_info)
+    message1_3 = resp7.json()
+
+    addowner_info{
+        'token' : Paul['token'],
+        'channel_id' : chan1['channel_id'],
+        'u_id' : Seal['u_id'],
+    }
+
+    resp8 = requests.post(url + 'channel/addowner', json=addowner_info)
+    assert resp8.json() == {}
+
+    get_messages_info = {
+        'token' : Seal['token'],
+        'channel_id' : chan1['channel_id'],
+        start : 0
+    }
+    resp9 = requests.post(url + 'channel/messages',json=get_messages_info)
+    channel_message1 = resp9.json()
+    assert channel_message1['end'] == -1 
+
+    for sent_message in channel_message1['messages']:
+        edit_message_info = {
+            'token' : Seal['token'],
+            'message_id' : sent_message['message_id']
+            'message' : 'New message YaYaYaYa' 
+        }
+        resp10 = requests.post(url + 'message/edit', json=edit_message_info)
+        assert resp10.json() == {}
+
+    resp11 = requests.post(url + 'channel/messages',json=get_messages_info)
+    channel_message2 = resp11.json()
+    assert channel_message2['end'] == -1
+
+    for sent_message in channel_message2['messages']:
+        assert sent_message['message'] == 'New message YaYaYaYa'
+        assert sent_message['u_id'] == Seal['u_id']
+
+    user3_info = {
+        'name_first' : 'Slam',
+        'name_last' : 'Bam',
+        'email' : 'nam@bigpond.net',
+        'password' : 'rightEOUS!ath'
+    }
+
+    resp12 = requests.post(url + '/auth/register', json=user3_info)
+    Slam = resp12.json()
+
+    chan1_join2 = {
+        'token' : Slam['token'],
+        'channel_id' : chan1['channel_id'],
+    }
+
+    resp13 = requests.post(url + 'channel/join', json=chan1_join2)
+    assert resp13.json() == {}
+
+    message1_4_info = {
+        'token' : Slam['token'],
+        'channel_id': chan1['channel_id'],
+        'message' : 'I love your channel'
+    }
+
+    resp14 = requests.post(url + 'message/send', json=message1_4_info)
+    message1_4 = resp14.json()
+
+    get_messages_info2 = {
+        'token' : Slam['token'],
+        'channel_id' : chan1['channel_id'],
+        start : 0
+    }
+
+    resp15 = requests.post(url + 'channel/messages', json=get_messages_info2)
+    channel_message3 = resp15.json()
+
+    """Minics how a person would find and delete a message"""
+    for message in channel_message3['messages']:
+        if message['message'] == 'I love your channel'
+            message_remove_info = {
+                'token' : Slam['token'],
+                'message_id' : message['message_id'],
+            }
+            resp16 = requests.post(url + 'message/remove', json=message_remove_info)
+            assert resp16.json() == {}
+
+    message1_5_info = {
+        'token' : Slam['token'],
+        'channel_id' : chan1['channel_id'],
+        'message' : 'I REALLY love your channel',
+    }
+
+    resp17 = requests.post(url + 'message/send', json=message1_5_info)
+    message1_5 = resp17.json()
+
+    message_remove_info = {
+        'token' : Seal['token'],
+        'message_id' : message1_5['message_id'],
+    }
+
+    resp18 = request.post(url + 'message/remove',json=message_remove_info)
+    asssert resp18.json() = {}
+
+    resp19 = requests.post(url + 'channel/messages',json=get_messages_info2)
+    channel_message4 = resp19.json()
+
+    asssert 'I REALLY love your channel' is not in channel_message4['messages']['message']
+
+
+
+    
