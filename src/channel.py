@@ -38,15 +38,7 @@ def channel_invite(token, channel_id, u_id):
     validation.check_is_existing_channel_member(u_id, channel_id)
       
     # Everything valid, Proceed with adding to channel
-    for channel in data.data["channels"]:
-        if channel["channel_id"] == channel_id:
-            channel["members"].append(u_id)
-
-    for user in data.data["users"]:
-        if user["u_id"] == u_id:
-            user["channel_list"].append(channel_id)
-            if user['permission_id'] == 1:
-                add_owner(user['u_id'], channel_id)
+    data.channel_add_member(channel_id, u_id) 
     return {
     }
 
@@ -78,27 +70,23 @@ def channel_details(token, channel_id):
         "all_members" : []
     }
     # Find channel and copy infomation into channel_details
-    for channel in data.data["channels"]:
-        if channel["channel_id"] == channel_id:
-            channel_info["name"] = channel["name"]
-            for u_id in channel["owners"]:
-                for user in data.data["users"]:
-                    owner = {}
-                    if user["u_id"] == u_id:
-                        owner["u_id"] = u_id
-                        owner["name_first"] = user["first"]
-                        owner["name_last"] = user["last"]
-                        channel_info["owner_members"].append(owner)
+    channel = get_channel_info(channel_id)
+    channel_info['name'] = channel['name']
+    for u_id in channel['members']:
+        user = get_info_uid(u_id)
+        member = {}
+        member['u_id'] = user['u_id']
+        member['name_first'] = user['name_first']
+        member['name_last'] = user['name_last']
+        channel_info['all_members'].append(member)
 
-            for u_id in channel["members"]:
-                for user in data.data["users"]:
-                    member = {}
-                    if user["u_id"] == u_id:
-                        member["u_id"] = u_id
-                        member["name_first"] = user["first"]
-                        member["name_last"] = user["last"]
-                        channel_info["all_members"].append(member)
-
+    for u_id in channel['owners']:
+        user = get_info_uid(u_id)
+        owner = {}
+        owner['u_id'] = user['u_id']
+        owner['name_first'] = user['name_first']
+        owner['name_last'] = user['name_last']
+        channel_info['all_members'].append(owner)
     return channel_info
 
 def channel_messages(token, channel_id, start):
@@ -134,14 +122,13 @@ def channel_messages(token, channel_id, start):
         "end": start + 50
     }
 
-    for channel in data.data["channels"]:
-        if channel["channel_id"] == channel_id:
-            if len(channel["messages"]) < start:
-                raise InputError
-            for message_id in channel["messages"][start:start + 50]:
-                messages['messages'].append(message_id)
-            if len(channel["messages"]) < start + 50:
-                messages["end"] = -1
+    channel = get_channel(channel_id)
+    if len(channel['messages']) < start:
+        raise InputError(description='Start value is too high')
+    for message in channel['messages'][start:start + 50]:
+        messages['messages'].append(message)
+    if len(channel['messages']) < start + 50:
+        messages['end'] = -1
     return messages
 
 def channel_leave(token, channel_id):
@@ -165,33 +152,9 @@ def channel_leave(token, channel_id):
     validation.check_user_in_channel(u_id, channel_id)
 
     # Everything valid, Proceed with leaving channel
-    for channel in data.data["channels"]:
-        if channel["channel_id"] == channel_id:
-            channel["owners"].remove(u_id)
-            channel["members"].remove(u_id)
-    for user in data.data["users"]:
-        if user["u_id"] == u_id:
-            user["channel_list"].remove(channel_id)
-
+    data.channel_remove_member(channel_id, u_id)
     return {
     }
-
-# Will make owner of Flockr owner of channel
-def add_owner(u_id, channel_id):
-    """
-    Makes the owner of flockr an owner when they join
-
-    Parameters:
-        user_id(int): Identifier for users
-        channel_id(int): Identifier for channels
-
-    Returns:
-        Nothing
-    """
-    for channel in data.data['channels']:
-        if channel['channel_id'] == channel_id:
-            channel['owners'].append(u_id)
-
 
 def channel_join(token, channel_id):
     """
@@ -215,22 +178,9 @@ def channel_join(token, channel_id):
     #Checks the person wasn't already in the channel
     validation.check_is_existing_channel_member(user_id, channel_id)
        
-
+    validation.check_channel_is_public(channel_id)
     #Checks the channel is public and adds the user to the members
-    for channel in data.data["channels"]:
-        if channel["channel_id"] == channel_id:
-            if channel["state"] is True:
-                channel["members"].append(user_id)
-            else:
-                raise AccessError(description="Cannot join private channel")
-
-    #Puts the channel in the users channels
-    for user in data.data["users"]:
-        if user["u_id"] == user_id:
-            user["channel_list"].append(channel_id)
-            if user['permission_id'] == 1:
-                add_owner(user['u_id'], channel_id)
-
+    data.channel_add_member(channel_id, u_id)
 
     return {}
 
@@ -264,10 +214,7 @@ def channel_addowner(token, channel_id, u_id):
     validation.check_isnot_channel_owner(u_id, channel_id)
 
     #Will change the u_id from member to owner
-    for channel in data.data["channels"]:
-        if channel["channel_id"] == channel_id:
-            channel["owners"].append(u_id)
-    return {}
+    data.channel_add_owner(channe_id, u_id)
 
 
 def channel_removeowner(token, channel_id, u_id):
@@ -292,7 +239,5 @@ def channel_removeowner(token, channel_id, u_id):
     validation.check_is_channel_owner(u_id, channel_id)
 
     #Will change the u_id from member to owner
-    for channel in data.data["channels"]:
-        if channel["channel_id"] == channel_id:
-            channel["owners"].remove(u_id)
+    data.channel_remove_owner(channel_id, u_id)
     return {}

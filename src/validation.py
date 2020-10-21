@@ -317,3 +317,10 @@ def valid_message_id(message_id):
                 found_message = True
     if not found_message:
         raise InputError
+ 
+def check_channel_is_public(channel_id):
+    channel = data.get_channel_info(channel_id)
+    if channel["is_public"]:
+        return
+    else:
+        raise InputError(description="Cannot join private channel")
