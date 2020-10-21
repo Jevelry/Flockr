@@ -20,8 +20,8 @@ def check_valid_token(token):
         Returns u_id if token is valid
     """
     try:
-        payload = jwt.decode(token, data.data['jwt_secret'], algorithms=['HS256'])
-        correct_token = jwt.encode(payload, data.data['jwt_secret'], algorithm='HS256')
+        payload = jwt.decode(token, data.jwt_secret, algorithms=['HS256'])
+        correct_token = jwt.encode(payload, data.jwt_secret, algorithm='HS256')
         if (token == correct_token):
             return payload['u_id']
     except:
@@ -59,9 +59,11 @@ def check_valid_email(email):
         Returns nothing is valid email
     """
     # If email already taken.
-    for user in data.data['users']:
-        if user['email'] == email:
-            raise InputError(description="Email already in use")
+    # for user in data.data['users']:
+    #     if user['email'] == email:
+    #         raise InputError(description="Email already in use")
+    if data.get_user_with({ 'email' : email }) is not None:
+        raise InputError(description="Email already in use")
     # Must be standard email (may change to custom later).
     # Regex mostly taken from geeksforgeeks site (linked in spec (6.2)).
     regex = r'^[a-z0-9]+[._]?[a-z0-9]+[@]\w+[.]\w{2,3}(\.\w{2})?$'
@@ -81,9 +83,8 @@ def check_existing_email(email):
         Raises an error if email already exists
         Returns nothing if email doesn't exist
     """
-    for user in data.data['users']:
-        if user['email'] == email:
-            raise InputError(description="Email already in use")
+    if data.get_user_with({ 'email' : email }) is not None:
+        raise InputError('Email already in use')
     return
 
 def check_existing_handle(handle_str):
@@ -97,9 +98,12 @@ def check_existing_handle(handle_str):
         Raises an error if handle already exists
         Returns nothing if handle doesn't exist
     """
-    for users in data.data["users"]:
-        if users["handle"] == handle_str:
-            raise InputError(description="Handle already in use")
+    # for users in data.data["users"]:
+    #     if users["handle"] == handle_str:
+    #         raise InputError(description="Handle already in use")
+    # return
+    if data.get_user_with({ 'handle_str' : handle_str }) is not None:
+        raise InputError(description="Handle already in use")
     return
 
 def check_correct_password(email, password):
@@ -116,10 +120,16 @@ def check_correct_password(email, password):
         Returns nothing if password and email match
     """
     password_hash = hashlib.sha256(password.encode()).hexdigest()
-    for user in data.data['users']:
-        if user['email'] == email and user['password'] == password_hash:
-            return
-    raise InputError(description="Password is incorrect")
+    # for user in data.data['users']:
+    #     if user['email'] == email and user['password'] == password_hash:
+    #         return
+    original = data.get_user_with({ 'email' : email })
+    if original is None:
+        raise InputError(description="Email does not exist")
+    if original['password'] != password_hash:
+        raise InputError(description='Password is incorrect')
+    # else:
+    #     raise InputError(description="Password is incorrect")
 
 def check_correct_email(email):
     """
@@ -132,9 +142,8 @@ def check_correct_email(email):
         Raises an error if email doesn't exist
         Returns nothing if email exists
     """
-    for user in data.data['users']:
-        if user['email'] == email:
-            return
+    if data.get_user_with({ 'email' : email }) is not None:
+        return
     raise InputError(description="Email has not been registered")
 
 def check_valid_name(first, last):
@@ -181,24 +190,27 @@ def check_user_in_channel(u_id, channel_id):
         channel_id(int): Identifier for channel
 
     Returns:
-        Raises an error if usre not in channel
+        Raises an error if user not in channel
         Returns nothing if user is in channel
     """
-
-    logged_in = False
-    for user in data.data['logged_in']:
-        if user == u_id:
-            logged_in = True
-            break
-    if not logged_in:
+    if not data.check_logged_in(u_id):
         raise AccessError(description="User is not logged in")
-    # Check if user is existing member of channel
-    for user in data.data["users"]:
-        if user["u_id"] == u_id:
-            for channel in user["channel_list"]:
-                if channel == channel_id:
-                    return
-    raise AccessError(description="User is not in channel")
+    if not data.check_user_in_channel(channel_id, u_id):
+        raise AccessError(description="User is not in channel")
+    # logged_in = False
+    # for user in data.data['logged_in']:
+    #     if user == u_id:
+    #         logged_in = True
+    #         break
+    # if not logged_in:
+    #     raise AccessError(description="User is not logged in")
+    # # Check if user is existing member of channel
+    # for user in data.data["users"]:
+    #     if user["u_id"] == u_id:
+    #         for channel in user["channel_list"]:
+    #             if channel == channel_id:
+    #                 return
+    # raise AccessError(description="User is not in channel")
 
 def check_valid_channel_id(channel_id):
     """
@@ -211,10 +223,8 @@ def check_valid_channel_id(channel_id):
         Raises an error if channel doesn't exist
         Returns nothing if channel exists
     """
-    for channel in data.data["channels"]:
-        if channel["channel_id"] == channel_id:
-            return
-    raise InputError(description="Channel does not exist")
+    if data.get_channel_info(channel_id) is None:
+        raise InputError(description="Channel does not exist")
 
 def check_valid_u_id(u_id):
     """
@@ -227,10 +237,8 @@ def check_valid_u_id(u_id):
         Raises an error if user doesn't exist
         Returns nothing if user exists
     """
-    for user in data.data["users"]:
-        if user["u_id"] == u_id:
-            return
-    raise InputError(description="User does not exist")
+    if data.get_user_info(u_id) is None:
+        raise InputError(description="User does not exist")
 
 def check_is_existing_channel_member(u_id, channel_id):
     """
@@ -244,14 +252,20 @@ def check_is_existing_channel_member(u_id, channel_id):
         Raises an error if user is not part of channel
         Returns nothing if user is part of channel
     """
+    if not data.check_user_in_channel(channel_id, u_id):
+        raise InputError(description="User is not part of channel")
+
+def check_is_not_existing_channel_member(u_id, channel_id):
+    if data.check_user_in_channel(channel_id, u_id):
+        raise InputError(description="User is already part of channel")
     # Find user
-    for user in data.data["users"]:
-        if user["u_id"] == u_id:
-            # Check user's channel list for channel_id
-            for channel in user["channel_list"]:
-                if channel == channel_id:
-                    raise InputError(description="User is not part of channel")
-    return
+    # for user in data.data["users"]:
+    #     if user["u_id"] == u_id:
+    #         # Check user's channel list for channel_id
+    #         for channel in user["channel_list"]:
+    #             if channel == channel_id:
+    #                 raise InputError(description="User is not part of channel")
+    # return
 
 def check_is_channel_owner(user_id, channel_id):
     """
@@ -265,12 +279,14 @@ def check_is_channel_owner(user_id, channel_id):
         Raises an error if user is not an owner of channel
         Returns nothing if user is an owner of channel
     """
-    for channel in data.data["channels"]:
-        if channel["channel_id"] == channel_id:
-            for owner in channel["owners"]:
-                if owner == user_id:
-                    return
-    raise AccessError(description="User is not owner of channel")
+    if not data.check_channel_owner(channel_id, user_id):
+        raise InputError(description="User is not owner of channel")
+    # for channel in data.data["channels"]:
+    #     if channel["channel_id"] == channel_id:
+    #         for owner in channel["owners"]:
+    #             if owner == user_id:
+    #                 return
+    
 
 def check_isnot_channel_owner(user_id, channel_id):
     """
@@ -284,11 +300,13 @@ def check_isnot_channel_owner(user_id, channel_id):
         Raises an error if user is an owner of channel
         Returns nothign is user is not an owner of channel
     """
-    for channel in data.data["channels"]:
-        if channel["channel_id"] == channel_id:
-            for owner in channel["owners"]:
-                if owner == user_id:
-                    raise InputError(description="User is owner of channel")
+    if data.check_channel_owner(channel_id, user_id):
+        raise InputError(description="User is owner of channel")
+    # for channel in data.data["channels"]:
+    #     if channel["channel_id"] == channel_id:
+    #         for owner in channel["owners"]:
+    #             if owner == user_id:
+    #                 raise InputError(description="User is owner of channel")
 
 def valid_message(message):
     """
@@ -299,7 +317,7 @@ def valid_message(message):
     Returns:
     """
     if len(message) > 1000:
-        raise InputError(description='Message is invalid')
+        raise InputError(description='Invalid message')
 
 def valid_message_id(message_id):
     """
@@ -307,13 +325,29 @@ def valid_message_id(message_id):
     raise an InputError
 
     Parameters:
-        message_id(string): The message_id of the channel being checked
+        message_id(int): The message_id of the channel being checked
     Returns:
     """
-    found_message = False
-    for channel in data.data['channels']:
-        for message in channel['messages']:
-            if message['message_id'] == message_id:
-                found_message = True
-    if not found_message:
-        raise InputError(description='No message exists')
+    if int(message_id) > data.get_message_num():
+        raise InputError(description='Invalid message_id')
+    # found_message = False
+    # for channel in data.data['channels']:
+    #     for message in channel['messages']:
+    #         if message['message_id'] == message_id:
+    #             found_message = True
+    # if not found_message:
+    #     raise InputError
+ 
+def check_channel_is_public(channel_id):
+    """
+    Check if channel is public or private
+
+    Parameters:
+        channel_id(int): The id of channel
+    Returns:
+    """
+    channel = data.get_channel_info(channel_id)
+    if channel["is_public"]:
+        return
+    else:
+        raise AccessError(description="Cannot join private channel")

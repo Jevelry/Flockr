@@ -4,6 +4,7 @@ data(data.py): Gives access to global variable
 import data
 import validation
 from error import InputError, AccessError
+import channels
 
 def clear():
     """
@@ -28,24 +29,25 @@ def users_all(token):
     validation.check_valid_token(token)
 
     # Initialise list of users to return to user
-    users = {
-        'users' : []
-    }
+    # users = {
+    #     'users' : []
+    # }
 
 
     # Accesses data.py and appends user info of each user to users
-    for user in data.data['users']:
-        user_info = {
-            'u_id' : user['u_id'],
-            'email' : user['email'],
-            'name_first' : user['first'],
-            'name_last' : user['last'],
-            'handle_str' : user['handle'],
-            'permission_id' : user['permission_id'],
-        }
-        users['users'].append(user_info)
+    return {'users' : data.user_list()}
+    # for user in data.data['users']:
+    #     user_info = {
+    #         'u_id' : user['u_id'],
+    #         'email' : user['email'],
+    #         'name_first' : user['first'],
+    #         'name_last' : user['last'],
+    #         'handle_str' : user['handle'],
+    #         'permission_id' : user['permission_id'],
+    #     }
+    #     users['users'].append(user_info)
 
-    return users
+    # return users
 
 
 def admin_userpermission_change(token, u_id, permission_id):
@@ -70,19 +72,18 @@ def admin_userpermission_change(token, u_id, permission_id):
 
     # Checks if authorised user is an owner of Flockr
     # Returns AccessError if not an owner of Flockr
-    for auth_user in data.data['users']:
-        if auth_u_id == auth_user['u_id']:
-            if auth_user['permission_id'] == 1:
-                pass
-            else:
-                raise AccessError(description="User is not an owner")
+    
+    if data.get_user_info(auth_u_id)['permission_id'] != 1:
+        raise AccessError(description='User is not owner of Flockr')
     
     # Finds target user and sets 'permission_id' value to permission_id
-    for user in data.data['users']:
-        if user['u_id'] == u_id and permission_id in valid_permission_id:
-            user['permission_id'] = permission_id
-            return {}
-    
+    target_user = data.get_user_info(u_id)
+    if target_user is None:
+        raise InputError('Target user does not exist')
+    if permission_id in valid_permission_id:
+        data.change_permission(u_id, permission_id)
+        return {}
+
     raise InputError(description="Permission id is not a valid value")
 
 
@@ -107,19 +108,24 @@ def search(token, query_str):
         'messages': [],
     }
 
-    # Finds all messages that the user has sent containing the query string
-    for channel in data.data['channels']:
-        if u_id in channel['members']:
-            for message in channel['messages']:
-                if query_str in message['message'] and message['u_id'] == u_id:
-                    message_result = {
-                        'message_id': message['message_id'],
-                        'u_id': message['u_id'],
-                        'message': message['message'],
-                        'time_created': message['date'],
-                        'token': token,
-                        'query_str': query_str,
-                    }
-                    messages['messages'].append(message_result)
-                        
+    # # Finds all messages that the user has sent containing the query string
+    # for channel in data.data['channels']:
+    #     if u_id in channel['members']:
+    #         for message in channel['messages']:
+    #             if query_str in message['message'] and message['u_id'] == u_id:
+    #                 message_result = {
+    #                     'message_id': message['message_id'],
+    #                     'u_id': message['u_id'],
+    #                     'message': message['message'],
+    #                     'time_created': message['date'],
+    #                 }
+    #                 messages['messages'].append(message_result)
+    # chan_list = channels.list()
+    # 
+    user_channels = channels.channels_list(token)
+    for channel in user_channels:
+        channel_info = data.get_channel_info(channel['channel_id'])
+        for message in channel_info['messages'].values():
+            if query_str in message['message'] and message['u_id'] == u_id:
+                messages['messages'].append(message)
     return messages

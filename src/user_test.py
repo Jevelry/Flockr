@@ -15,7 +15,7 @@ import other
 from error import InputError, AccessError
 import data
 
-def check_name_change(u_id, first, last):
+def check_name_change(user_info, first, last):
     """
     Checks if set_name has successfully changed name
 
@@ -25,15 +25,14 @@ def check_name_change(u_id, first, last):
         last: new last name
 
     Returns:
-        Nothing
+        Nothing 
     """
-    for user in data.data['users']:
-        if user['u_id'] == u_id:
-            assert user["first"] == first
-            assert user["last"] == last
-            break
 
-def check_email_change(u_id, new_email):
+    profile = user.user_profile(user_info['token'], user_info['u_id'])
+    assert profile['name_first'] == first
+    assert profile['name_last'] == last
+
+def check_email_change(user_info, new_email):
     """
     Checks if set_email has successfully changed email
 
@@ -42,14 +41,12 @@ def check_email_change(u_id, new_email):
         new_email: new email
 
     Returns:
-        Nothing
+        NothingS
     """
-    for user in data.data['users']:
-        if user['u_id'] == u_id:
-            assert user["email"] == new_email
-            break
+    profile = user.user_profile(user_info['token'], user_info['u_id'])
+    assert profile['email'] == new_email
             
-def check_handle_changed(u_id, new_handle):
+def check_handle_changed(user_info, new_handle):
     """
     Checks if set_handle has successfully changed handle
 
@@ -60,10 +57,8 @@ def check_handle_changed(u_id, new_handle):
     Returns:
         Nothing
     """
-    for user in data.data['users']:
-        if user['u_id'] == u_id:
-            assert user["handle"] == new_handle
-            break           
+    profile = user.user_profile(user_info['token'], user_info['u_id'])
+    assert profile['handle_str'] == new_handle   
             
 #USER_PROFILE TESTS
 #SUCCESSFUL
@@ -130,7 +125,7 @@ def test_user_setname_valid_name():
     """
     user1 = auth.auth_register("kevin.huang@gmail.com", "nice123", "Kevin", "Huang")
     user.user_profile_setname(user1["token"], "Awesome", "Joey")
-    check_name_change(user1["u_id"], "Awesome", "Joey")
+    check_name_change(user1, "Awesome", "Joey")
     other.clear()
     
 def test_user_setname_lastname_only():
@@ -140,7 +135,7 @@ def test_user_setname_lastname_only():
     """
     user1 = auth.auth_register("kevin.huang@gmail.com", "nice123", "Kevin", "Huang")
     user.user_profile_setname(user1["token"], "Kevin", "Awesome")
-    check_name_change(user1["u_id"], "Kevin", "Awesome")
+    check_name_change(user1, "Kevin", "Awesome")
     other.clear()
 
 def test_user_setname_firstname_only():
@@ -150,7 +145,7 @@ def test_user_setname_firstname_only():
     """
     user1 = auth.auth_register("kevin.huang@gmail.com", "nice123", "Kevin", "Huang")
     user.user_profile_setname(user1["token"], "Awesome", "Huang")
-    check_name_change(user1["u_id"], "Awesome", "Huang")
+    check_name_change(user1, "Awesome", "Huang")
     other.clear()
 
 def test_user_setname_samename():
@@ -160,7 +155,7 @@ def test_user_setname_samename():
     """
     user1 = auth.auth_register("kevin.huang@gmail.com", "nice123", "Kevin", "Huang")
     user.user_profile_setname(user1["token"], "Kevin", "Huang")
-    check_name_change(user1["u_id"], "Kevin", "Huang")
+    check_name_change(user1, "Kevin", "Huang")
     other.clear()
     
 #Unsuccessful
@@ -208,7 +203,7 @@ def test_user_setemail_valid_email():
     """
     user1 = auth.auth_register("kevin.huang@gmail.com", "nice123", "Kevin", "Huang")
     user.user_profile_setemail(user1["token"], "newemail@unsw.edu.au")
-    check_email_change(user1["u_id"], "newemail@unsw.edu.au")
+    check_email_change(user1, "newemail@unsw.edu.au")
     other.clear()
     
 
@@ -268,7 +263,7 @@ def test_user_sethandle_valid_handle():
     """
     user1 = auth.auth_register("kevin.huang@gmail.com", "nice123", "Kevin", "Huang")
     user.user_profile_sethandle(user1["token"], "newhandle")
-    check_handle_changed(user1["u_id"], "newhandle")
+    check_handle_changed(user1, "newhandle")
     other.clear()
 
 

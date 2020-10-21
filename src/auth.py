@@ -29,11 +29,9 @@ def generate_handle(first, last):
     names = first + last
     # Handle is 20 letters max.
     handle = names[:20]
-    for user in data.data['users']:
-        # If handle is taken, add numbers on the end.
-        if user['handle'] == handle:
-            length = str(len(data.data['users']))
-            handle = handle[:len(length) * -1] + length
+    if data.get_user_with({ 'handle_str' : handle}) is not None:
+        length = str(data.get_num_users())
+        handle = handle[:len(length) * -1] + length
     return handle
 
 # Logs user in (must be an existing account).
@@ -62,18 +60,17 @@ def auth_login(email, password):
     # Everything is valid.
     # User has definitely registered. Password is correct.
     # There is at least one user in data.data['users']
-    user = None
-    for user in data.data['users']:
-        if user['email'] == email:
-            break
+    user = data.get_user_with({ 'email' : email.lower() })
     if user is None:
         raise InputError(description="User does not exist")
+
     # Update global state.
     # Adds user to data['logged_in'].
-    data.data['logged_in'].append(user['u_id'])
+    data.login_user(user['u_id'])
+    
     return {
         'u_id' : user['u_id'],
-        'token' : jwt.encode({'u_id': user['u_id']}, data.data['jwt_secret'], algorithm='HS256')
+        'token' : jwt.encode({'u_id': user['u_id']}, data.jwt_secret, algorithm='HS256')
     }
 
 
@@ -94,14 +91,12 @@ def auth_logout(token):
     u_id = validation.check_valid_token(token)
 
     # Check if user is active (logged in).
-    for user in data.data['logged_in']:
-        if user == u_id:
-            # Remove user from data['logged_in'].
-            data.data['logged_in'].remove(user)
-            return {'is_success' : True}
-
-    # Either user is not registered or user is not logged in.
+    if data.check_logged_in(u_id):
+        data.logout_user(u_id)
+        return {'is_success' : True}
+    # Either not logged in or registered
     return {'is_success' : False}
+    
 
 
 # Create an account for a new user.
@@ -138,23 +133,29 @@ def auth_register(email, password, name_first, name_last):
     # Update global state.
     # Adds a new user to data['users'].
     new = {}
-    new['channel_list'] = []
-    new['first'] = name_first
-    new['last'] = name_last
-    new['u_id'] = len(data.data['users']) + 1
+    new['channel_list'] = set()
+    new['name_first'] = name_first
+    new['name_last'] = name_last
+    new['u_id'] = data.get_num_users() + 1
     new['password'] = hashlib.sha256(password.encode()).hexdigest()
     new['email'] = new_email
-    new['handle'] = generate_handle(name_first, name_last)
+    new['handle_str'] = generate_handle(name_first, name_last)
     if new['u_id'] == 1:
         new['permission_id'] = 1
     else:
         new['permission_id'] = 2
-    data.data['users'].append(new)
+    data.register_user(new)
 
     # Log user in.
-    data.data['logged_in'].append(new['u_id'])
+    data.login_user(new['u_id'])
 
     return {
         'u_id' : new['u_id'],
-        'token': jwt.encode({'u_id': new['u_id']}, data.data['jwt_secret'], algorithm='HS256')
+        'token': jwt.encode({'u_id': new['u_id']}, data.jwt_secret, algorithm='HS256')
     }
+
+if __name__ == '__main__':
+    user = auth_register('Jeltz@vogon.com', 'hyperspaceplanningcouncil', 'Prostetnic', 'Jeltz')
+    auth_logout(user['token'])
+    
+    auth_login('Jeltz@vogon.com', 'regrettably')
