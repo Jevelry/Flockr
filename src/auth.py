@@ -134,12 +134,12 @@ def auth_register(email, password, name_first, name_last):
     # Adds a new user to data['users'].
     new = {}
     new['channel_list'] = set()
-    new['first'] = name_first
-    new['last'] = name_last
+    new['name_first'] = name_first
+    new['name_last'] = name_last
     new['u_id'] = data.get_num_users() + 1
     new['password'] = hashlib.sha256(password.encode()).hexdigest()
     new['email'] = new_email
-    new['handle'] = generate_handle(name_first, name_last)
+    new['handle_str'] = generate_handle(name_first, name_last)
     if new['u_id'] == 1:
         new['permission_id'] = 1
     else:
@@ -153,3 +153,9 @@ def auth_register(email, password, name_first, name_last):
         'u_id' : new['u_id'],
         'token': jwt.encode({'u_id': new['u_id']}, data.jwt_secret, algorithm='HS256')
     }
+
+if __name__ == '__main__':
+    user = auth_register('Jeltz@vogon.com', 'hyperspaceplanningcouncil', 'Prostetnic', 'Jeltz')
+    auth_logout(user['token'])
+    
+    auth_login('Jeltz@vogon.com', 'regrettably')

@@ -93,11 +93,11 @@ def message_send(token, channel_id, message):
 
     Parameters:
         token(string): An authorisation hash
-        channel_id(string): The channel_id of the channel the message is being added too
+        channel_id(int): The channel_id of the channel the message is being added too
         message(string): The message of the message being added
 
     Returns:
-        message_id(string): An identifier for the new message
+        message_id(int): An identifier for the new message
     """
     # Check that the token is valid
     user_input_id = validation.check_valid_token(token)
@@ -133,7 +133,7 @@ def message_remove(token, message_id):
 
     Parameters:
         token(string): An authorisation hash
-        message_id(string): The id of the message being removed
+        message_id(int): The id of the message being removed
         message(string): The message of the message being added
 
     Returns:
@@ -144,9 +144,9 @@ def message_remove(token, message_id):
     # Check valid message id
     validation.valid_message_id(message_id)
     
-
+    
     channel_id = find_channel_with_message(message_id, user_input_id)
-    data.remove_message(channel_id, message_id)
+    data.remove_message(message_id, channel_id)
 
     return {}
 
@@ -176,8 +176,30 @@ def message_edit(token, message_id, message):
         
 
     channel_id = find_channel_with_message(message_id, user_input_id)
-    for cur_message in channel['messages']:
-        if cur_message['message_id'] == message_id:
-            cur_message['message'] = message
     data.edit_message(channel_id, message_id, message)
+    # for cur_message in channel['messages']:
+    #     if cur_message['message_id'] == message_id:
+    #         cur_message['message'] = message
+    
     return {}
+
+import auth
+import channels
+import channel
+if __name__ == '__main__':
+    user_channel_creater = auth.auth_register('creator@bigpond.com', 'password', 'Quick', 'Shadow')
+    test_user1 = auth.auth_register('optumis4ime@hotmail.com', 'password', 'Optimus', 'Prime')
+    test_channel_id = channels.channels_create(user_channel_creater["token"], 'test', True)
+    channel.channel_join(test_user1['token'], test_channel_id['channel_id'])
+    message_exp = 'Test 1 test 2 swiggity Swagg'
+    message_id1 = message_send(test_user1['token'], test_channel_id['channel_id'],
+                                       message_exp)
+    #Pre-removes the message
+    message_remove(user_channel_creater['token'], message_id1['message_id'])
+    message_exp10 = 'Spagetti and memeballs'
+    message_id2 = message_send(test_user1['token'], test_channel_id['channel_id'],
+                                       message_exp10)
+    message_exp2 = 'Test this is different from message_exp'
+    message_send(user_channel_creater['token'], test_channel_id['channel_id'],
+                         message_exp2)
+    message_remove(test_user1['token'], message_id2['message_id'])

@@ -28,15 +28,25 @@ def user_profile(token, u_id):
     validation.check_valid_u_id(u_id) 
         
     #Everything valid, proceed with getting profile details
-    user = {}
-    for users in data.data["users"]:
-        if users["u_id"] == u_id:
-            user["u_id"] = users["u_id"]
-            user["email"] = users["email"]
-            user["name_first"] = users["first"]
-            user["name_last"] = users["last"]
-            user["handle_str"] = users["handle"]
-    return user      
+
+    user = data.get_user_info(u_id)
+    profile = {
+        'u_id' : user['u_id'],
+        'email' : user['email'],
+        'name_first' : user['name_first'],
+        'name_last' : user['name_last'],
+        'handle_str' : user['handle_str'],
+    }
+    return profile
+
+    # for users in data.data["users"]:
+    #     if users["u_id"] == u_id:
+    #         user["u_id"] = users["u_id"]
+    #         user["email"] = users["email"]
+    #         user["name_first"] = users["name_first"]
+    #         user["name_last"] = users["name_last"]
+    #         user["handle_str"] = users["handle"]
+    # return user      
 
     
 def user_profile_setname(token, name_first, name_last):
@@ -59,7 +69,7 @@ def user_profile_setname(token, name_first, name_last):
            
     #Everything valid, proceed with changing name
     user = data.get_user_info(u_id)
-    data.update_user(user,{"first": name_first,"last":name_last})     
+    data.update_user(user,{"name_first": name_first,"name_last":name_last})     
         
  
         
@@ -111,6 +121,6 @@ def user_profile_sethandle(token, handle_str):
     #Everything valid, proceed with changing handle
 
     user = data.get_user_info(u_id) 
-    data.update_user(user, {"handle": handle_str})
+    data.update_user(user, {"handle_str": handle_str})
        
 

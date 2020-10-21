@@ -61,7 +61,7 @@ def channels_listall(token):
         }
         channels.append(channel_copy)
     '''
-    return data.channels_list_all
+    return data.channels_list_all()
 
 
 def channels_create(token, name, is_public):
@@ -88,7 +88,7 @@ def channels_create(token, name, is_public):
     new_channel = {
         'channel_id' : data.get_num_channels() + 1,
         'name' : name,
-        'state' : is_public,
+        'is_public' : is_public,
         'owners' : {u_id},
         'members' : {u_id},
         'messages' : {},

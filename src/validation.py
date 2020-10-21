@@ -123,10 +123,13 @@ def check_correct_password(email, password):
     # for user in data.data['users']:
     #     if user['email'] == email and user['password'] == password_hash:
     #         return
-    if data.get_user_with({ 'email' : email })['password'] == password_hash:
-        return
-    else:
-        raise InputError(description="Password is incorrect")
+    original = data.get_user_with({ 'email' : email })
+    if original is None:
+        raise InputError(description="Email does not exist")
+    if original['password'] != password_hash:
+        raise InputError(description='Password is incorrect')
+    # else:
+    #     raise InputError(description="Password is incorrect")
 
 def check_correct_email(email):
     """
@@ -251,6 +254,10 @@ def check_is_existing_channel_member(u_id, channel_id):
     """
     if not data.check_user_in_channel(channel_id, u_id):
         raise InputError(description="User is not part of channel")
+
+def check_is_not_existing_channel_member(u_id, channel_id):
+    if data.check_user_in_channel(channel_id, u_id):
+        raise InputError(description="User is already part of channel")
     # Find user
     # for user in data.data["users"]:
     #     if user["u_id"] == u_id:
@@ -273,7 +280,7 @@ def check_is_channel_owner(user_id, channel_id):
         Returns nothing if user is an owner of channel
     """
     if not data.check_channel_owner(channel_id, user_id):
-        raise AccessError(description="User is not owner of channel")
+        raise InputError(description="User is not owner of channel")
     # for channel in data.data["channels"]:
     #     if channel["channel_id"] == channel_id:
     #         for owner in channel["owners"]:
@@ -321,7 +328,7 @@ def valid_message_id(message_id):
         message_id(int): The message_id of the channel being checked
     Returns:
     """
-    if message_id > data.get_message_num():
+    if int(message_id) > data.get_message_num():
         raise InputError(description='Invalid message_id')
     # found_message = False
     # for channel in data.data['channels']:
@@ -343,4 +350,4 @@ def check_channel_is_public(channel_id):
     if channel["is_public"]:
         return
     else:
-        raise InputError(description="Cannot join private channel")
+        raise AccessError(description="Cannot join private channel")

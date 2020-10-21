@@ -1,7 +1,7 @@
 """
 docstring do later
 """
-import error
+from error import AccessError, InputError
 """
 Global variable containing the state of flockr
 """
@@ -46,8 +46,8 @@ data = {
 users = {
      # u_id = {
         #     'channel_list'  = set()
-        #     'first' : '',
-        #     'last' : '',
+        #     'name_first' : '',
+        #     'name_last' : '',
         #     'email': '',
         #     'u_id' : '',
         #     'password' : ''
@@ -63,7 +63,7 @@ channels = {
     # channel_id {
         # channel_id = {
         #     'name' : '',
-        #     'state' : '', # public or private
+        #     'is_public' : '', # public or private (True or False)
         #     'channel_id' : ''
         #     'owners' = set(),
         #     'members' : set(),
@@ -122,20 +122,22 @@ def get_user_with(attributes):
         if attributes.items() <= users[user].items():
             return users[user]
     return None
-    
-def get_user_info(u_id):  
-    """
-    Given a u_id, returns the user
-    """   
+     
 
-def get_user_info(u_id):     
-    return users[u_id]
+def get_user_info(u_id):
+    """
+    Returns user dictionary from u_id
+    """
+    try:
+        return users[u_id]
+    except:
+        return None
     
 def update_user(user,attributes):
     """
     Given a user(dict) and attribute(dict), updates that user with given new attributes
     """
-     for item in attributes:
+    for item in attributes:
         user[item] = attributes[item]    
 
 def update_user_channel_list(user,channel_id):
@@ -172,7 +174,10 @@ def get_channel_info(channel_id):
     """
     Given a channel_id(int), returns infomation on channel(dict)
     """
-    return channels[channel_id]
+    try:
+        return channels[channel_id]
+    except:
+        return None
     
 def channel_add_member(channel_id, u_id):
     """
@@ -180,8 +185,8 @@ def channel_add_member(channel_id, u_id):
     """
     channel = channels[channel_id]   
     if u_id == 1:
-        channel[owners].add(u_id)
-    channel[members].add(u_id)
+        channel['owners'].add(u_id)
+    channel['members'].add(u_id)
     user = get_user_info(u_id)
     user["channel_list"].add(channel_id)
 
@@ -189,8 +194,8 @@ def check_user_in_channel(channel_id, u_id):
     """
     Given a channel_id(int) and u_id(int),returns true if user is a member of channel
     """
-    channel_info = get_channel_info(channel_id)
-    return u_id in channel_info['members']
+    channel = get_channel_info(channel_id)
+    return u_id in channel['members']
     # if u_id not in channel_info['members']:
     #     raise AccessError(description="User is not in channel")
 
@@ -206,23 +211,23 @@ def channel_add_owner(channel_id, u_id):
     Given a channel_id(int) and u_id(int), adds user to list of owners of channel
     """
     channel = channels[channel_id]   
-    channel[owners].add(u_id)
+    channel['owners'].add(u_id)
 
 def channel_remove_member(channel_id, u_id):
     """
     Given a channel_id(int) and u_id(int), removes that member from the channel
     """
     channel = channels[channel_id]
-    if u_id in channel[owners]:
-        channel[owners].remove(u_id)
-    channel[members].remove(u_id)
+    if u_id in channel['owners']:
+        channel['owners'].remove(u_id)
+    channel['members'].remove(u_id)
 
 def channel_remove_owner(channel_id,u_id):
     """
     Given a channel_id(int) and u_id(int), removes that member as an owner of the channel
     """
     channel = channels[channel_id]   
-    channel[owners].remove(u_id)
+    channel['owners'].remove(u_id)
 
 def get_message_num():
     """
@@ -238,12 +243,12 @@ def get_num_users():
     
 def make_message_id():
     """
-    Creates a unique string to be a message_id for a new message
+    Creates a unique message_id for a new message
     """
     global message_num
     message_num += 1
 
-    return str(message_num)
+    return message_num
 
 def channels_list_user(u_id):
     """
@@ -267,8 +272,8 @@ def channels_list_all():
     channels_info = []
     for channel in channels:
         channel_copy = {
-            'channel_id' : channel['channel_id'],
-            'name' : channel['name']
+            'channel_id' : channel,
+            'name' : channels[channel]['name']
         }
         channels_info.append(channel_copy)
     return channels_info
@@ -287,20 +292,39 @@ def channel_create(new_channel):
 
 def find_channel(message_id):
     for channel in channels:
-        if message_id in channel['messages']:
+        if message_id in channels[channel]['messages']:
             return channel
     raise InputError(description="Message not in any channel")
 
 def get_message(channel, message_id):
-    return channels[channel][messages][message_id]
+    return channels[channel]['messages'][message_id]
 
 def add_message(message, channel_id):
     channel = channels[channel_id]
     message_id = message['message_id']
-    channel[messages][message_id] = message
+    channel['messages'][message_id] = message
 
 def remove_message(message_id, channel_id):
-    del channels[channel_id][messages][message_id]
+    channel = channels[channel_id]
+    del channel['messages'][message_id]
 
 def edit_message(channel_id, message_id, message):
-    channels[channel_id][messages][message_id]['message'] = message
+    channels[channel_id]['messages'][message_id]['message'] = message
+
+def user_list():
+    list_users = []
+    for user in users.values():
+        user_info = {
+            'u_id' : user['u_id'],
+            'email' : user['email'],
+            'name_last' : user['name_last'],
+            'name_first' : user['name_first'],
+            'handle_str' : user['handle_str'],
+            'permission_id' : user['permission_id']
+        }
+        list_users.append(user_info)
+    return list_users
+
+def change_permission(u_id, permission):
+    user = get_user_info(u_id)
+    user['permission_id'] = permission

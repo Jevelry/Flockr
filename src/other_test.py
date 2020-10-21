@@ -156,11 +156,9 @@ def test_search_results_single():
     message.message_send(user['token'], test_channel['channel_id'], test_message)
     find_message = other.search(user['token'], 'is a test')
 
-    assert find_message['messages'][0]['message_id'] == '1'
+    assert find_message['messages'][0]['message_id'] == 1
     assert find_message['messages'][0]['u_id'] == 1
     assert find_message['messages'][0]['message'] == 'This is a test message.'
-    assert find_message['messages'][0]['token'] == user['token']
-    assert find_message['messages'][0]['query_str'] == 'is a test'
 
     other.clear()
 
@@ -183,17 +181,13 @@ def test_search_results_multiple():
     message.message_send(user['token'], test_channel['channel_id'], test_message3)
     find_message = other.search(user['token'], 'is a test')
 
-    assert find_message['messages'][0]['message_id'] == '1'
+    assert find_message['messages'][0]['message_id'] == 1
     assert find_message['messages'][0]['u_id'] == 1
     assert find_message['messages'][0]['message'] == 'This is a test message.'
-    assert find_message['messages'][0]['token'] == user['token']
-    assert find_message['messages'][0]['query_str'] == 'is a test'
 
-    assert find_message['messages'][1]['message_id'] == '3'
+    assert find_message['messages'][1]['message_id'] == 3
     assert find_message['messages'][1]['u_id'] == 1
     assert find_message['messages'][1]['message'] == 'Yes it is a test.'
-    assert find_message['messages'][1]['token'] == user['token']
-    assert find_message['messages'][1]['query_str'] == 'is a test'
 
     other.clear()
 
