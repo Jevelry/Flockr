@@ -49,6 +49,17 @@ def assert_different_people(user1, user2):
     assert len(user1) == 2
     assert len(user2) == 2
 
+def register_user(name_first, name_second, email, password):
+    user_reg = {
+        'name_first' : name_first,
+        'name_last' : name_second,
+        'email' : email,
+        'password' : password
+        }
+    resp1 = requests.post(url + '/auth/register', json=user1_reg)
+    return resp.json()
+
+
 def test_edit_profile_and_messages(url):
     """
     Tests lots of functions
@@ -428,7 +439,7 @@ def hostile_takeover(url):
 
     # Joe logs in unsuccessfully (Forgot about password change)
     login1 = {
-        'email' : 'theKING@gmail.com'
+        'email' : 'theKING@gmail.com',
         'password' : 'sdrawkcab'
     }
 
@@ -439,7 +450,7 @@ def hostile_takeover(url):
 
     # Joe logs in successfully
     login2 = {
-        'email' : 'theKING@gmail.com'
+        'email' : 'theKING@gmail.com',
         'password' : 'The Winner Takes It All'
     }
 
@@ -452,7 +463,7 @@ def hostile_takeover(url):
 
     # Joe admired his new profile
     profile_check = {
-        'token' : new_Joe['token']
+        'token' : new_Joe['token'],
         'u_id' : new_Joe['u_id']
     }
 
@@ -548,7 +559,7 @@ def editing_removing_messages(url):
     resp7 = requests.post(url + 'message/send', json=message1_3_info)
     message1_3 = resp7.json()
 
-    addowner_info{
+    addowner_info = {
         'token' : Paul['token'],
         'channel_id' : chan1['channel_id'],
         'u_id' : Seal['u_id'],
@@ -569,7 +580,7 @@ def editing_removing_messages(url):
     for sent_message in channel_message1['messages']:
         edit_message_info = {
             'token' : Seal['token'],
-            'message_id' : sent_message['message_id']
+            'message_id' : sent_message['message_id'],
             'message' : 'New message YaYaYaYa' 
         }
         resp10 = requests.post(url + 'message/edit', json=edit_message_info)
@@ -621,7 +632,7 @@ def editing_removing_messages(url):
 
     """Minics how a person would find and delete a message"""
     for message in channel_message3['messages']:
-        if message['message'] == 'I love your channel'
+        if message['message'] == 'I love your channel':
             message_remove_info = {
                 'token' : Slam['token'],
                 'message_id' : message['message_id'],
@@ -644,7 +655,7 @@ def editing_removing_messages(url):
     }
 
     resp18 = request.post(url + 'message/remove',json=message_remove_info)
-    asssert resp18.json() = {}
+    asssert resp18.json() == {}
 
     resp19 = requests.post(url + 'channel/messages',json=get_messages_info2)
     channel_message4 = resp19.json()
