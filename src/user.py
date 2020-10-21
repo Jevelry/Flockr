@@ -91,9 +91,9 @@ def user_profile_setemail(token, email):
         
         
     #Everything valid, proceed with changing email
-    for users in data.data["users"]:
-        if users["u_id"] == u_id: 
-            users["email"] = email
+        
+    user = data.get_user_with({"u_id": u_id}) 
+    data.update_user(user, {"email": email})
 
   
 def user_profile_sethandle(token, handle_str):

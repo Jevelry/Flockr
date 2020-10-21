@@ -52,3 +52,17 @@ def clear_data():
         'message_num': '',
         'jwt_secret' : 'Mango2Team'
     }
+    
+def get_user_with(attributes):
+    usr = None
+    for user in data["users"]:
+        for attr,val in attributes.items():
+            if user[attr] != val:
+                break
+        else:
+            usr = user   
+    return usr
+    
+def update_user(user,attributes):
+      pass
+      
