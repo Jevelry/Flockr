@@ -30,12 +30,8 @@ def generate_handle(first, last):
     # Handle is 20 letters max.
     handle = names[:20]
     if data.get_user_with({ 'handle_str' : handle}) is not None:
-        
-    # for user in data.data['users']:
-    #     # If handle is taken, add numbers on the end.
-    #     if user['handle'] == handle:
-    #         length = str(len(data.data['users']))
-    #         handle = handle[:len(length) * -1] + length
+        length = str(data.get_num_users())
+        handle = handle[:len(length) * -1] + length
     return handle
 
 # Logs user in (must be an existing account).

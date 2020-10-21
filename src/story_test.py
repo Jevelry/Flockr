@@ -407,7 +407,7 @@ def hostile_takeover(url):
         'token' : Joe['token'],
         'handle_str' : 'WeAreNumberOne'
     }
-    resp15 = requests.put(url + '/user/profile/sethandle', json = change_handle_
+    resp15 = requests.put(url + '/user/profile/sethandle', json = change_handle)
     assert resp15.json() == {}
 
     # Joe changes his password
@@ -428,7 +428,7 @@ def hostile_takeover(url):
 
     # Joe logs in unsuccessfully (Forgot about password change)
     login1 = {
-        'email' : 'theKING@gmail.com'
+        'email' : 'theKING@gmail.com',
         'password' : 'sdrawkcab'
     }
 
@@ -439,20 +439,20 @@ def hostile_takeover(url):
 
     # Joe logs in successfully
     login2 = {
-        'email' : 'theKING@gmail.com'
+        'email' : 'theKING@gmail.com',
         'password' : 'The Winner Takes It All'
     }
 
     resp19 = requests.post(url + '/auth/login', json = login2)
     new_Joe = resp19.json()
-    assert len(resp19_payload) == 2
+    assert len(new_Joe) == 2
     assert new_Joe['token'] is not None
     assert new_Joe['u_id'] is not None
     assert new_Joe['u_id'] == Joe['u_id']
 
     # Joe admired his new profile
     profile_check = {
-        'token' : new_Joe['token']
+        'token' : new_Joe['token'],
         'u_id' : new_Joe['u_id']
     }
 
