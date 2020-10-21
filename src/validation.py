@@ -318,7 +318,7 @@ def valid_message_id(message_id):
     raise an InputError
 
     Parameters:
-        message_id(string): The message_id of the channel being checked
+        message_id(int): The message_id of the channel being checked
     Returns:
     """
     if message_id > data.get_message_num():
@@ -332,6 +332,13 @@ def valid_message_id(message_id):
     #     raise InputError
  
 def check_channel_is_public(channel_id):
+    """
+    Check if channel is public or private
+
+    Parameters:
+        channel_id(int): The id of channel
+    Returns:
+    """
     channel = data.get_channel_info(channel_id)
     if channel["is_public"]:
         return
