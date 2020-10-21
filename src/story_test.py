@@ -896,5 +896,70 @@ def test_invalid_user_inputs(url):
     assert resp17_payload['message'] == '<p>Message is invalid<p>'
     assert resp17_payload['code'] == 400
 
+def test_list_users_and_channels(url):
+    """
+    Tests listing of all channels, channels of the user and all users on Flockr
+    """
+    # Jack and Jill register
+    Jack = register_user('Jack', 'Smith', 'jsmith@gmail.com', 'jackjack123')
+    Jill = register_user('Jill', 'Smith', 'jillsmith12@gmail.com', 'jilljill123')
+    assert_different_people(Jack, Jill)
 
+    # Jack calls for a list of all users in Flockr
+    resp1 = request.get(url + '/users/all', params=Jack['token'])
+    user_list = resp1.json()
+
+    assert user_list['users'][0]['u_id'] == Jack['u_id']
+    assert user_list['users'][1]['u_id'] == Jill['u_id']
+
+    # Jack creates and joins the channels 'First channel' and 'Second Channel'
+    channel_info1 = {
+        'token' : Jack['token'],
+        'name' : 'First Channel'
+        'is_public' : True,
+    }
+
+    channel_info2 = {
+        'token' : Jack['token'],
+        'name' : 'Second Channel'
+        'is_public' : True,
+    }
+
+    requests.post(url + '/channels/create', json=channel_info1)
+    resp2 = requests.post(url + '/channels/create', json=channel_info2)
+    channel2 = resp2.json()
+
+    # Jack calls for a list of all channels in Flockr
+    channels_listall_result = [
+        {
+            'channel_id' : 1,
+            'name' : 'First Channel',
+        },
+        {
+            'channel_id': 2,
+            'name' : 'Second Channel'
+        }
+    ]
+
+    resp3 = requests.get(url + '/channels/listall', params={'token' : Jack['token']})
+    assert json.loads(resp3.text) == channels_listall_result
+
+    # Jill joins 'Second Channel'
+    channel_join_info = {
+        'token' : Jill['token'],
+        'channel_id' : channel2['channel_id'],
+    }
+
+    requests.post(url + '/channel/join',json=channel_join_info)
+
+    # Jill calls for a list of all channels she has joined
+    channels_list_result = [
+        {
+            'channel_id': 2,
+            'name' : 'Second Channel'
+        }
+    ]
+
+    resp4 = requests.get(url + '/channels/list', params={'token' : Jill['token']})
+    assert json.loads(resp4.text) == channels_list_result
 
