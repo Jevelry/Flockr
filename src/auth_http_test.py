@@ -290,13 +290,13 @@ def test_invalid_password_auth_register_http(url):
     }
     resp1 = requests.post(url + '/auth/register', json=info1)
     payload1 = resp1.json()
-    assert payload1['message'] == '<p>Password is not valid</p>'
+    assert payload1['message'] == '<p>Password is invalid</p>'
     assert payload1['code'] == 400
     #assert resp1.json() == "Password is invalid"
 
     resp2 = requests.post(url + '/auth/register', json=info2)
     payload2 = resp2.json()
-    assert payload2['message'] == '<p>Password is not valid</p>'
+    assert payload2['message'] == '<p>Password is invalid</p>'
     assert payload2['code'] == 400
     #assert resp2.json() == "Password is invalid"
 
@@ -319,13 +319,13 @@ def test_invalid_first_name_auth_register_http(url):
     }
     resp1 = requests.post(url + '/auth/register', json=info1)
     payload1 = resp1.json()
-    assert payload1['message'] == '<p>First name is not valid</p>'
+    assert payload1['message'] == '<p>First name is invalid</p>'
     assert payload1['code'] == 400
     #assert resp1.json() == "First name is invalid"
 
     resp2 = requests.post(url + '/auth/register', json=info2)
     payload2 = resp2.json()
-    assert payload2['message'] == '<p>First name is not valid</p>'
+    assert payload2['message'] == '<p>First name is invalid</p>'
     assert payload2['code'] == 400
     #assert resp2.json() == "First name is invalid"
 
@@ -348,7 +348,7 @@ def test_invalid_last_name_auth_register(url):
     }
     resp1 = requests.post(url + '/auth/register', json=info1)
     payload1 = resp1.json()
-    assert payload1['message'] == '<p>Last name is not valid</p>'
+    assert payload1['message'] == '<p>Last name is invalid</p>'
     assert payload1['code'] == 400
     # payload = resp1.json()
     # assert payload.message == "Last name is invalid"
@@ -356,6 +356,6 @@ def test_invalid_last_name_auth_register(url):
 
     resp2 = requests.post(url + '/auth/register', json=info2)
     payload2 = resp2.json()
-    assert payload2['message'] == '<p>Last name is not valid</p>'
+    assert payload2['message'] == '<p>Last name is invalid</p>'
     assert payload1['code'] == 400
     #assert resp2.json() == "Last name is invalid"

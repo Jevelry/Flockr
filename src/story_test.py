@@ -41,6 +41,10 @@ def url():
         raise Exception("Couldn't get URL from local server")
 
 def assert_different_people(user1, user2):
+    """
+    Takes 2 user dictionaries and asserts they are
+    2 different people with unique attributes
+    """
     assert user1 != user2
     assert user1['u_id'] != user2['u_id']
     assert user1['token'] != user2['token']
@@ -52,6 +56,9 @@ def assert_different_people(user1, user2):
     assert len(user2) == 2
 
 def register_user(name_first, name_second, email, password, url):
+    """
+    Takes information about a user and registers them
+    """
     user_reg = {
         'name_first' : name_first,
         'name_last' : name_second,
@@ -704,6 +711,11 @@ def test_admin_permission_change_invalid(url):
 
 
 def test_invalid_user_inputs(url):
+    """
+    Tests realistic invalid inputs from a user.
+    e.g Entering an incorrect password is realistic
+    but passing an incorrect token is not because the user has no control over that
+    """
     Jack = register_user('Jack', 'Smith', 'jsmith@gmail.com', 'jackjack123', url)
 
     #change name too short
