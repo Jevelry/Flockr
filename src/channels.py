@@ -18,11 +18,13 @@ def channels_list(token):
     """
     # Check token is valid
     u_id = validation.check_valid_token(token)
-
-    # Initialise channel_list to return to user
-    channels = []
+    
 
     # Appends all channels that the user is in to channel_list
+    
+
+
+    '''
     for channel in data.data['channels']:
         for member_id in channel['members']:
             if member_id == u_id:
@@ -31,8 +33,8 @@ def channels_list(token):
                     'name' : channel['name'],
                 }
                 channels.append(channel_copy)
-
-    return channels
+    '''
+    return data.channels_list_user(u_id)
 
 def channels_listall(token):
     """
@@ -47,6 +49,7 @@ def channels_listall(token):
     # Check if token is valid
     validation.check_valid_token(token)
 
+    '''
     # Initialise channel_list to return to user
     channels = []
 
@@ -57,7 +60,8 @@ def channels_listall(token):
             'name' : channel['name'],
         }
         channels.append(channel_copy)
-    return channels
+    '''
+    return data.channels_list_all
 
 
 def channels_create(token, name, is_public):
@@ -80,20 +84,20 @@ def channels_create(token, name, is_public):
         raise InputError(description='Name cannot be more than 20 characters long')
     
     # Creates a new channel and stores to 'channels' in data.py
+    
     new_channel = {
-        'channel_id' : (len(data.data['channels']) + 1),
+        'channel_id' : (data.get_num_channels + 1),
         'name' : name,
         'state' : is_public,
         'owners' : [u_id],
         'members' : [u_id],
         'messages' : [],
     }
-    data.data['channels'].append(new_channel)
+    data.channels_create(new_channel)
 
     # Stores channel as part of the user's channel list
-    for user in data.data['users']:
-        if user['u_id'] == u_id:
-            user['channel_list'].append(new_channel['channel_id'])
+    user = data.get_user_info(u_id)
+    data.update_user_channel_list(user, new_channel["channel_id"])    
     
     return {
         'channel_id': new_channel['channel_id'],

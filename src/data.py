@@ -112,7 +112,10 @@ def get_user_info(u_id):
 def update_user(user,attributes):
      for item in attributes:
         user[item] = attributes[item]    
-        
+
+def update_user_channel_list(user,channel_id):
+    user['channel_list'].add(channel_id)  
+          
 def register_user(user):
     users[user["u_id"]] = user
 
@@ -175,3 +178,31 @@ def make_message_id():
         data.data['message_num'] += 1
 
     return str(data.data['message_num'])
+
+def channels_list_user(u_id):
+    user = get_user_info(u_id)
+    channels_info = []
+    for channel in user['channel_list']
+        chan_info = get_channel_info(channel)
+        channel_copy = {
+            'channel_id' : chan_info['channel_id']
+            'name' : chan_info['name']
+        }
+        channels_info.append(channel_copy)
+    return channels_info        
+
+def channels_list_all():
+    channels_info = []
+    for channel in channels:
+        channel_copy = {
+            'channel_id' : channel['channel_id']
+            'name' : channel['name']
+        }
+        channels_info.append(channel_copy)
+    return channels_info
+
+def get_num_channels():
+    return len(channels)
+
+def channel_create(new_channel):
+    channels[new_channel['channel_id']] = new_channel 

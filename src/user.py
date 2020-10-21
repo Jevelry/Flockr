@@ -58,19 +58,10 @@ def user_profile_setname(token, name_first, name_last):
     validation.check_valid_name(name_first, name_last)
            
     #Everything valid, proceed with changing name
-    for users in data.data["users"]:
-        if users["u_id"] == u_id: 
-            users["first"] = name_first
-            users["last"] = name_last  
+    user = data.get_user_info(u_id)
+    data.update_user(user,{"first": name_first,"last":name_last})     
         
-    #Check for valid name
-    validation.check_valid_name(name_first, name_last)
-           
-    #Everything valid, proceed with changing name
-    for users in data.data["users"]:
-        if users["u_id"] == u_id: 
-            users["first"] = name_first
-            users["last"] = name_last  
+ 
         
 def user_profile_setemail(token, email):
     """
@@ -92,7 +83,7 @@ def user_profile_setemail(token, email):
         
     #Everything valid, proceed with changing email
         
-    user = data.get_user_with({"u_id": u_id}) 
+    user = data.get_user_info(u_id) 
     data.update_user(user, {"email": email})
 
   
@@ -119,8 +110,7 @@ def user_profile_sethandle(token, handle_str):
         
     #Everything valid, proceed with changing handle
 
-    for users in data.data["users"]:
-        if users["u_id"] == u_id: 
-            users["handle"] = handle_str
+    user = data.get_user_info(u_id) 
+    data.update_user(user, {"handle": handle_str})
        
 
