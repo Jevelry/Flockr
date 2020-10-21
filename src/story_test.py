@@ -193,63 +193,102 @@ def test_edit_profile_and_messages(url):
     assert payload10['start'] == 1
     assert payload10['end'] == -1
 
-
-def test_registering_and_channel(url):
+def test_registering_login_and_logout(url):
+    """
+    Tests an attempt to register with invalid details (password, email, first name, last name) including:
+    * auth_register
+    * auth_logout
+    * channel_create
+    
+    """
+    #Fred trying to register with password that is too short
     reg_password_too_short = {
         'name_first' : 'Fred',
         'name_last' : 'Smith',
         'email' : 'fred@gmail.com',
         'password' : '123'
     }
+    resp1 = requests.post(url + '/auth/register', json=reg_password_too_short)
+    resp1_payload = resp1.json()
+    assert resp1_payload['message'] == '<p>Password is not valid<p>'
+    assert resp1_payload['code'] == 400
+    
+    #Fred trying to register with invalid email
     reg_email_invalid = {
         'name_first' : 'Fred',
         'name_last' : 'Smith',
         'email' : 'fred@gmail.com',
         'password' : '123'
     }
+    resp2 = requests.post(url + '/auth/register', json=reg_email_invalid)
+    resp2_payload = resp2.json()
+    assert resp2_payload['message'] == '<p>Email is invalid<p>'
+    assert resp2_payload['code'] == 400
+    
+    #Fred trying to register with email which already exists
     reg_email_existing = {
         'name_first' : 'Fred',
         'name_last' : 'Smith',
         'email' : 'fred@gmail.com',
         'password' : '123'
     }
+    resp3 = requests.post(url + '/auth/register', json=reg_email_existing)
+    resp3_payload = resp3.json()
+    assert resp3_payload['message'] == '<p>Email already in use<p>'
+    assert resp3_payload['code'] == 400
+    
+    #Trying to register with invalid first name
     reg_firstname_invalid = {
         'name_first' : 'FredFredFredFredFredFredFredFredFredFredFredFredFredFredFred',
         'name_last' : 'Smith',
         'email' : 'fred@gmail.com',
         'password' : '123'
     }
+    resp4 = requests.post(url + '/auth/register', json=reg_firstname_invalid)
+    resp4_payload = resp4.json()
+    assert resp4_payload['message'] == '<p>First name is not valid<p>'
+    assert resp4_payload['code'] == 400
+    
+    #Trying to register with invalid last name 
     reg_lastname_invalid = {
         'name_first' : 'Fred',
         'name_last' : 'SmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmith',
         'email' : 'fred@gmail.com',
         'password' : '123'
     }
-        
-    resp1 = requests.post(url + '/auth/register', json=reg_password_too_short)
-    resp1_payload = resp1.json()
-    assert resp1_payload['message'] == '<p>Password is not valid<p>'
-    assert resp1_payload['code'] == 400
-    
-    resp2 = requests.post(url + '/auth/register', json=reg_email_invalid)
-    resp2_payload = resp2.json()
-    assert resp2_payload['message'] == '<p>Email is invalid<p>'
-    assert resp2_payload['code'] == 400
-    
-    resp3 = requests.post(url + '/auth/register', json=reg_email_existing)
-    resp3_payload = resp3.json()
-    assert resp3_payload['message'] == '<p>Email already in use<p>'
-    assert resp3_payload['code'] == 400
-    
-    resp4 = requests.post(url + '/auth/register', json=reg_firstname_invalid)
-    resp4_payload = resp4.json()
-    assert resp4_payload['message'] == '<p>First name is not valid<p>'
-    assert resp4_payload['code'] == 400
-    
     resp5 = requests.post(url + '/auth/register', json=reg_lastname_invalid)
     resp5_payload = resp5.json()
     assert resp5_payload['message'] == '<p>Last name is not valid<p>'
     assert resp5_payload['code'] == 400
+    
+    #Fred successfully registers
+    user_reg = {
+        'name_first' : 'Fred',
+        'name_last' : 'Smith',
+        'email' : 'fred@gmail.com',
+        'password': 'fredsmith'
+    }
+    resp6 = requests.post(url + '/auth/register', json = user_reg)
+    Fred = resp1.json()
+    
+    #Fred creates a new channel called 'My First Channel' and joins
+    chan1_info = {
+        'token' : Fred['token'],
+        'name' : "My First Channel",
+        'is_public' : True
+        
+    resp7 = requests.post(url + '/channels/create', json=chan1_info)
+    chan1 = resp7.json()
+    assert len(chan1) == 1
+    assert chan1['channel_id'] is not None
+    
+    #Fred successfully logs out
+    logout = {
+        'token' : Fred['token']
+    }
+    resp8 = requests.post(url + '/auth/logout', json = logout)
+    assert resp8 == { 'is_success' : True }
+
     
 def hostile_takeover(url):
     """
