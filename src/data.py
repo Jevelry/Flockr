@@ -182,10 +182,10 @@ def make_message_id():
 def channels_list_user(u_id):
     user = get_user_info(u_id)
     channels_info = []
-    for channel in user['channel_list']
+    for channel in user['channel_list']:
         chan_info = get_channel_info(channel)
         channel_copy = {
-            'channel_id' : chan_info['channel_id']
+            'channel_id' : chan_info['channel_id'],
             'name' : chan_info['name']
         }
         channels_info.append(channel_copy)
@@ -195,7 +195,7 @@ def channels_list_all():
     channels_info = []
     for channel in channels:
         channel_copy = {
-            'channel_id' : channel['channel_id']
+            'channel_id' : channel['channel_id'],
             'name' : channel['name']
         }
         channels_info.append(channel_copy)
