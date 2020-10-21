@@ -125,6 +125,9 @@ def login_user(u_id):
 def check_logged_in(u_id):
     return u_id in logged_in 
 
+def logout_user(u_id):
+    logged_in.remove(u_id)
+
 def get_channel_info(channel_id):
     return channels[channel_id]
     
@@ -162,6 +165,9 @@ def channel_remove_owner(channel_id,u_id):
 
 def get_message_num():
     return message_num
+
+def get_num_users():
+    return len(users)
     
 def make_message_id():
     """
@@ -172,12 +178,10 @@ def make_message_id():
     Returns:
         A String that is the number of strings that have been sent ever
     """
-    if message_num ==  0:
-        data.data['message_num'] = 1
-    else:
-        data.data['message_num'] += 1
+    global message_num
+    message_num += 1
 
-    return str(data.data['message_num'])
+    return str(message_num)
 
 def channels_list_user(u_id):
     user = get_user_info(u_id)
