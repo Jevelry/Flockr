@@ -56,7 +56,7 @@ def register_user(name_first, name_second, email, password):
         'email' : email,
         'password' : password
         }
-    resp1 = requests.post(url + '/auth/register', json=user1_reg)
+    resp = requests.post(url + '/auth/register', json=user_reg)
     return resp.json()
 
 
@@ -694,13 +694,106 @@ def editing_removing_messages(url):
     }
 
     resp18 = request.post(url + 'message/remove',json=message_remove_info)
-    asssert resp18.json() == {}
+    assert resp18.json() == {}
 
     resp19 = requests.post(url + 'channel/messages',json=get_messages_info2)
     channel_message4 = resp19.json()
 
-    asssert 'I REALLY love your channel' is not in channel_message4['messages']['message']
+    assert 'I REALLY love your channel' is not in channel_message4['messages']['message']
 
+def test_admin_permission_change(url):
+    """
+    Tests whether an owner of Flockr is an owner of all channels they've joined
+    """
+    # Jack and Jill register
+    Jack = register_user('Jack', 'Smith', 'jsmith@gmail.com', 'jackjack123')
+    Jill = register_user('Jill', 'Smith', 'jillsmith12@gmail.com', 'jilljill123')
+    assert_different_people(Jack, Jill)
+
+    # Jack makes Jill an owner/admin of Flockr
+    admin_change_params =  {
+        'token' : Jack['token'],
+        'u_id' : Jill['u_id'],
+        'permission_id' : 1,
+    }
+
+    resp1 = requests.post(url + '/admin/userpermssion/change', admin_change_params)
+    assert resp1.json() == {}
+
+    # Jack creates and joins a channel 'Jack's channel'
+    channel_create_info = {
+        'token' : Jack['token'],
+        'name' : "Jack's Channel",
+        'is_public' : True,
+    }
+
+    resp2 = requests.post(url + '/channels/create', channel_info)
+    channel = resp2.json()
+
+    # Jill joins the channel
+    channel_join_info = {
+        'token' : Jill['token'],
+        'channel_id' : channel['channel_id'],
+    }
+
+    requests.post(url + '/channel/join', channel_join_info)
+
+    # Jack checks for the owners of 'Jack's Channel'
+    channel_detail_request = {
+        'token' : Jack['token'],
+        'channel_id' : channel['channel_id'],
+    }
+
+    resp3 = request.get(url + '/channel/details', channel_detail_request)
+    channel_details = resp3.json()
+    assert channel_details['name'] == "Jack's Channel"
+    assert channel_details['owner_members'] == [Jack['u_id'], Jill['u_id']]
+    assert channel_details['all_members'] == [Jack['u_id'], Jill['u_id']]
+
+def test_admin_permission_change_invalid(url):
+    """
+    Tests invalid inputs of changing owner/admin permissions
+    """
+    # Jack and Jill register
+    Jack = register_user('Jack', 'Smith', 'jsmith@gmail.com', 'jackjack123')
+    Jill = register_user('Jill', 'Smith', 'jillsmith12@gmail.com', 'jilljill123')
+    assert_different_people(Jack, Jill)
+
+    # Jack attempts change Jill's permissions with nvalid permission_id value
+    admin_change_params1 =  {
+        'token' : Jack['token'],
+        'u_id' : Jill['u_id'],
+        'permission_id' : 3,
+    }
+
+    resp1 = requests.post(url + '/admin/userpermssion/change', admin_change_params1)
+    payload1 = resp1.json()
+    assert payload1['message'] == '<p>Invalid permission_id value</p>'
+    assert payload1['code'] == 400
+
+    # Jack attempts to make a non-existent member an owner/admin
+    admin_change_params2 =  {
+        'token' : Jack['token'],
+        'u_id' : 'invalid_uid',
+        'permission_id' : 1,
+    }
+
+    resp2 = requests.post(url + '/admin/userpermssion/change', admin_change_params2)
+    payload2 = resp2.json()
+    assert payload2['message'] == '<p>Invalid u_id</p>'
+    assert payload2['code'] == 400
+
+    # Jill attempts to change Jack's permissions
+    admin_change_params3 =  {
+        'token' : Jill['token'],
+        'u_id' : Jack['u_id'],
+        'permission_id' : 2,
+    }
+
+    resp3 = requests.post(url + '/admin/userpermssion/change', admin_change_params3)
+    payload3 = resp3.json()
+    assert payload3['message'] == '<p>User is not an owner</p>'
+    assert payload3['code'] == 400
 
 
     
