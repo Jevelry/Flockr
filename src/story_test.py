@@ -1,5 +1,7 @@
 """
 Contains all the 'user story' tests
+Will test error conditions that a user can reasonably do as in a user cannot pass in
+an incorrect token
 """
 import re
 from subprocess import Popen, PIPE
@@ -49,7 +51,7 @@ def assert_different_people(user1, user2):
     assert len(user1) == 2
     assert len(user2) == 2
 
-def register_user(name_first, name_second, email, password):
+def register_user(name_first, name_second, email, password, url):
     user_reg = {
         'name_first' : name_first,
         'name_last' : name_second,
@@ -58,7 +60,6 @@ def register_user(name_first, name_second, email, password):
         }
     resp = requests.post(url + '/auth/register', json=user_reg)
     return resp.json()
-
 
 def test_edit_profile_and_messages(url):
     """
@@ -75,8 +76,8 @@ def test_edit_profile_and_messages(url):
     """
 
     # Fred and Alan register
-    Fred = register_user('Fred','Smith','fred@gmail.com','Freddo')
-    Alan = register_user('Alan','Borm','alan@yahoo.com','Boromir')
+    Fred = register_user('Fred','Smith','fred@gmail.com','Freddo',url)
+    Alan = register_user('Alan','Borm','alan@yahoo.com','Boromir',url)
 
     assert_different_people(Fred, Alan)
 
@@ -139,7 +140,7 @@ def test_edit_profile_and_messages(url):
     # Fred changes his name unsuccessfully
     resp6 = requests.put(url + '/user/profile/setname', json=change_name1)
     resp6_payload = resp6.json()
-    assert resp6_payload['message'] == '<p>First name is not valid<p>'
+    assert resp6_payload['message'] == '<p>First name is invalid<p>'
     assert resp6_payload['code'] == 400
 
     change_name2 = {
@@ -190,33 +191,33 @@ def test_registering_login_and_logout(url):
     
     """
     #Fred trying to register with password that is too short
-    resp1_payload = register_user('Fred','Smith','fred@gmail.com','123')
-    assert resp1_payload['message'] == '<p>Password is not valid<p>'
+    resp1_payload = register_user('Fred','Smith','fred@gmail.com','123',url)
+    assert resp1_payload['message'] == '<p>Password is invalid<p>'
     assert resp1_payload['code'] == 400
     
     
     #Fred trying to register with invalid email
-    resp2_payload = register_user('Fred','Smith','fred1@gmailcom','123Ters')
+    resp2_payload = register_user('Fred','Smith','fred1@gmailcom','123Ters',url)
     assert resp2_payload['message'] == '<p>Email is invalid<p>'
     assert resp2_payload['code'] == 400
     
     #Fred trying to register with email which already exists
-    resp3_payload = register_user('Fred','Smith','fred@gmail.com','123Ters')
+    resp3_payload = register_user('Fred','Smith','fred@gmail.com','123Ters',url)
     assert resp3_payload['message'] == '<p>Email already in use<p>'
     assert resp3_payload['code'] == 400
     
     #Trying to register with invalid first name
-    resp4_payload = register_user('FredFredFredFredFredFredFredFredFredFredFredFredFredFredFred', 'Smith', 'fred2@gmail.com', '123Ters')
-    assert resp4_payload['message'] == '<p>First name is not valid<p>'
+    resp4_payload = register_user('FredFredFredFredFredFredFredFredFredFredFredFredFredFredFred', 'Smith', 'fred2@gmail.com', '123Ters',url)
+    assert resp4_payload['message'] == '<p>First name is invalid<p>'
     assert resp4_payload['code'] == 400
     
     #Trying to register with invalid last name 
-    resp5_payload = register_user('Fred','SmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmith', 'fred3gmail.com', '123Ters')
-    assert resp5_payload['message'] == '<p>Last name is not valid<p>'
+    resp5_payload = register_user('Fred','SmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmith', 'fred3gmail.com', '123Ters',url)
+    assert resp5_payload['message'] == '<p>Last name is invalid<p>'
     assert resp5_payload['code'] == 400
     
     #Fred successfully registers
-    Fred = register_user('Fred', 'Silt', 'silt@gmail.com', '123Ters')
+    Fred = register_user('Fred', 'Silt', 'silt@gmail.com', '123Ters',url)
     #Fred creates a new channel called 'My First Channel' and joins
     chan1_info = {
         'token' : Fred['token'],
@@ -255,8 +256,8 @@ def hostile_takeover(url):
     * user_profile
     """
     # Joe and Henry register accounts
-    Joe = register_user('Joe', 'Gostt', 'ttsogoej@liamg.moc', 'sdrawkcab')
-    Henry = register_user('Henry', 'Prill', 'henry@gmail.com', 'word pass')
+    Joe = register_user('Joe', 'Gostt', 'ttsogoej@liamg.moc', 'sdrawkcab', url)
+    Henry = register_user('Henry', 'Prill', 'henry@gmail.com', 'word pass', url)
 
     assert_different_people(Joe, Henry)
 
@@ -426,7 +427,7 @@ def hostile_takeover(url):
 
     resp19 = requests.post(url + '/auth/login', json = login2)
     new_Joe = resp19.json()
-    assert len(resp19_payload) == 2
+    assert len(new_Joe) == 2
     assert new_Joe['token'] is not None
     assert new_Joe['u_id'] is not None
     assert new_Joe['u_id'] == Joe['u_id']
@@ -468,8 +469,8 @@ def editing_removing_messages(url):
     * channel_addowner
     """
     # Joe and Henry register accounts
-    Paul = register_user('Paul', 'Schlamp', 'rs@bigpond', 'm23rdewf2DE')
-    Seal = register_user('Seal', 'Sire', 'FireSire@hotmail.com', 'phlem$#PHLEM')
+    Paul = register_user('Paul', 'Schlamp', 'rs@bigpond', 'm23rdewf2DE', url)
+    Seal = register_user('Seal', 'Sire', 'FireSire@hotmail.com', 'phlem$#PHLEM', url)
 
     chan1_info = {
         'token' : Paul['token'],
@@ -536,10 +537,10 @@ def editing_removing_messages(url):
             'message_id' : sent_message['message_id'],
             'message' : 'New message YaYaYaYa' 
         }
-        resp10 = requests.post(url + 'message/edit', json=edit_message_info)
+        resp10 = requests.get(url + 'message/edit', json=edit_message_info)
         assert resp10.json() == {}
 
-    resp11 = requests.post(url + 'channel/messages',json=get_messages_info)
+    resp11 = requests.get(url + 'channel/messages',json=get_messages_info)
     channel_message2 = resp11.json()
     assert channel_message2['end'] == -1
 
@@ -547,15 +548,8 @@ def editing_removing_messages(url):
         assert sent_message['message'] == 'New message YaYaYaYa'
         assert sent_message['u_id'] == Seal['u_id']
 
-    user3_info = {
-        'name_first' : 'Slam',
-        'name_last' : 'Bam',
-        'email' : 'nam@bigpond.net',
-        'password' : 'rightEOUS!ath'
-    }
-
-    resp12 = requests.post(url + '/auth/register', json=user3_info)
-    Slam = resp12.json()
+    
+    Slam = register_user('Slam','Bam','nam@bigpond.net', 'rightEOUS!ath', url)
 
     chan1_join2 = {
         'token' : Slam['token'],
@@ -579,7 +573,7 @@ def editing_removing_messages(url):
         'start' : 0
     }
 
-    resp15 = requests.post(url + 'channel/messages', json=get_messages_info2)
+    resp15 = requests.get(url + 'channel/messages', json=get_messages_info2)
     channel_message3 = resp15.json()
 
     """Minics how a person would find and delete a message"""
@@ -589,7 +583,7 @@ def editing_removing_messages(url):
                 'token' : Slam['token'],
                 'message_id' : message['message_id'],
             }
-            resp16 = requests.post(url + 'message/remove', json=message_remove_info)
+            resp16 = requests.delete(url + 'message/remove', json=message_remove_info)
             assert resp16.json() == {}
 
     message1_5_info = {
@@ -606,10 +600,10 @@ def editing_removing_messages(url):
         'message_id' : message1_5['message_id'],
     }
 
-    resp18 = requests.post(url + 'message/remove',json=message_remove_info)
+    resp18 = requests.delete(url + 'message/remove',json=message_remove_info)
     assert resp18.json() == {}
 
-    resp19 = requests.post(url + 'channel/messages',json=get_messages_info2)
+    resp19 = requests.get(url + 'channel/messages',json=get_messages_info2)
     channel_message4 = resp19.json()
 
     assert 'I REALLY love your channel' not in channel_message4['messages']['message']
@@ -619,8 +613,8 @@ def test_admin_permission_change(url):
     Tests whether an owner of Flockr is an owner of all channels they've joined
     """
     # Jack and Jill register
-    Jack = register_user('Jack', 'Smith', 'jsmith@gmail.com', 'jackjack123')
-    Jill = register_user('Jill', 'Smith', 'jillsmith12@gmail.com', 'jilljill123')
+    Jack = register_user('Jack', 'Smith', 'jsmith@gmail.com', 'jackjack123', url)
+    Jill = register_user('Jill', 'Smith', 'jillsmith12@gmail.com', 'jilljill123', url)
     assert_different_people(Jack, Jill)
 
     # Jack makes Jill an owner/admin of Flockr
@@ -668,8 +662,8 @@ def test_admin_permission_change_invalid(url):
     Tests invalid inputs of changing owner/admin permissions
     """
     # Jack and Jill register
-    Jack = register_user('Jack', 'Smith', 'jsmith@gmail.com', 'jackjack123')
-    Jill = register_user('Jill', 'Smith', 'jillsmith12@gmail.com', 'jilljill123')
+    Jack = register_user('Jack', 'Smith', 'jsmith@gmail.com', 'jackjack123', url)
+    Jill = register_user('Jill', 'Smith', 'jillsmith12@gmail.com', 'jilljill123', url)
     assert_different_people(Jack, Jill)
 
     # Jack attempts change Jill's permissions with nvalid permission_id value
@@ -709,4 +703,186 @@ def test_admin_permission_change_invalid(url):
     assert payload3['code'] == 400
 
 
+def test_invalid_user_inputs(url):
+    Jack = register_user('Jack', 'Smith', 'jsmith@gmail.com', 'jackjack123', url)
+
+    #change name too short
+    change_name_short = {
+        'token' : Jack['token'],
+        'name_first' : '',
+        'name_last' : 'Smith'
+    }
+
+    resp1 = requests.put(url + '/user/profile/setname',json=change_name_short)
+    resp1_payload = resp1.json()
+    assert resp1_payload['message'] == '<p>First name is invalid<p>'
+    assert resp1_payload['code'] == 400
+
+    change_name_long = {
+        'token' : Jack['token'],
+        'name_first' : 'JacksJacksJacksJacksJacksJacksJacksJacksJacksJacksJacks',
+        'name_last' : 'Smith'
+    }
+
+    resp2 = requests.put(url + '/user/profile/setname',json=change_name_long)
+    resp2_payload = resp2.json()
+    assert resp2_payload['message'] == '<p>First name is invalid<p>'
+    assert resp2_payload['code'] == 400
+
+
+    change_name_last_short = {
+        'token' : Jack['token'],
+        'name_first' : 'Jack',
+        'name_last' : ''
+    }
+
+    resp3 = requests.put(url + '/user/profile/setname',json=change_name_last_short)
+    resp3_payload = resp3.json()
+    assert resp3_payload['message'] == '<p>Last name is invalid<p>'
+    assert resp3_payload['code'] == 400
+
+    change_name_last_long = {
+        'token' : Jack['token'],
+        'name_first' : 'Jack',
+        'name_last' : 'SmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmith'
+    }
+
+    resp4 = requests.put(url + '/user/profile/setname',json=change_name_last_long)
+    resp4_payload = resp4.json()
+    assert resp4_payload['message'] == '<p>Last name is invalid<p>'
+    assert resp4_payload['code'] == 400
+
+    change_email_invalid = {
+        'token' : Jack['Token'],
+        'email' : 'jsmithgmail.com'
+    }
+
+    resp5 = requests.put(url + '/user/profile/setemail',json=change_email_invalid)
+    resp5_payload = resp5.json()
+    assert resp5_payload['message'] == '<p>Email is invalid<p>'
+    assert resp5_payload['code'] == 400
+
+    Jim = register_user('Jim','Smath', 'js@gmail.com', 'pasffef2U', url)
+
+    change_email_existing = {
+        'token' : Jack['token'],
+        'email' : 'js@gmail.com',
+    }
+
+    resp6 = requests.put(url + '/user/profile/setemail',json=change_email_existing)
+    resp6_payload = resp6.json()
+    assert resp6_payload['message'] == '<p>Email already in use<p>'
+    assert resp6_payload['code'] == 400
+
+    change_handle_short = {
+        'token' : Jack['token'],
+        'handle' : 'si'
+    }
+
+    resp7 = requests.put(url + '/user/profile/sethandle',json=change_handle_short)
+    resp7_payload = resp7.json()
+    assert resp7_payload['message'] == '<p>Handle is invalid<p>'
+    assert resp7_payload['code'] == 400
+
+    change_handle_long = {
+        'token' : Jack['token'],
+        'handle' : 'SisinSisinSisinSisinSisin'
+    }
+
+    resp8 = requests.put(url + '/user/profile/sethandle',json=change_handle_long)
+    resp8_payload = resp8.json()
+    assert resp8_payload['message'] == '<p>Handle is invalid<p>'
+    assert resp8_payload['code'] == 400
+
+    change_handle_Jim = {
+        'token' : Jim['token'],
+        'handle' : 'jsjsjsjs'
+    }
+
+    resp9 = requests.put(url + '/user/profile/sethandle',json=change_handle_Jim)
+    assert resp9.json() == {}
+
+    change_handle_used = {
+        'token' : Jack['token'],
+        'handle' : 'jsjsjsjs'
+    }
+
+    resp10 = requests.put(url + '/user/profile/sethandle',json=change_handle_used)
+    resp10_payload = resp10.json()
+    assert resp10_payload['message'] == '<p>Handle already in use<p>'
+    assert resp10_payload['code'] == 400
+
+    channel_create_info = {
+        'token' : Jack['token'],
+        'name' : 'jackattacka',
+        'is_public' : True,
+    }
+
+    resp11 = requests.post(url + '/channels/create',json=channel_create_info)
+    jack_channel = resp11.json()
+
+    long_string = ''
+    for _i in range(1001):
+        long_string += 'a'
+
+    send_message_long = {
+        'token' : Jack['token'],
+        'channel_id' : jack_channel['channel_id'],
+        'message' : long_string
+    }
+
+    resp12 = requests.post(url + '/message/send',json=send_message_long)
+    resp12_payload = resp12.json()
+    assert resp12_payload['message'] == '<p>Message is invalid<p>' 
+    assert resp12_payload['code'] == 400
+
+    send_valid_message = {
+        'token' : Jack['token'],
+        'channel_id' : jack_channel['channel_id'],
+        'message' : 'fefebfoebfnijfcnshoffjZDfnJH'
+    }
+
+    resp13 = requests.post(url + '/message/send',json=send_valid_message)
+    resp13_payload = resp13.json()
+
+    channel_join_info = {
+        'token' : Jim['token'],
+        'channel_id' : jack_channel['channel_id'],
+    }
     
+    resp14 = requests.post(url + '/channel/join',json=channel_join_info)
+    assert resp14.json() == {}
+
+    remove_message_no_access = {
+        'token' : Jim['token'],
+        'message_id': resp13_payload['message_id']
+    }
+    resp15 = requests.delete(url + '/message/remove',json=remove_message_no_access)
+    resp15_payload = resp15.json()
+    assert resp15_payload['message'] == '<p>User is not creator or owner<p>'
+    assert resp15_payload['code'] == 400
+
+    edit_message_no_access = {
+        'token' : Jim['token'],
+        'message_id' : resp13_payload['message_id'],
+        'message' : 'wneifoji   wijweioewni'
+    }
+
+    resp16 = requests.put(url + '/message/edit',json=edit_message_no_access)
+    resp16_payload = resp16.json()
+    assert resp16_payload['message'] == '<p>User is not creator or owner<p>'
+    assert resp16_payload['code'] == 400
+
+    edit_message_long = {
+        'token' : Jack['token'],
+        'message_id' : resp13_payload['message_id'],
+        'message' : long_string
+    }
+
+    resp17 = requests.put(url + '/message/edit',json=edit_message_long)
+    resp17_payload = resp17.json()
+    assert resp17_payload['message'] == '<p>Message is invalid<p>'
+    assert resp17_payload['code'] == 400
+
+
+

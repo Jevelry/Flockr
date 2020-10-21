@@ -151,10 +151,10 @@ def check_valid_name(first, last):
     """
     # If first name is invalid.
     if len(first) < 1 or len(first) > 50:
-        raise InputError("First name is not valid")
+        raise InputError("First name is invalid")
     # If last name is invalid.
     if len(last) < 1 or len(last) > 50:
-        raise InputError("Last name is not valid")
+        raise InputError("Last name is invalid")
     return
 
 def check_valid_password(password):
@@ -169,7 +169,7 @@ def check_valid_password(password):
         Returns nothing if valid password
     """
     if len(password) < 6:
-        raise InputError(description="Password is not valid")
+        raise InputError(description="Password is invalid")
     return
 
 def check_user_in_channel(u_id, channel_id):
@@ -299,7 +299,7 @@ def valid_message(message):
     Returns:
     """
     if len(message) > 1000:
-        raise InputError
+        raise InputError(description='Message is invalid')
 
 def valid_message_id(message_id):
     """
@@ -316,4 +316,4 @@ def valid_message_id(message_id):
             if message['message_id'] == message_id:
                 found_message = True
     if not found_message:
-        raise InputError
+        raise InputError(description='No message exists')
