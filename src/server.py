@@ -9,6 +9,9 @@ from flask import Flask, request
 from flask_cors import CORS
 from error import InputError
 import auth
+import channel
+import channels
+import message
 
 def defaultHandler(err):
     """
@@ -57,6 +60,38 @@ def register():
     email = data['email']
     password = data['password']
     return auth.auth_register(email, password, first, last)
+
+@APP.route("/channel/join",methods=['POST'])
+def join():
+    """
+    Adds a user to a public channel using http
+    """
+    data = request.get_json()
+    token = data['token']
+    channel_id = data['channel_id']
+    return channel.channel_join(token, channel_id)
+
+@APP.route("/channel/addowner",methods=['POST'])
+def addowner():
+    """
+    Adds a user to as an owner to a channel using http
+    """
+    data = request.get_json()
+    token = data['token']
+    channel_id = data['channel_id']
+    u_id = data['u_id']
+    return channel.channel_addowner(token, channel_id, u_id)
+
+@APP.route("/channel/removeowner",methods=['POST'])
+def removeowner():
+    """
+    Removes a user to as an owner to a channel using http
+    """
+    data = request.get_json()
+    token = data['token']
+    channel_id = data['channel_id']
+    u_id = data['u_id']
+    return channel.channel_removeowner(token, channel_id, u_id)
 
 if __name__ == "__main__":
     APP.run(port=0) # Do not edit this port
