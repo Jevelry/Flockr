@@ -100,7 +100,7 @@ def channels_list():
     """
     Returns a list of all channels that the user has joined using http
     """
-    token = request.args.get('token')
+    request.args.get('token')
     return dumps(channels.channels_list(token))
 
 @APP.route("/channels/listall", methods=['GET'])
@@ -108,6 +108,8 @@ def channels_listall():
     """
     Returns a list of all channels in Flockr using http
     """
+    token = request.args.get('token')
+    return dumps(channels.channels_listall(token))
 
 @APP.route("/channels/create", methods=['POST'])
 def channels_create():
