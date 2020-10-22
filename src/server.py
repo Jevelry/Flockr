@@ -108,8 +108,6 @@ def channels_listall():
     """
     Returns a list of all channels in Flockr using http
     """
-    token = request.args.get('token')
-    return dumps(channels.channels_listall(token))
 
 @APP.route("/channels/create", methods=['POST'])
 def channels_create():
