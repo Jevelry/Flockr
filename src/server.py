@@ -61,7 +61,7 @@ def register():
     last = data['name_last']
     email = data['email']
     password = data['password']
-    return dumps(auth.auth_register(email, password, first, last))
+    return auth.auth_register(email, password, first, last)
 
 @APP.route('/auth/logout', methods=['POST'])
 def logout():
@@ -119,7 +119,7 @@ def channels_list():
     """
     Returns a list of all channels that the user has joined using http
     """
-    request.args.get('token')
+    token = request.args.get('token')
     return dumps(channels.channels_list(token))
 
 @APP.route("/channels/listall", methods=['GET'])
@@ -190,7 +190,7 @@ def change_permissions():
     token = data['token']
     u_id = data['u_id']
     permission_id = data['permission_id']
-    return dumps(other.users_all(token, u_id, permission_id))
+    return other.admin_userpermission_change(token, u_id, permission_id)
 
 @APP.route("/search", methods=['GET'])
 def search_query():
@@ -201,14 +201,15 @@ def search_query():
     query_str = request.args.get('query_str')
     return dumps(other.search(token, query_str))
 
-@APP.route("user/profile", methods=['GET'])
+@APP.route("/user/profile", methods=['GET'])
 def profile():
     """
     Returns information about user user_id, email, first name, last name, and handle
     """
     return dumps(user.user_profile(request.args.get('token'), request.args.get('u_id')))
 
-@APP.route("user/profile/setname", methods=['PUT'])
+@APP.route("/user/profile/setname", methods=['PUT'])
+def setname():
     """
     updates users first and last name
     """
@@ -218,13 +219,15 @@ def profile():
     name_last = data['name_last']
     return dumps(user.user_profile_setname(token, name_first, name_last))
 
-@APP.route("user/profile/setemail", methods=['PUT'])
+@APP.route("/user/profile/setemail", methods=['PUT'])
+def setemail():
     data = request.get_json()
     token = data['token']
     email = data["email"]   
     return dumps(user.user_profile_setemail(token, email))
 
-@APP.route("user/profile/sethandle", methods=['PUT'])
+@APP.route("/user/profile/sethandle", methods=['PUT'])
+def sethandle():
     data = request.get_json()
     token = data['token']
     handle = data['handle_str']
