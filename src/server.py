@@ -100,7 +100,7 @@ def channels_list():
     """
     Returns a list of all channels that the user has joined using http
     """
-    request.args.get('token')
+    token = request.args.get('token')
     return channels.channels_list(token)
 
 @APP.route("/channels/listall", methods=['GET'])
