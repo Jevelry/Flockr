@@ -12,6 +12,7 @@ import auth
 import channel
 import channels
 import message
+import user
 import other
 
 def defaultHandler(err):
@@ -99,8 +100,7 @@ def channels_list():
     """
     Returns a list of all channels that the user has joined using http
     """
-    data = request.get_json()
-    token = data['token']
+    request.args.get('token')
     return channels.channels_list(token)
 
 @APP.route("/channels/listall", methods=['GET'])
@@ -108,8 +108,7 @@ def channels_listall():
     """
     Returns a list of all channels in Flockr using http
     """
-    data = request.get_json()
-    token = data['token']
+    token = request.args.get('token')
     return channels.channels_listall(token)
 
 @APP.route("/channels/create", methods=['POST'])
@@ -160,8 +159,7 @@ def users_all():
     """
     Returns a list of all users in Flockr using http
     """
-    data = request.get_json()
-    token = data['token']
+    token = request.args.get('token')
     return other.users_all(token)
 
 @APP.route("/admin/userpermission/change", methods=['POST'])
@@ -180,10 +178,40 @@ def search_query():
     """
     Returns a list of messages the user has sent matching the search query using http
     """
-    data = request.get_json()
-    token = data['token']
-    query_str = data['query_str']
+    token = request.args.get('token')
+    query_str = request.args.get('query_str')
     return other.search(token, query_str)
 
+@APP.route("user/profile", methods=['GET'])
+def profile():
+    """
+    Returns information about user user_id, email, first name, last name, and handle
+    """
+    return dumps(user.user_profile(request.args.get('token'), request.args.get('u_id')))
+
+@APP.route("user/profile/setname", methods=['PUT'])
+    """
+    updates users first and last name
+    """
+    data = request.get_json()
+    token = data['token']
+    name_first = data["name_first"]
+    name_last = data['name_last']
+    user.user_profile_setname(token, name_first, name_last)
+    return 
+
+@APP.route("user/profile/setemail", methods=['PUT'])
+    data = request.get_json()
+    token = data['token']
+    email = data["email"]
+    user.user_profile_setemail(token, email)
+    return
+
+@APP.route("user/profile/sethandle", methods=['PUT'])
+    data = request.get_json()
+    token = data['token']
+    handle = data['handle_str']
+    user.user_profile_sethandle(token, handle)
+    return
 if __name__ == "__main__":
     APP.run(port=0) # Do not edit this port
