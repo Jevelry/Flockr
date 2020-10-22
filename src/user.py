@@ -70,8 +70,6 @@ def user_profile_setname(token, name_first, name_last):
     #Everything valid, proceed with changing name
     user = data.get_user_info(u_id)
     data.update_user(user,{"name_first": name_first,"name_last":name_last})  
-    return {}   
-        
     return {}
         
 def user_profile_setemail(token, email):

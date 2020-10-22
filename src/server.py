@@ -90,7 +90,7 @@ def join():
     data = request.get_json()
     token = data['token']
     channel_id = data['channel_id']
-    return dumps(channel.channel_join(token, channel_id))
+    return channel.channel_join(token, channel_id)
 
 @APP.route("/channel/addowner",methods=['POST'])
 def addowner():
@@ -101,7 +101,7 @@ def addowner():
     token = data['token']
     channel_id = data['channel_id']
     u_id = data['u_id']
-    return dumps(channel.channel_addowner(token, channel_id, u_id))
+    return channel.channel_addowner(token, channel_id, u_id)
 
 @APP.route("/channel/removeowner", methods=['POST'])
 def removeowner():
@@ -112,7 +112,7 @@ def removeowner():
     token = data['token']
     channel_id = data['channel_id']
     u_id = data['u_id']
-    return dumps(channel.channel_removeowner(token, channel_id, u_id))
+    return channel.channel_removeowner(token, channel_id, u_id)
 
 @APP.route("/channels/list", methods=['GET'])
 def channels_list():
@@ -139,7 +139,7 @@ def channels_create():
     token = data['token']
     name = data['name']
     is_public = data['is_public']
-    return dumps(channels.channels_create(token, name, is_public))
+    return channels.channels_create(token, name, is_public)
 
 @APP.route("/message/send", methods=['POST'])
 def send_message():
@@ -150,7 +150,7 @@ def send_message():
     token = data['token']
     channel_id = data['channel_id']
     message = data['message']
-    return dumps(message.message_send(token, channel_id, message))
+    return message.message_send(token, channel_id, message)
 
 @APP.route("/message/remove", methods=['DELETE'])
 def remove_message():
@@ -160,7 +160,7 @@ def remove_message():
     data = request.get_json()
     token = data['token']
     message_id = data['message_id']
-    return dumps(message.message_remove(token, message_id))
+    return message.message_remove(token, message_id)
 
 @APP.route("/message/edit", methods=['PUT'])
 def edit_message():
@@ -171,7 +171,7 @@ def edit_message():
     token = data['token']
     message_id = data['message_id']
     message = data['message']
-    return dumps(message.message_remove(token, message_id, message))
+    return message.message_remove(token, message_id, message)
 
 @APP.route("/users/all", methods=['GET'])
 def users_all():
@@ -217,14 +217,14 @@ def setname():
     token = data['token']
     name_first = data["name_first"]
     name_last = data['name_last']
-    return dumps(user.user_profile_setname(token, name_first, name_last))
+    return user.user_profile_setname(token, name_first, name_last)
 
 @APP.route("/user/profile/setemail", methods=['PUT'])
 def setemail():
     data = request.get_json()
     token = data['token']
     email = data["email"]   
-    return dumps(user.user_profile_setemail(token, email))
+    return user.user_profile_setemail(token, email)
 
 @APP.route("/user/profile/sethandle", methods=['PUT'])
 def sethandle():
