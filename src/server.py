@@ -12,6 +12,7 @@ import auth
 import channel
 import channels
 import message
+import other
 
 def defaultHandler(err):
     """
@@ -61,7 +62,7 @@ def register():
     password = data['password']
     return auth.auth_register(email, password, first, last)
 
-@APP.route("/channel/join",methods=['POST'])
+@APP.route("/channel/join", methods=['POST'])
 def join():
     """
     Adds a user to a public channel using http
@@ -82,7 +83,7 @@ def addowner():
     u_id = data['u_id']
     return channel.channel_addowner(token, channel_id, u_id)
 
-@APP.route("/channel/removeowner",methods=['POST'])
+@APP.route("/channel/removeowner", methods=['POST'])
 def removeowner():
     """
     Removes a user to as an owner to a channel using http
@@ -93,7 +94,36 @@ def removeowner():
     u_id = data['u_id']
     return channel.channel_removeowner(token, channel_id, u_id)
 
-@APP.route("/message/send",methods=['POST'])
+@APP.route("/channels/list", methods=['GET'])
+def channels_list():
+    """
+    Returns a list of all channels that the user has joined using http
+    """
+    data = request.get_json()
+    token = data['token']
+    return channels.channels_list(token)
+
+@APP.route("/channels/listall", methods=['GET'])
+def channels_listall():
+    """
+    Returns a list of all channels in Flockr using http
+    """
+    data = request.get_json()
+    token = data['token']
+    return channels.channels_listall(token)
+
+@APP.route("/channels/create", methods=['POST'])
+def channels_create():
+    """
+    Creates a new channel that is set as either public or private using http
+    """
+    data = request.get_json()
+    token = data['token']
+    name = data['name']
+    is_public = data['is_public']
+    return channels.channels_create(token, name, is_public)
+
+@APP.route("/message/send", methods=['POST'])
 def send_message():
     """
     Sends a message to a channel using http
@@ -104,7 +134,7 @@ def send_message():
     message = data['message']
     return message.message_send(token, channel_id, message)
 
-@APP.route("/message/remove",methods=['DELETE'])
+@APP.route("/message/remove", methods=['DELETE'])
 def remove_message():
     """
     Remove a message from the channel using http
@@ -114,7 +144,7 @@ def remove_message():
     message_id = data['message_id']
     return message.message_remove(token, message_id)
 
-@APP.route("/message/edit",methods=['PUT'])
+@APP.route("/message/edit", methods=['PUT'])
 def edit_message():
     """
     Edit a message from the channel using http
@@ -124,6 +154,36 @@ def edit_message():
     message_id = data['message_id']
     message = data['message']
     return message.message_remove(token, message_id, message)
+
+@APP.route("/users/all", methods=['GET'])
+def users_all():
+    """
+    Returns a list of all users in Flockr using http
+    """
+    data = request.get_json()
+    token = data['token']
+    return other.users_all(token)
+
+@APP.route("/admin/userpermission/change", methods=['POST'])
+def change_permissions():
+    """
+    Sets a user's permissions according to the permission value using http
+    """
+    data = request.get_json()
+    token = data['token']
+    u_id = data['u_id']
+    permission_id = data['permission_id']
+    return other.users_all(token, u_id, permission_id)
+
+@APP.route("/search", methods=['GET'])
+def search_query():
+    """
+    Returns a list of messages the user has sent matching the search query using http
+    """
+    data = request.get_json()
+    token = data['token']
+    query_str = data['query_str']
+    return other.search(token, query_str)
 
 if __name__ == "__main__":
     APP.run(port=0) # Do not edit this port
