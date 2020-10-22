@@ -71,7 +71,7 @@ def user_profile_setname(token, name_first, name_last):
     user = data.get_user_info(u_id)
     data.update_user(user,{"name_first": name_first,"name_last":name_last})     
         
- 
+    return {}
         
 def user_profile_setemail(token, email):
     """
@@ -95,7 +95,7 @@ def user_profile_setemail(token, email):
         
     user = data.get_user_info(u_id) 
     data.update_user(user, {"email": email})
-
+    return {}
   
 def user_profile_sethandle(token, handle_str):
     """
@@ -122,5 +122,5 @@ def user_profile_sethandle(token, handle_str):
 
     user = data.get_user_info(u_id) 
     data.update_user(user, {"handle_str": handle_str})
-       
+    return {}   
 

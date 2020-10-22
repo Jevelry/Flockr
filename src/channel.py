@@ -216,7 +216,7 @@ def channel_addowner(token, channel_id, u_id):
     #Will change the u_id from member to owner
     data.channel_add_owner(channel_id, u_id)
 
-
+    return {}
 def channel_removeowner(token, channel_id, u_id):
     """
     Remove user with user id u_id an owner of this channel

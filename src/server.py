@@ -71,7 +71,7 @@ def join():
     data = request.get_json()
     token = data['token']
     channel_id = data['channel_id']
-    return channel.channel_join(token, channel_id)
+    return dumps(channel.channel_join(token, channel_id))
 
 @APP.route("/channel/addowner",methods=['POST'])
 def addowner():
@@ -82,7 +82,7 @@ def addowner():
     token = data['token']
     channel_id = data['channel_id']
     u_id = data['u_id']
-    return channel.channel_addowner(token, channel_id, u_id)
+    return dumps(channel.channel_addowner(token, channel_id, u_id))
 
 @APP.route("/channel/removeowner", methods=['POST'])
 def removeowner():
@@ -93,7 +93,7 @@ def removeowner():
     token = data['token']
     channel_id = data['channel_id']
     u_id = data['u_id']
-    return channel.channel_removeowner(token, channel_id, u_id)
+    return dumps(channel.channel_removeowner(token, channel_id, u_id))
 
 @APP.route("/channels/list", methods=['GET'])
 def channels_list():
@@ -141,7 +141,7 @@ def remove_message():
     data = request.get_json()
     token = data['token']
     message_id = data['message_id']
-    return message.message_remove(token, message_id)
+    return dumps(message.message_remove(token, message_id))
 
 @APP.route("/message/edit", methods=['PUT'])
 def edit_message():
@@ -152,7 +152,7 @@ def edit_message():
     token = data['token']
     message_id = data['message_id']
     message = data['message']
-    return message.message_remove(token, message_id, message)
+    return dumps(message.message_remove(token, message_id, message))
 
 @APP.route("/users/all", methods=['GET'])
 def users_all():
@@ -160,7 +160,7 @@ def users_all():
     Returns a list of all users in Flockr using http
     """
     token = request.args.get('token')
-    return dumpsother.users_all(token))
+    return dumps(other.users_all(token))
 
 @APP.route("/admin/userpermission/change", methods=['POST'])
 def change_permissions():
@@ -171,7 +171,7 @@ def change_permissions():
     token = data['token']
     u_id = data['u_id']
     permission_id = data['permission_id']
-    return other.users_all(token, u_id, permission_id)
+    return dumps(other.users_all(token, u_id, permission_id))
 
 @APP.route("/search", methods=['GET'])
 def search_query():
@@ -197,21 +197,18 @@ def profile():
     token = data['token']
     name_first = data["name_first"]
     name_last = data['name_last']
-    user.user_profile_setname(token, name_first, name_last)
-    return 
+    return dumps(user.user_profile_setname(token, name_first, name_last))
 
 @APP.route("user/profile/setemail", methods=['PUT'])
     data = request.get_json()
     token = data['token']
-    email = data["email"]
-    user.user_profile_setemail(token, email)
-    return
+    email = data["email"]   
+    return dumps(user.user_profile_setemail(token, email))
 
 @APP.route("user/profile/sethandle", methods=['PUT'])
     data = request.get_json()
     token = data['token']
     handle = data['handle_str']
-    user.user_profile_sethandle(token, handle)
-    return
+    return dumps(user.user_profile_sethandle(token, handle))
 if __name__ == "__main__":
     APP.run(port=0) # Do not edit this port
