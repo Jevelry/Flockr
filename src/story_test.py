@@ -901,12 +901,12 @@ def test_list_users_and_channels(url):
     Tests listing of all channels, channels of the user and all users on Flockr
     """
     # Jack and Jill register
-    Jack = register_user('Jack', 'Smith', 'jsmith@gmail.com', 'jackjack123')
-    Jill = register_user('Jill', 'Smith', 'jillsmith12@gmail.com', 'jilljill123')
+    Jack = register_user('Jack', 'Smith', 'jsmith@gmail.com', 'jackjack123', url)
+    Jill = register_user('Jill', 'Smith', 'jillsmith12@gmail.com', 'jilljill123', url)
     assert_different_people(Jack, Jill)
 
     # Jack calls for a list of all users in Flockr
-    resp1 = request.get(url + '/users/all', params=Jack['token'])
+    resp1 = requests.get(url + '/users/all', params=Jack['token'])
     user_list = resp1.json()
 
     assert user_list['users'][0]['u_id'] == Jack['u_id']
@@ -915,13 +915,13 @@ def test_list_users_and_channels(url):
     # Jack creates and joins the channels 'First channel' and 'Second Channel'
     channel_info1 = {
         'token' : Jack['token'],
-        'name' : 'First Channel'
+        'name' : 'First Channel',
         'is_public' : True,
     }
 
     channel_info2 = {
         'token' : Jack['token'],
-        'name' : 'Second Channel'
+        'name' : 'Second Channel',
         'is_public' : True,
     }
 

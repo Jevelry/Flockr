@@ -93,5 +93,37 @@ def removeowner():
     u_id = data['u_id']
     return channel.channel_removeowner(token, channel_id, u_id)
 
+@APP.route("/message/send",methods=['POST'])
+def send_message():
+    """
+    Sends a message to a channel using http
+    """
+    data = request.get_json()
+    token = data['token']
+    channel_id = data['channel_id']
+    message = data['message']
+    return message.message_send(token, channel_id, message)
+
+@APP.route("/message/remove",methods=['DELETE'])
+def remove_message():
+    """
+    Remove a message from the channel using http
+    """
+    data = request.get_json()
+    token = data['token']
+    message_id = data['message_id']
+    return message.message_remove(token, message_id)
+
+@APP.route("/message/edit",methods=['PUT'])
+def edit_message():
+    """
+    Edit a message from the channel using http
+    """
+    data = request.get_json()
+    token = data['token']
+    message_id = data['message_id']
+    message = data['message']
+    return message.message_remove(token, message_id, message)
+
 if __name__ == "__main__":
     APP.run(port=0) # Do not edit this port
