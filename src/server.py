@@ -61,7 +61,7 @@ def register():
     last = data['name_last']
     email = data['email']
     password = data['password']
-    return auth.auth_register(email, password, first, last)
+    return dumps(auth.auth_register(email, password, first, last))
 
 @APP.route("/channel/join", methods=['POST'])
 def join():
@@ -101,7 +101,7 @@ def channels_list():
     Returns a list of all channels that the user has joined using http
     """
     token = request.args.get('token')
-    return channels.channels_list(token)
+    return dumps(channels.channels_list(token))
 
 @APP.route("/channels/listall", methods=['GET'])
 def channels_listall():
@@ -109,7 +109,7 @@ def channels_listall():
     Returns a list of all channels in Flockr using http
     """
     token = request.args.get('token')
-    return channels.channels_listall(token)
+    return dumps(channels.channels_listall(token))
 
 @APP.route("/channels/create", methods=['POST'])
 def channels_create():
@@ -120,7 +120,7 @@ def channels_create():
     token = data['token']
     name = data['name']
     is_public = data['is_public']
-    return channels.channels_create(token, name, is_public)
+    return dumps(channels.channels_create(token, name, is_public))
 
 @APP.route("/message/send", methods=['POST'])
 def send_message():
@@ -131,7 +131,7 @@ def send_message():
     token = data['token']
     channel_id = data['channel_id']
     message = data['message']
-    return message.message_send(token, channel_id, message)
+    return dumps(message.message_send(token, channel_id, message))
 
 @APP.route("/message/remove", methods=['DELETE'])
 def remove_message():
@@ -160,7 +160,7 @@ def users_all():
     Returns a list of all users in Flockr using http
     """
     token = request.args.get('token')
-    return other.users_all(token)
+    return dumpsother.users_all(token))
 
 @APP.route("/admin/userpermission/change", methods=['POST'])
 def change_permissions():
@@ -180,7 +180,7 @@ def search_query():
     """
     token = request.args.get('token')
     query_str = request.args.get('query_str')
-    return other.search(token, query_str)
+    return dumps(other.search(token, query_str))
 
 @APP.route("user/profile", methods=['GET'])
 def profile():
