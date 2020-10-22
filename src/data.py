@@ -1,5 +1,9 @@
 """
-docstring do later
+Contains all functions to do with the global variables and dictionaries.
+Only file that interacts with the data state.
+Note: Many functions in this file assume that everything is valid.
+eg message_remove assumes that the message is already in the channel.
+The validation checks are generally done before these functions are called.
 """
 from error import AccessError, InputError
 """
@@ -291,27 +295,48 @@ def channel_create(new_channel):
     channels[new_channel['channel_id']] = new_channel 
 
 def find_channel(message_id):
+    """
+    Given a message_id, returns channel_id of channel with that message
+    """
     for channel in channels:
         if message_id in channels[channel]['messages']:
             return channel
     raise InputError(description="Message not in any channel")
 
 def get_message(channel, message_id):
+    """
+    Given channel containing message and message_id,
+    returns dictionary containing message info
+    """
     return channels[channel]['messages'][message_id]
 
 def add_message(message, channel_id):
+    """
+    Adds given message to channel with given channel_id
+    """
     channel = channels[channel_id]
     message_id = message['message_id']
     channel['messages'][message_id] = message
 
 def remove_message(message_id, channel_id):
+    """
+    Removes message with given message_id from 
+    channel with given channel_id.
+    """
     channel = channels[channel_id]
     del channel['messages'][message_id]
 
 def edit_message(channel_id, message_id, message):
+    """
+    Edits the target message and changes
+    target_message['message'] to message
+    """
     channels[channel_id]['messages'][message_id]['message'] = message
 
 def user_list():
+    """
+    Returns a list of every user in the system
+    """
     list_users = []
     for user in users.values():
         user_info = {
@@ -319,12 +344,15 @@ def user_list():
             'email' : user['email'],
             'name_last' : user['name_last'],
             'name_first' : user['name_first'],
-            'handle_str' : user['handle_str'],
-            'permission_id' : user['permission_id']
+            'handle_str' : user['handle_str']
         }
         list_users.append(user_info)
     return list_users
 
 def change_permission(u_id, permission):
+    """
+    Changes user's serverwide permissions
+    to whatever was specified
+    """
     user = get_user_info(u_id)
     user['permission_id'] = permission

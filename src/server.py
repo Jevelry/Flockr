@@ -63,7 +63,26 @@ def register():
     password = data['password']
     return dumps(auth.auth_register(email, password, first, last))
 
-@APP.route("/channel/join", methods=['POST'])
+@APP.route('/auth/logout', methods=['POST'])
+def logout():
+    """
+    Logs user out using http
+    """
+    data = request.get_json()
+    token = data['token']
+    return auth.auth_logout(token)
+
+@APP.route('/auth/login', methods=['POSt'])
+def login():
+    """
+    Logs user in using http
+    """
+    data = request.get_json()
+    email = data['email']
+    password = data['password']
+    return auth.auth_login(email, password)
+
+@APP.route("/channel/join",methods=['POST'])
 def join():
     """
     Adds a user to a public channel using http

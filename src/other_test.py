@@ -30,13 +30,11 @@ def test_users_all_sucess():
     assert user_result['users'][0]['email'] == 'testmail@gmail.com'
     assert user_result['users'][0]['name_first'] == 'first_name'
     assert user_result['users'][0]['name_last'] == 'last_name'
-    assert user_result['users'][0]['permission_id'] == 1
 
     assert user_result['users'][1]['u_id'] == 2
     assert user_result['users'][1]['email'] == 'another_test@hotmail.com'
     assert user_result['users'][1]['name_first'] == 'first_name'
     assert user_result['users'][1]['name_last'] == 'last_name'
-    assert user_result['users'][1]['permission_id'] == 2
 
     other.clear()
 
@@ -62,9 +60,7 @@ def test_admin_userpermission_change_success():
     """
     user = auth.auth_register('cupboard@hotmail.com', 'cupcupboard', 'first_name', 'last_name')
     user2 = auth.auth_register('closet@yahoo.com.au', 'closetset12', 'first_name', 'last_name')
-    other.admin_userpermission_change(user['token'], user2['u_id'], 1)
-    user_result = other.users_all(user['token'])
-    assert user_result['users'][1]['permission_id'] == 1
+    assert other.admin_userpermission_change(user['token'], user2['u_id'], 1) == {}
 
     other.clear()
 
@@ -75,14 +71,8 @@ def test_admin_userpermission_change_revert_success():
     """
     user = auth.auth_register('cupcake@hotmail.com', 'strawberry1', 'first_name', 'last_name')
     user2 = auth.auth_register('pancake@yahoo.com.au', 'honeysyrup2', 'first_name', 'last_name')
-    other.admin_userpermission_change(user['token'], user2['u_id'], 1)
-    user_result = other.users_all(user['token'])
-    assert user_result['users'][1]['permission_id'] == 1
-
-    other.admin_userpermission_change(user['token'], user2['u_id'], 2)
-    user_result2 = other.users_all(user['token'])
-
-    assert user_result2['users'][1]['permission_id'] == 2
+    assert other.admin_userpermission_change(user['token'], user2['u_id'], 1) == {}
+    assert other.admin_userpermission_change(user['token'], user2['u_id'], 2) == {}
 
     other.clear()
 
