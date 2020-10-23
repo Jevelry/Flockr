@@ -8,10 +8,10 @@ jwt (Pyjwt module): Gives access to jwts (for storing tokens)
 
 import data
 import validation
-from error import InputError
+from error import InputError, AccessError
 import hashlib
 import jwt
-
+import random
 
 # Used in auth_register.
 # Generates a unique handle (username) for each user.
@@ -60,17 +60,23 @@ def auth_login(email, password):
     # Everything is valid.
     # User has definitely registered. Password is correct.
     # There is at least one user in data.data['users']
-    user = data.get_user_with({ 'email' : email.lower() })
+    user = data.get_user_with({ 'email' : new_email })
     if user is None:
         raise InputError(description="User does not exist")
 
     # Update global state.
     # Adds user to data['logged_in'].
     data.login_user(user['u_id'])
-    
+    # Gives user a new random number for token validation
+    data.update_user(data.get_user_info(user['u_id']), 
+        {'session_secret' : random.randrange(100000)})
+    payload = {
+        'u_id' : user['u_id'],
+        'session_secret' : user['session_secret']
+    }
     return {
         'u_id' : user['u_id'],
-        'token' : jwt.encode({'u_id': user['u_id']}, data.jwt_secret, algorithm='HS256')
+        'token' : jwt.encode(payload, data.get_jwt_secret(), algorithm='HS256')
     }
 
 
@@ -88,11 +94,15 @@ def auth_logout(token):
         on whether user can be successfully logged out
     """
     # Check if token is valid.
-    u_id = validation.check_valid_token(token)
+    try:
+        u_id = validation.check_valid_token(token)
+    except AccessError: 
+        return {'is_success' : False}
 
     # Check if user is active (logged in).
     if data.check_logged_in(u_id):
         data.logout_user(u_id)
+        data.update_user(data.get_user_info(u_id), {'session_secret' : ''})
         return {'is_success' : True}
     # Either not logged in or registered
     return {'is_success' : False}
@@ -140,6 +150,7 @@ def auth_register(email, password, name_first, name_last):
     new['password'] = hashlib.sha256(password.encode()).hexdigest()
     new['email'] = new_email
     new['handle_str'] = generate_handle(name_first, name_last)
+    new['session_secret'] = random.randrange(100000) # Just needs to be a big number
     if new['u_id'] == 1:
         new['permission_id'] = 1
     else:
@@ -148,14 +159,11 @@ def auth_register(email, password, name_first, name_last):
 
     # Log user in.
     data.login_user(new['u_id'])
-
+    payload = {
+        'u_id' : new['u_id'],
+        'session_secret' : new['session_secret']
+    }
     return {
         'u_id' : new['u_id'],
-        'token': jwt.encode({'u_id': new['u_id']}, data.jwt_secret, algorithm='HS256')
+        'token': jwt.encode(payload, data.get_jwt_secret(), algorithm='HS256')
     }
-
-if __name__ == '__main__':
-    user = auth_register('Jeltz@vogon.com', 'hyperspaceplanningcouncil', 'Prostetnic', 'Jeltz')
-    auth_logout(user['token'])
-    
-    auth_login('Jeltz@vogon.com', 'regrettably')

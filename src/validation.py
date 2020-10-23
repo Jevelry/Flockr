@@ -20,14 +20,24 @@ def check_valid_token(token):
         Returns u_id if token is valid
     """
     try:
-        payload = jwt.decode(token, data.jwt_secret, algorithms=['HS256'])
-        correct_token = jwt.encode(payload, data.jwt_secret, algorithm='HS256')
-        if (token == correct_token):
+        # If parent function was called using http, token is in ASCII.
+        # If parent function was called via command line, token is a byte string.
+        # I don't understand why.
+        if isinstance(token, bytes):
+            token = token.decode('ASCII')
+        payload = jwt.decode(token, data.get_jwt_secret(), algorithms=['HS256'])
+        correct_token = jwt.encode(payload, data.get_jwt_secret(), algorithm='HS256')
+        correct_str = correct_token.decode('ASCII')
+
+        # Secret is used to confirm if user is logged in or not.
+        # It also causes the token to change between sessions. 
+        user_secret = data.get_user_secret(payload['u_id'])
+        token_secret = payload['session_secret']
+        if token == correct_str and user_secret == token_secret:
             return payload['u_id']
     except:
         raise AccessError(description="Token is invalid")
-    raise AccessError(description="Token is invalid")
-
+    raise AccessError(description="User is not logged in")
 
 
 def check_valid_handle(handle_str):

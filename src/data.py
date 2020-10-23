@@ -136,7 +136,15 @@ def get_user_info(u_id):
         return users[u_id]
     except:
         return None
-    
+
+def get_user_secret(u_id):
+    """
+    Returns the user's secret session code
+    to validate tokens
+    """
+    user = get_user_info(u_id)
+    return user['session_secret']
+
 def update_user(user,attributes):
     """
     Given a user(dict) and attribute(dict), updates that user with given new attributes
@@ -244,6 +252,12 @@ def get_num_users():
     Returns the number of total users
     """
     return len(users)
+
+def get_jwt_secret():
+    """
+    Returns the jwt_secret
+    """
+    return jwt_secret
     
 def make_message_id():
     """

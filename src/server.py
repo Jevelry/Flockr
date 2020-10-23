@@ -204,14 +204,14 @@ def search_query():
 @APP.route("/user/profile", methods=['GET'])
 def profile():
     """
-    Returns information about user user_id, email, first name, last name, and handle
+    Returns information about user user_id, email, first name, last name, and handle using http
     """
     return dumps(user.user_profile(request.args.get('token'), request.args.get('u_id')))
 
 @APP.route("/user/profile/setname", methods=['PUT'])
 def setname():
     """
-    updates users first and last name
+    Updates user's first and last name using http
     """
     data = request.get_json()
     token = data['token']
@@ -221,6 +221,9 @@ def setname():
 
 @APP.route("/user/profile/setemail", methods=['PUT'])
 def setemail():
+    """
+    Updates user's email using http
+    """
     data = request.get_json()
     token = data['token']
     email = data["email"]   
@@ -228,9 +231,13 @@ def setemail():
 
 @APP.route("/user/profile/sethandle", methods=['PUT'])
 def sethandle():
+    """
+    Updates user's handle_str using http
+    """
     data = request.get_json()
     token = data['token']
     handle = data['handle_str']
     return dumps(user.user_profile_sethandle(token, handle))
+    
 if __name__ == "__main__":
     APP.run(port=0) # Do not edit this port

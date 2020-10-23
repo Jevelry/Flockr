@@ -18,7 +18,6 @@ def channels_list(token):
     """
     # Check token is valid
     u_id = validation.check_valid_token(token)
-    
 
     # Appends all channels that the user is in to channel_list
     
