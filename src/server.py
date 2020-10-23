@@ -72,7 +72,7 @@ def logout():
     token = data['token']
     return auth.auth_logout(token)
 
-@APP.route('/auth/login', methods=['POSt'])
+@APP.route('/auth/login', methods=['POST'])
 def login():
     """
     Logs user in using http
@@ -82,6 +82,47 @@ def login():
     password = data['password']
     return auth.auth_login(email, password)
 
+@APP.route("/channel/invite", methods=['POST'])
+def invite():
+    """
+    Invites a user to join a channel using http
+    """
+    data = request.get_json()
+    token = data['token']
+    channel_id = data['channel_id']
+    u_id = data['u_id']
+    return channel.channel_invite(token, channel_id, u_id)
+
+@APP.route("/channel/details", methods=['GET'])
+def details():
+    """
+    Provides basic details about the channel using http
+    """
+    token = request.args.get('token')
+    channel_id = request.args.get('channel_id')
+    return dumps(channel.channel_details(token, channel_id))
+    
+    
+@APP.route("/channel/messages", methods=['GET'])    
+def messages():
+    """
+    Returns up to 50 messages between index "start" and "start + 50" (end) using http
+    """
+    token = request.args.get('token')
+    channel_id = request.args.get('channel_id')
+    start = request.args.get('start')
+    return dumps(channel.channel_messages(token, channel_id, start))
+    
+@APP.route("/channel/leave", methods=['POST'])
+def leave():
+    """
+    Removes user as a member of the channel using http
+    """
+    data = request.get_json()
+    token = data['token']
+    channel_id = data['channel_id']
+    return channel.channel_leave(token, channel_id)    
+    
 @APP.route("/channel/join",methods=['POST'])
 def join():
     """
