@@ -107,7 +107,6 @@ def test_edit_profile_and_messages(url):
     # Fred sends message to empty channel
     resp4 = requests.post(url + '/message/send', json=message1)
     mess1 = resp4.json()
-    print(mess1)
     assert len(mess1) == 1
     assert mess1['message_id'] is not None
 
@@ -117,7 +116,7 @@ def test_edit_profile_and_messages(url):
     }
     # Alan joins channel
     resp5 = requests.post(url + '/channel/join', json=chan_join_info)
-    assert resp5.json == {}
+    assert resp5.json() == {}
 
     message_remove1 = {
         'token' : Fred['token'],
@@ -176,17 +175,18 @@ def test_edit_profile_and_messages(url):
     }
     # Alan edits his original message
     resp9 = requests.put(url + '/message/edit', json=message_edit1)
-    assert resp9.json == {}
+    assert resp9.json() == {}
 
     chan1_messages = {
         'token' : Alan['token'],
-        'channel_id' : chan1['channel_id']
+        'channel_id' : chan1['channel_id'],
+        'start' : 0
     }
     # Alan checks only his message using channel_messages
-    resp10 = requests.get(url + '/channel/details', json=chan1_messages)
+    resp10 = requests.get(url + '/channel/messages', params=chan1_messages)
     payload10 = resp10.json()
-    assert payload10['messages'] == [mess2['message_id']]
-    assert payload10['start'] == 1
+    assert payload10['messages'][0]['message'] == message_edit1['message']
+    assert payload10['start'] == 0
     assert payload10['end'] == -1
 
 def test_registering_login_and_logout(url):
@@ -242,7 +242,7 @@ def test_registering_login_and_logout(url):
         'token' : Fred['token']
     }
     resp8 = requests.post(url + '/auth/logout', json = logout)
-    assert resp8 == { 'is_success' : True }
+    assert resp8.json() == { 'is_success' : True }
 
     
 def hostile_takeover(url):
@@ -476,7 +476,7 @@ def test_editing_removing_messages(url):
     * message_edit
     * channel_addowner
     """
-    # Joe and Henry register accounts
+
     Paul = register_user('Paul', 'Schlamp', 'rs@bigpond.com', 'm23rdewf2DE', url)
     Seal = register_user('Seal', 'Sire', 'FireSire@hotmail.com', 'phlem$#PHLEM', url)
 
@@ -504,7 +504,6 @@ def test_editing_removing_messages(url):
     }
     resp5 = requests.post(url + 'message/send', json=message1_1_info)
     resp5_return = resp5.json()
-    print(resp5_return)
     assert len(resp5_return) == 1
     message1_2_info = {
         'token' : Paul['token'],
@@ -537,7 +536,8 @@ def test_editing_removing_messages(url):
         'channel_id' : chan1['channel_id'],
         'start' : 0
     }
-    resp9 = requests.post(url + 'channel/messages',json=get_messages_info)
+
+    resp9 = requests.get(url + '/channel/messages',params=get_messages_info)
     channel_message1 = resp9.json()
     assert channel_message1['end'] == -1 
 
@@ -550,13 +550,13 @@ def test_editing_removing_messages(url):
         resp10 = requests.put(url + 'message/edit', json=edit_message_info)
         assert resp10.json() == {}
 
-    resp11 = requests.get(url + 'channel/messages',json=get_messages_info)
+    resp11 = requests.get(url + 'channel/messages',params=get_messages_info)
     channel_message2 = resp11.json()
     assert channel_message2['end'] == -1
 
+    # Check message_edit worked
     for sent_message in channel_message2['messages']:
         assert sent_message['message'] == 'New message YaYaYaYa'
-        assert sent_message['u_id'] == Seal['u_id']
 
     
     Slam = register_user('Slam','Bam','nam@bigpond.net', 'rightEOUS!ath', url)
@@ -583,7 +583,7 @@ def test_editing_removing_messages(url):
         'start' : 0
     }
 
-    resp15 = requests.get(url + 'channel/messages', json=get_messages_info2)
+    resp15 = requests.get(url + 'channel/messages', params=get_messages_info2)
     channel_message3 = resp15.json()
 
     """Minics how a person would find and delete a message"""
@@ -613,10 +613,12 @@ def test_editing_removing_messages(url):
     resp18 = requests.delete(url + 'message/remove',json=message_remove_info)
     assert resp18.json() == {}
 
-    resp19 = requests.get(url + 'channel/messages',json=get_messages_info2)
+    resp19 = requests.get(url + 'channel/messages',params=get_messages_info2)
     channel_message4 = resp19.json()
 
-    assert 'I REALLY love your channel' not in channel_message4['messages']['message']
+    # Check message1_5 was deleted
+    for message_dict in channel_message4['messages']:
+        assert message_dict['message'] != message1_5_info['message']
 
 def test_admin_permission_change(url):
     """
@@ -658,15 +660,15 @@ def test_admin_permission_change(url):
     # Jack checks for the owners of 'Jack's Channel'
     channel_detail_request = {
         'token' : Jack['token'],
-        'channel_id' : channel['channel_id'],
+        'channel_id' : channel['channel_id']
     }
 
-    resp3 = requests.get(url + '/channel/details',json=channel_detail_request)
+    resp3 = requests.get(url + '/channel/details',params=channel_detail_request)
     channel_details = resp3.json()
-    
     assert channel_details['name'] == "Jack's Channel"
-    assert channel_details['owner_members']['u_id'] == Jack['u_id']
-    assert channel_details['all_members']['u_id'] == [Jack['u_id'], Jill['u_id']]
+    assert channel_details['owner_members'][0]['u_id'] == Jack['u_id']
+    assert channel_details['all_members'][0]['u_id'] == Jack['u_id'] 
+    assert channel_details['all_members'][1]['u_id'] == Jill['u_id']
 
 def test_admin_permission_change_invalid(url):
     """
@@ -845,12 +847,12 @@ def test_invalid_user_inputs(url):
     send_message_long = {
         'token' : Jack['token'],
         'channel_id' : jack_channel['channel_id'],
-        'message' : 'sjkfj'
+        'message' : long_string
     }
 
     resp12 = requests.post(url + '/message/send',json=send_message_long)
     resp12_payload = resp12.json()
-    assert resp12_payload['message'] == '<p>Message is invalid</p>' 
+    assert resp12_payload['message'] == '<p>Invalid message</p>' 
     assert resp12_payload['code'] == 400
 
     send_valid_message = {
@@ -898,7 +900,7 @@ def test_invalid_user_inputs(url):
 
     resp17 = requests.put(url + '/message/edit',json=edit_message_long)
     resp17_payload = resp17.json()
-    assert resp17_payload['message'] == '<p>Message is invalid</p>'
+    assert resp17_payload['message'] == '<p>Invalid message</p>'
     assert resp17_payload['code'] == 400
 
 def test_list_users_and_channels(url):
@@ -914,12 +916,11 @@ def test_list_users_and_channels(url):
         'token' : Jack['token'],
     }
     # Jack calls for a list of all users in Flockr
-    resp1 = requests.get(url + '/users/all', json=user_all_info)
-    user_list = resp1.json()
-
+    resp1 = requests.get(url + '/users/all', params=user_all_info)
+    user_list = resp1.json()['users']
     
-    assert user_list['users'][0]['u_id'] == Jack['u_id']
-    assert user_list['users'][1]['u_id'] == Jill['u_id']
+    assert user_list[0]['u_id'] == Jack['u_id']
+    assert user_list[1]['u_id'] == Jill['u_id']
 
     # Jack creates and joins the channels 'First channel' and 'Second Channel'
     channel_info1 = {
@@ -951,7 +952,7 @@ def test_list_users_and_channels(url):
     ]
 
     resp3 = requests.get(url + '/channels/listall', params={'token' : Jack['token']})
-    assert json.loads(resp3.text) == channels_listall_result
+    assert resp3.json() == {'channels' : channels_listall_result}
 
     # Jill joins 'Second Channel'
     channel_join_info = {
@@ -970,5 +971,5 @@ def test_list_users_and_channels(url):
     ]
 
     resp4 = requests.get(url + '/channels/list', params={'token' : Jill['token']})
-    assert json.loads(resp4.text) == channels_list_result
+    assert resp4.json() == {'channels' : channels_list_result}
 

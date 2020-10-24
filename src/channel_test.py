@@ -495,12 +495,16 @@ def test_channel_messages_valid_channel():
 
     other.clear()
 def test_channel_messages_over_50messages():
+    """
+    Testing a successful use of channel_messages,
+    with over 50 messages in the channel
+    """
     user1 = auth.auth_register("lucyjang@gmail.com", "lucyj123", "Lucy", "Jang")
     new_channel = channels.channels_create(user1["token"], "test channel", True)
-    for num_messages in range(0,56):
+    for _num_messages in range(0,56):
         message.message_send(user1['token'], new_channel['channel_id'], "i'm awesome")    
     messages = channel.channel_messages(user1["token"], new_channel["channel_id"], 0)
-    assert messages["end"] == -1
+    assert messages["end"] == 50
     
     other.clear()
 #Test for invalid channel_id

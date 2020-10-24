@@ -127,7 +127,7 @@ def channel_messages(token, channel_id, start):
         raise InputError(description='Start value is too high')
     for message in list(channel['messages'].keys())[start:start + 50]:
         messages_list['messages'].append(channel['messages'][message])
-    if len(channel['messages']) > start + 50:
+    if len(channel['messages']) < start + 50:
         messages_list['end'] = -1
     return messages_list
 

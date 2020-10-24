@@ -38,6 +38,17 @@ CORS(APP)
 APP.config['TRAP_HTTP_EXCEPTIONS'] = True
 APP.register_error_handler(Exception, defaultHandler)
 
+def convert_to_int(id):
+    """
+    Http passes everything as strings, so
+    If id can be converted to an int, do it,
+    else return None
+    """
+    try:
+        return int(id)
+    except:
+        return None
+
 # Example
 @APP.route("/echo", methods=['GET'])
 def echo():
@@ -91,8 +102,8 @@ def invite():
     """
     data = request.get_json()
     token = data['token']
-    channel_id = int(data['channel_id'])
-    u_id = int(data['u_id'])
+    channel_id = convert_to_int(data['channel_id'])
+    u_id = convert_to_int(data['u_id'])
     return channel.channel_invite(token, channel_id, u_id)
 
 @APP.route("/channel/details", methods=['GET'])
@@ -104,8 +115,8 @@ def details():
     # token = data['token']
     # channel_id = int(data['channel_id'])
     token = request.args.get('token')
-    channel_id = int(request.args.get('channel_id'))
-    return dumps(channel.channel_details(token, channel_id))
+    channel_id = convert_to_int(request.args.get('channel_id'))
+    return channel.channel_details(token, channel_id)
     
     
 @APP.route("/channel/messages", methods=['GET'])    
@@ -114,8 +125,8 @@ def messages():
     Returns up to 50 messages between index "start" and "start + 50" (end) using http
     """
     token = request.args.get('token')
-    channel_id = int(request.args.get('channel_id'))
-    start = int(request.args.get('start'))
+    channel_id = convert_to_int(request.args.get('channel_id'))
+    start = convert_to_int(request.args.get('start'))
     return dumps(channel.channel_messages(token, channel_id, start))
     
 @APP.route("/channel/leave", methods=['POST'])
@@ -125,7 +136,7 @@ def leave():
     """
     data = request.get_json()
     token = data['token']
-    channel_id = int(data['channel_id'])
+    channel_id = convert_to_int(data['channel_id'])
     return channel.channel_leave(token, channel_id)    
     
 @APP.route("/channel/join",methods=['POST'])
@@ -145,8 +156,8 @@ def addowner():
     """
     data = request.get_json()
     token = data['token']
-    channel_id = int(data['channel_id'])
-    u_id = int(data['u_id'])
+    channel_id = convert_to_int(data['channel_id'])
+    u_id = convert_to_int(data['u_id'])
     return channel.channel_addowner(token, channel_id, u_id)
 
 @APP.route("/channel/removeowner", methods=['POST'])
@@ -156,8 +167,8 @@ def removeowner():
     """
     data = request.get_json()
     token = data['token']
-    channel_id = int(data['channel_id'])
-    u_id = int(data['u_id'])
+    channel_id = convert_to_int(data['channel_id'])
+    u_id = convert_to_int(data['u_id'])
     return channel.channel_removeowner(token, channel_id, u_id)
 
 @APP.route("/channels/list", methods=['GET'])
@@ -194,7 +205,7 @@ def send_message():
     """
     data = request.get_json()
     token = data['token']
-    channel_id = int(data['channel_id'])
+    channel_id = convert_to_int(data['channel_id'])
     message_str = data['message']
     return message.message_send(token, channel_id, message_str)
 @APP.route("/message/remove", methods=['DELETE'])
@@ -204,7 +215,7 @@ def remove_message():
     """
     data = request.get_json()
     token = data['token']
-    message_id = int(data['message_id'])
+    message_id = convert_to_int(data['message_id'])
     return message.message_remove(token, message_id)
 
 @APP.route("/message/edit", methods=['PUT'])
@@ -214,7 +225,7 @@ def edit_message():
     """
     data = request.get_json()
     token = data['token']
-    message_id = int(data['message_id'])
+    message_id = convert_to_int(data['message_id'])
     message_str = data['message']
     return message.message_edit(token, message_id, message_str)
 
@@ -233,8 +244,8 @@ def change_permissions():
     """
     data = request.get_json()
     token = data['token']
-    u_id = int(data['u_id'])
-    permission_id = int(data['permission_id']) # Maybe not int idk?
+    u_id = convert_to_int(data['u_id'])
+    permission_id = convert_to_int(data['permission_id'])
     return other.admin_userpermission_change(token, u_id, permission_id)
 
 @APP.route("/search", methods=['GET'])
@@ -252,7 +263,7 @@ def profile():
     Returns information about user user_id, email, first name, last name, and handle using http
     """
     token = request.args.get('token')
-    u_id = int(request.args.get('u_id'))
+    u_id = convert_to_int(request.args.get('u_id'))
     return dumps(user.user_profile(token, u_id))
 
 @APP.route("/user/profile/setname", methods=['PUT'])
