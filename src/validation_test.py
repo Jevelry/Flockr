@@ -199,7 +199,18 @@ def test_check_valid_u_id():
     assert validation.check_valid_u_id(2) == None
     other.clear()
     
-
+def test_check_is_existing_channel_member():
+    """
+    Check if invitee is member of channel already
+    raises Input error if found
+    """
+    user1 = auth.auth_register('it@is.qtr', 'past12', 'already','pleasestop')
+    user2 = auth.auth_register('we@better.not', 'havetodo', 'thedata','functiontests')
+    channel1 = channels.channels_create(user1['token'], 'oriwillbemad', True)
+    assert validation.check_is_existing_channel_member(user1['u_id'],channel1["channel_id"]) == None
+    with pytest.raises(InputError):        
+        assert validation.check_is_existing_channel_member(user2['u_id'],channel1["channel_id"])
+    other.clear()
 def test_check_is_channel_owner():
     """
     check_is_channel_owner returns None if user is a channel owner

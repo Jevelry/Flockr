@@ -152,7 +152,12 @@ def test_channel_remove_member(channel1):
     user = data.get_user_info(1)
     data.channel_remove_member(channel_id, user["u_id"])
     assert data.check_user_in_channel(channel_id, user["u_id"]) == False
+    user2 = auth.auth_register('gmail@gmail.com', 'google', 'Alphabet', 'Gamma')
+    channel.channel_join(user2['token'], channel_id)
+    data.channel_remove_member(channel_id, user2['u_id'])
+    assert data.check_user_in_channel(channel_id, user2["u_id"]) == False
     other.clear()
+
 
 def test_channel_remove_owner(channel1):
     """

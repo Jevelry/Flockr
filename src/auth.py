@@ -61,9 +61,7 @@ def auth_login(email, password):
     # User has definitely registered. Password is correct.
     # There is at least one user in data.data['users']
     user = data.get_user_with({ 'email' : new_email })
-    if user is None:
-        raise InputError(description="User does not exist")
-
+    
     # Update global state.
     # Adds user to data['logged_in'].
     data.login_user(user['u_id'])
@@ -100,12 +98,10 @@ def auth_logout(token):
         return {'is_success' : False}
 
     # Check if user is active (logged in).
-    if data.check_logged_in(u_id):
-        data.logout_user(u_id)
-        data.update_user(data.get_user_info(u_id), {'session_secret' : ''})
-        return {'is_success' : True}
-    # Either not logged in or registered
-    return {'is_success' : False}
+    data.logout_user(u_id)
+    data.update_user(data.get_user_info(u_id), {'session_secret' : ''})
+    return {'is_success' : True}
+
     
 
 

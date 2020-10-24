@@ -154,7 +154,7 @@ def check_correct_email(email):
     """
     if data.get_user_with({ 'email' : email }) is not None:
         return
-    raise InputError(description="Email has not been registered")
+    raise InputError(description="User does not exist")
 
 def check_valid_name(first, last):
     """
@@ -203,8 +203,6 @@ def check_user_in_channel(u_id, channel_id):
         Raises an error if user not in channel
         Returns nothing if user is in channel
     """
-    if not data.check_logged_in(u_id):
-        raise AccessError(description="User is not logged in")
     if not data.check_user_in_channel(channel_id, u_id):
         raise AccessError(description="User is not in channel")
     # logged_in = False
