@@ -242,17 +242,3 @@ def channel_removeowner(token, channel_id, u_id):
     data.channel_remove_owner(channel_id, u_id)
     return {}
 
-import auth
-import channels
-import message
-if __name__ == '__main__':
-    user_channel_creater = auth.auth_register('creator@bigpond.com', 'password', 'Quick', 'Shadow')
-    test_user1 = auth.auth_register('optumis4ime@hotmail.com', 'password', 'Optimus', 'Prime')
-    test_channel_id = channels.channels_create(user_channel_creater["token"], 'test', True)
-    channel_join(test_user1['token'], test_channel_id['channel_id'])
-    message_exp = 'Test 1 test 2 swiggity Swagg'
-    message_id = message.message_send(test_user1['token'], test_channel_id['channel_id'],
-                                      message_exp)
-    message_from_channel = channel_messages(user_channel_creater['token'],
-                                                    test_channel_id['channel_id'], 0)
-    print(message_from_channel)
