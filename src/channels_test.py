@@ -20,14 +20,14 @@ def test_channels_list():
     """
     user = auth.auth_register('testmail@gmail.com', 'password', 'first_name', 'last_name')
     channels.channels_create(user['token'], 'test_channel', True)
-    list_result = channels.channels_list(user['token'])
+    list_result = channels.channels_list(user['token'])['channels']
     assert list_result[0]['channel_id'] == 1
     assert list_result[0]['name'] == 'test_channel'
 
     user2 = auth.auth_register('another_test@hotmail.com', 'password123', 'first_name', 'last_name')
     channels.channels_create(user2['token'], 'test_channel_two', True)
     channels.channels_create(user2['token'], 'test_channel_three', True)
-    list_result2 = channels.channels_list(user2['token'])
+    list_result2 = channels.channels_list(user2['token'])['channels']
     assert list_result2[0]['channel_id'] == 2
     assert list_result2[0]['name'] == 'test_channel_two'
     assert list_result2[1]['channel_id'] == 3
@@ -62,14 +62,14 @@ def test_channels_listall():
     """
     user = auth.auth_register('abc123@gmail.com', 'passwordabc', 'first_name', 'last_name')
     new_channel = channels.channels_create(user['token'], 'my_channel', True)
-    list_result = channels.channels_listall(user['token'])
+    list_result = channels.channels_listall(user['token'])['channels']
     assert list_result[0]['channel_id'] == 1
     assert list_result[0]['name'] == 'my_channel'
 
     user2 = auth.auth_register('xyz456@gmail.com', 'passwordxyz', 'first_name', 'last_name')
     channel.channel_join(user2['token'], new_channel['channel_id'])
     channels.channels_create(user2['token'], 'our_channel', True)
-    list_result2 = channels.channels_listall(user2['token'])
+    list_result2 = channels.channels_listall(user2['token'])['channels']
     assert list_result2[0]['channel_id'] == 1
     assert list_result2[0]['name'] == 'my_channel'
     assert list_result2[1]['channel_id'] == 2
@@ -106,13 +106,13 @@ def test_channels_create_name_valid():
 
     user = auth.auth_register('testmail@gmail.com', 'passwordpassword', 'first_name', 'last_name')
     channels.channels_create(user['token'], 'test_name', True)
-    list_result = channels.channels_list(user['token'])
+    list_result = channels.channels_list(user['token'])['channels']
     assert list_result[0]['channel_id'] == 1
     assert len(list_result[0]['name']) < 20
 
     user2 = auth.auth_register('mailtest@gmail.com', 'passwordword', 'first_name', 'last_name')
     channels.channels_create(user2['token'], 'test_name_two', False)
-    list_result2 = channels.channels_list(user2['token'])
+    list_result2 = channels.channels_list(user2['token'])['channels']
     assert list_result2[0]['channel_id'] == 2
     assert len(list_result2[0]['name']) < 20
 

@@ -60,7 +60,7 @@ def message_send(token, channel_id, message):
     new_message = {}
     new_message['message'] = message
     new_message['u_id'] = user_input_id
-    new_message['time_created'] = datetime.datetime.now()
+    new_message['time_created'] = datetime.datetime.now().replace().timestamp()
     new_message['message_id'] = new_message_id
 
     # for channel in data.data['channels']:

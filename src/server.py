@@ -14,6 +14,8 @@ import channels
 import message
 import user
 import other
+import data
+
 
 def defaultHandler(err):
     """
@@ -50,7 +52,7 @@ def echo():
         'data': data
     })
 
-
+message.message_send
 @APP.route("/auth/register", methods=["POST"])
 def register():
     """
@@ -89,8 +91,8 @@ def invite():
     """
     data = request.get_json()
     token = data['token']
-    channel_id = data['channel_id']
-    u_id = data['u_id']
+    channel_id = int(data['channel_id'])
+    u_id = int(data['u_id'])
     return channel.channel_invite(token, channel_id, u_id)
 
 @APP.route("/channel/details", methods=['GET'])
@@ -98,10 +100,12 @@ def details():
     """
     Provides basic details about the channel using http
     """
-    data = request.get_json()
-    token = data['token']
-    channel_id = data['channel_id']
-    return channel.channel_details(token, channel_id)
+    # data = request.get_json()
+    # token = data['token']
+    # channel_id = int(data['channel_id'])
+    token = request.args.get('token')
+    channel_id = int(request.args.get('channel_id'))
+    return dumps(channel.channel_details(token, channel_id))
     
     
 @APP.route("/channel/messages", methods=['GET'])    
@@ -110,8 +114,8 @@ def messages():
     Returns up to 50 messages between index "start" and "start + 50" (end) using http
     """
     token = request.args.get('token')
-    channel_id = request.args.get('channel_id')
-    start = request.args.get('start')
+    channel_id = int(request.args.get('channel_id'))
+    start = int(request.args.get('start'))
     return dumps(channel.channel_messages(token, channel_id, start))
     
 @APP.route("/channel/leave", methods=['POST'])
@@ -121,7 +125,7 @@ def leave():
     """
     data = request.get_json()
     token = data['token']
-    channel_id = data['channel_id']
+    channel_id = int(data['channel_id'])
     return channel.channel_leave(token, channel_id)    
     
 @APP.route("/channel/join",methods=['POST'])
@@ -131,7 +135,7 @@ def join():
     """
     data = request.get_json()
     token = data['token']
-    channel_id = data['channel_id']
+    channel_id = int(data['channel_id'])
     return channel.channel_join(token, channel_id)
 
 @APP.route("/channel/addowner",methods=['POST'])
@@ -141,8 +145,8 @@ def addowner():
     """
     data = request.get_json()
     token = data['token']
-    channel_id = data['channel_id']
-    u_id = data['u_id']
+    channel_id = int(data['channel_id'])
+    u_id = int(data['u_id'])
     return channel.channel_addowner(token, channel_id, u_id)
 
 @APP.route("/channel/removeowner", methods=['POST'])
@@ -152,8 +156,8 @@ def removeowner():
     """
     data = request.get_json()
     token = data['token']
-    channel_id = data['channel_id']
-    u_id = data['u_id']
+    channel_id = int(data['channel_id'])
+    u_id = int(data['u_id'])
     return channel.channel_removeowner(token, channel_id, u_id)
 
 @APP.route("/channels/list", methods=['GET'])
@@ -190,10 +194,9 @@ def send_message():
     """
     data = request.get_json()
     token = data['token']
-    channel_id = data['channel_id']
-    message = data['message']
-    return message.message_send(token, channel_id, message)
-
+    channel_id = int(data['channel_id'])
+    message_str = data['message']
+    return message.message_send(token, channel_id, message_str)
 @APP.route("/message/remove", methods=['DELETE'])
 def remove_message():
     """
@@ -201,7 +204,7 @@ def remove_message():
     """
     data = request.get_json()
     token = data['token']
-    message_id = data['message_id']
+    message_id = int(data['message_id'])
     return message.message_remove(token, message_id)
 
 @APP.route("/message/edit", methods=['PUT'])
@@ -211,18 +214,16 @@ def edit_message():
     """
     data = request.get_json()
     token = data['token']
-    message_id = data['message_id']
-    message = data['message']
-    return message.message_remove(token, message_id, message)
+    message_id = int(data['message_id'])
+    message_str = data['message']
+    return message.message_edit(token, message_id, message_str)
 
 @APP.route("/users/all", methods=['GET'])
 def users_all():
     """
     Returns a list of all users in Flockr using http
     """
-    #token = request.args.get('token')
-    data = request.get_json()
-    token = data['token']
+    token = request.args.get('token')
     return other.users_all(token)
 
 @APP.route("/admin/userpermission/change", methods=['POST'])
@@ -232,8 +233,8 @@ def change_permissions():
     """
     data = request.get_json()
     token = data['token']
-    u_id = data['u_id']
-    permission_id = data['permission_id']
+    u_id = int(data['u_id'])
+    permission_id = int(data['permission_id']) # Maybe not int idk?
     return other.admin_userpermission_change(token, u_id, permission_id)
 
 @APP.route("/search", methods=['GET'])
@@ -250,7 +251,9 @@ def profile():
     """
     Returns information about user user_id, email, first name, last name, and handle using http
     """
-    return dumps(user.user_profile(request.args.get('token'), request.args.get('u_id')))
+    token = request.args.get('token')
+    u_id = int(request.args.get('u_id'))
+    return dumps(user.user_profile(token, u_id))
 
 @APP.route("/user/profile/setname", methods=['PUT'])
 def setname():
@@ -284,4 +287,4 @@ def sethandle():
     return user.user_profile_sethandle(token, handle)
     
 if __name__ == "__main__":
-    APP.run(port=0) # Do not edit this port
+    APP.run(port=0,debug=True) # Do not edit this port

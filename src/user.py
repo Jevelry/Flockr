@@ -37,7 +37,7 @@ def user_profile(token, u_id):
         'name_last' : user['name_last'],
         'handle_str' : user['handle_str'],
     }
-    return profile
+    return {'user' : profile}
 
     # for users in data.data["users"]:
     #     if users["u_id"] == u_id:

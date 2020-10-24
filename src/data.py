@@ -239,7 +239,7 @@ def channels_list_user(u_id):
             'name' : chan_info['name']
         }
         channels_info.append(channel_copy)
-    return channels_info        
+    return {'channels' : channels_info}    
 
 def channels_list_all():
     """
@@ -252,7 +252,7 @@ def channels_list_all():
             'name' : channels[channel]['name']
         }
         channels_info.append(channel_copy)
-    return channels_info
+    return {'channels' : channels_info}
 
 def get_num_channels():
     """

@@ -4,6 +4,7 @@ data(data.py): Gives access to global data variable
 error(error.py): Gives access to error classes
 haslip (hash module): Gives access to sha256 hashing (for password)
 jwt (Pyjwt module): Gives access to jwts (for storing tokens)
+Random(Random module): GIvess access to randrange() (used for generating session ids)
 """
 
 import data

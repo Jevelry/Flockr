@@ -407,9 +407,9 @@ def test_channel_join_valid():
     channel.channel_join(test_user1['token'], test_channel_id1['channel_id'])
     channel.channel_join(test_user2['token'], test_channel_id1['channel_id'])
     channel.channel_join(test_user3['token'], test_channel_id1['channel_id'])
-    list_result1 = channels.channels_list(test_user1['token'])
-    list_result2 = channels.channels_list(test_user2['token'])
-    list_result3 = channels.channels_list(test_user3['token'])
+    list_result1 = channels.channels_list(test_user1['token'])['channels']
+    list_result2 = channels.channels_list(test_user2['token'])['channels']
+    list_result3 = channels.channels_list(test_user3['token'])['channels']
     assert list_result1[0]['channel_id'] == test_channel_id1['channel_id']
     assert list_result2[0]['channel_id'] == test_channel_id1['channel_id']
     assert list_result3[0]['channel_id'] == test_channel_id1['channel_id']
@@ -444,7 +444,7 @@ def test_channel_join_invalid_channel():
     test_user1 = auth.auth_register('testHotRod@hotmail.com', 'password', 'Hot', 'Rod')
     with pytest.raises(InputError):
         assert channel.channel_join(test_user1["token"], invalid_channel_id)
-    list_result1 = channels.channels_list(test_user1['token'])
+    list_result1 = channels.channels_list(test_user1['token'])['channels']
     assert not list_result1
 
     other.clear()

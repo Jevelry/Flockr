@@ -28,7 +28,7 @@ def check_name_change(user_info, first, last):
         Nothing 
     """
 
-    profile = user.user_profile(user_info['token'], user_info['u_id'])
+    profile = user.user_profile(user_info['token'], user_info['u_id'])['user']
     assert profile['name_first'] == first
     assert profile['name_last'] == last
 
@@ -43,7 +43,7 @@ def check_email_change(user_info, new_email):
     Returns:
         NothingS
     """
-    profile = user.user_profile(user_info['token'], user_info['u_id'])
+    profile = user.user_profile(user_info['token'], user_info['u_id'])['user']
     assert profile['email'] == new_email
             
 def check_handle_changed(user_info, new_handle):
@@ -57,7 +57,7 @@ def check_handle_changed(user_info, new_handle):
     Returns:
         Nothing
     """
-    profile = user.user_profile(user_info['token'], user_info['u_id'])
+    profile = user.user_profile(user_info['token'], user_info['u_id'])['user']
     assert profile['handle_str'] == new_handle   
             
 #USER_PROFILE TESTS
@@ -75,7 +75,7 @@ def test_user_profile_request_self():
             'name_last': 'Huang',
             'handle_str': 'KevinHuang',  
         }
-    assert user.user_profile(user1["token"], user1["u_id"]) == user1_profile
+    assert user.user_profile(user1["token"], user1["u_id"])['user'] == user1_profile
     other.clear()
 def test_user_profile_request_others():
     """
@@ -91,7 +91,7 @@ def test_user_profile_request_others():
             'name_last': 'Huang',
             'handle_str': 'KevinHuang',  
         }
-    assert user.user_profile(user2["token"], user1["u_id"]) == user1_profile
+    assert user.user_profile(user2["token"], user1["u_id"])['user'] == user1_profile
     other.clear()
 #Unsuccessful
 def test_user_profile_invalid_token():

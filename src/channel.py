@@ -241,4 +241,3 @@ def channel_removeowner(token, channel_id, u_id):
     #Will change the u_id from member to owner
     data.channel_remove_owner(channel_id, u_id)
     return {}
-

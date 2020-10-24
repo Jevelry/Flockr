@@ -122,7 +122,7 @@ def search(token, query_str):
     #                 messages['messages'].append(message_result)
     # chan_list = channels.list()
     # 
-    user_channels = channels.channels_list(token)
+    user_channels = channels.channels_list(token)['channels']
     for channel in user_channels:
         channel_info = data.get_channel_info(channel['channel_id'])
         for message in channel_info['messages'].values():

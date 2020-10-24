@@ -294,10 +294,10 @@ def test_user_list():
     """
     user1 = auth.auth_register('gmail@gmail.com', 'google', 'Alphabet', 'Gamma')
     list1 = data.user_list()
-    user_info = user.user_profile(user1['token'], user1['u_id'])
+    user_info = user.user_profile(user1['token'], user1['u_id'])['user']
     assert list1 == [user_info]
     user2 = auth.auth_register('bikini@bottom.com','squidward', 'patrick', 'star')
-    user2_info = user.user_profile(user2['token'], user2['u_id'])
+    user2_info = user.user_profile(user2['token'], user2['u_id'])['user']
     list2 = data.user_list()
     assert list2 == [user_info, user2_info]
     other.clear()
