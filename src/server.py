@@ -98,9 +98,10 @@ def details():
     """
     Provides basic details about the channel using http
     """
-    token = request.args.get('token')
-    channel_id = request.args.get('channel_id')
-    return dumps(channel.channel_details(token, channel_id))
+    data = request.get_json()
+    token = data['token']
+    channel_id = data['channel_id']
+    return channel.channel_details(token, channel_id)
     
     
 @APP.route("/channel/messages", methods=['GET'])    
@@ -219,8 +220,10 @@ def users_all():
     """
     Returns a list of all users in Flockr using http
     """
-    token = request.args.get('token')
-    return dumps(other.users_all(token))
+    #token = request.args.get('token')
+    data = request.get_json()
+    token = data['token']
+    return other.users_all(token)
 
 @APP.route("/admin/userpermission/change", methods=['POST'])
 def change_permissions():
@@ -278,7 +281,7 @@ def sethandle():
     data = request.get_json()
     token = data['token']
     handle = data['handle_str']
-    return dumps(user.user_profile_sethandle(token, handle))
+    return user.user_profile_sethandle(token, handle)
     
 if __name__ == "__main__":
     APP.run(port=0) # Do not edit this port

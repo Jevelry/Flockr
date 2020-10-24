@@ -107,6 +107,7 @@ def test_edit_profile_and_messages(url):
     # Fred sends message to empty channel
     resp4 = requests.post(url + '/message/send', json=message1)
     mess1 = resp4.json()
+    print(mess1)
     assert len(mess1) == 1
     assert mess1['message_id'] is not None
 
@@ -147,7 +148,7 @@ def test_edit_profile_and_messages(url):
     # Fred changes his name unsuccessfully
     resp6 = requests.put(url + '/user/profile/setname', json=change_name1)
     resp6_payload = resp6.json()
-    assert resp6_payload['message'] == '<p>First name is invalid<p>'
+    assert resp6_payload['message'] == '<p>First name is invalid</p>'
     assert resp6_payload['code'] == 400
 
     change_name2 = {
@@ -179,11 +180,10 @@ def test_edit_profile_and_messages(url):
 
     chan1_messages = {
         'token' : Alan['token'],
-        'channel_id' : chan1['channel_id'],
-        'start' : 1
+        'channel_id' : chan1['channel_id']
     }
     # Alan checks only his message using channel_messages
-    resp10 = requests.get(url + '/channel/details', params=chan1_messages)
+    resp10 = requests.get(url + '/channel/details', json=chan1_messages)
     payload10 = resp10.json()
     assert payload10['messages'] == [mess2['message_id']]
     assert payload10['start'] == 1
@@ -199,28 +199,29 @@ def test_registering_login_and_logout(url):
     """
     #Fred trying to register with password that is too short
     resp1_payload = register_user('Fred','Smith','fred@gmail.com','123',url)
-    assert resp1_payload['message'] == '<p>Password is invalid<p>'
+    assert resp1_payload['message'] == '<p>Password is invalid</p>'
     assert resp1_payload['code'] == 400
     
     
     #Fred trying to register with invalid email
     resp2_payload = register_user('Fred','Smith','fred1@gmailcom','123Ters',url)
-    assert resp2_payload['message'] == '<p>Email is invalid<p>'
+    assert resp2_payload['message'] == '<p>Email is invalid</p>'
     assert resp2_payload['code'] == 400
     
     #Fred trying to register with email which already exists
-    resp3_payload = register_user('Fred','Smith','fred@gmail.com','123Ters',url)
-    assert resp3_payload['message'] == '<p>Email already in use<p>'
+    register_user('NewFred','NewSmith','newfred@gmail.com','DWNIW9q',url)
+    resp3_payload = register_user('Fred','Smith','newfred@gmail.com','123Ters',url)
+    assert resp3_payload['message'] == '<p>Email already in use</p>'
     assert resp3_payload['code'] == 400
     
     #Trying to register with invalid first name
     resp4_payload = register_user('FredFredFredFredFredFredFredFredFredFredFredFredFredFredFred', 'Smith', 'fred2@gmail.com', '123Ters',url)
-    assert resp4_payload['message'] == '<p>First name is invalid<p>'
+    assert resp4_payload['message'] == '<p>First name is invalid</p>'
     assert resp4_payload['code'] == 400
     
     #Trying to register with invalid last name 
-    resp5_payload = register_user('Fred','SmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmith', 'fred3gmail.com', '123Ters',url)
-    assert resp5_payload['message'] == '<p>Last name is invalid<p>'
+    resp5_payload = register_user('Fred','SmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmith', 'fred3@gmail.com', '123Ters',url)
+    assert resp5_payload['message'] == '<p>Last name is invalid</p>'
     assert resp5_payload['code'] == 400
     
     #Fred successfully registers
@@ -463,7 +464,7 @@ def hostile_takeover(url):
     resp21 = requests.post(url + '/auth/logout', json = logout3)
     assert resp21 == { 'is_success' : True }
 
-def editing_removing_messages(url):
+def test_editing_removing_messages(url):
     """
     Tests a user going on a message editing and removing spree:
     * auth_register
@@ -476,7 +477,7 @@ def editing_removing_messages(url):
     * channel_addowner
     """
     # Joe and Henry register accounts
-    Paul = register_user('Paul', 'Schlamp', 'rs@bigpond', 'm23rdewf2DE', url)
+    Paul = register_user('Paul', 'Schlamp', 'rs@bigpond.com', 'm23rdewf2DE', url)
     Seal = register_user('Seal', 'Sire', 'FireSire@hotmail.com', 'phlem$#PHLEM', url)
 
     chan1_info = {
@@ -501,8 +502,10 @@ def editing_removing_messages(url):
         'channel_id': chan1['channel_id'],
         'message' : 'First rule in general channel do not talkaboutgeneralchannel'
     }
-    requests.post(url + 'message/send', json=message1_1_info)
-
+    resp5 = requests.post(url + 'message/send', json=message1_1_info)
+    resp5_return = resp5.json()
+    print(resp5_return)
+    assert len(resp5_return) == 1
     message1_2_info = {
         'token' : Paul['token'],
         'channel_id' : chan1['channel_id'],
@@ -544,7 +547,7 @@ def editing_removing_messages(url):
             'message_id' : sent_message['message_id'],
             'message' : 'New message YaYaYaYa' 
         }
-        resp10 = requests.get(url + 'message/edit', json=edit_message_info)
+        resp10 = requests.put(url + 'message/edit', json=edit_message_info)
         assert resp10.json() == {}
 
     resp11 = requests.get(url + 'channel/messages',json=get_messages_info)
@@ -631,7 +634,7 @@ def test_admin_permission_change(url):
         'permission_id' : 1,
     }
 
-    resp1 = requests.post(url + '/admin/userpermssion/change',json=admin_change_params)
+    resp1 = requests.post(url + '/admin/userpermission/change',json=admin_change_params)
     assert resp1.json() == {}
 
     # Jack creates and joins a channel 'Jack's channel'
@@ -660,9 +663,10 @@ def test_admin_permission_change(url):
 
     resp3 = requests.get(url + '/channel/details',json=channel_detail_request)
     channel_details = resp3.json()
+    
     assert channel_details['name'] == "Jack's Channel"
-    assert channel_details['owner_members'] == [Jack['u_id'], Jill['u_id']]
-    assert channel_details['all_members'] == [Jack['u_id'], Jill['u_id']]
+    assert channel_details['owner_members']['u_id'] == Jack['u_id']
+    assert channel_details['all_members']['u_id'] == [Jack['u_id'], Jill['u_id']]
 
 def test_admin_permission_change_invalid(url):
     """
@@ -680,9 +684,9 @@ def test_admin_permission_change_invalid(url):
         'permission_id' : 3,
     }
 
-    resp1 = requests.post(url + '/admin/userpermssion/change',json=admin_change_params1)
+    resp1 = requests.post(url + '/admin/userpermission/change',json=admin_change_params1)
     payload1 = resp1.json()
-    assert payload1['message'] == '<p>Invalid permission_id value</p>'
+    assert payload1['message'] == '<p>Permission id is not a valid value</p>'
     assert payload1['code'] == 400
 
     # Jack attempts to make a non-existent member an owner/admin
@@ -692,9 +696,9 @@ def test_admin_permission_change_invalid(url):
         'permission_id' : 1,
     }
 
-    resp2 = requests.post(url + '/admin/userpermssion/change',json=admin_change_params2)
+    resp2 = requests.post(url + '/admin/userpermission/change',json=admin_change_params2)
     payload2 = resp2.json()
-    assert payload2['message'] == '<p>Invalid u_id</p>'
+    assert payload2['message'] == '<p>Target user does not exist</p>'
     assert payload2['code'] == 400
 
     # Jill attempts to change Jack's permissions
@@ -704,9 +708,9 @@ def test_admin_permission_change_invalid(url):
         'permission_id' : 2,
     }
 
-    resp3 = requests.post(url + '/admin/userpermssion/change',json=admin_change_params3)
+    resp3 = requests.post(url + '/admin/userpermission/change',json=admin_change_params3)
     payload3 = resp3.json()
-    assert payload3['message'] == '<p>User is not an owner</p>'
+    assert payload3['message'] == '<p>User is not owner of Flockr</p>'
     assert payload3['code'] == 400
 
 
@@ -727,7 +731,7 @@ def test_invalid_user_inputs(url):
 
     resp1 = requests.put(url + '/user/profile/setname',json=change_name_short)
     resp1_payload = resp1.json()
-    assert resp1_payload['message'] == '<p>First name is invalid<p>'
+    assert resp1_payload['message'] == '<p>First name is invalid</p>'
     assert resp1_payload['code'] == 400
 
     change_name_long = {
@@ -738,7 +742,7 @@ def test_invalid_user_inputs(url):
 
     resp2 = requests.put(url + '/user/profile/setname',json=change_name_long)
     resp2_payload = resp2.json()
-    assert resp2_payload['message'] == '<p>First name is invalid<p>'
+    assert resp2_payload['message'] == '<p>First name is invalid</p>'
     assert resp2_payload['code'] == 400
 
 
@@ -750,28 +754,28 @@ def test_invalid_user_inputs(url):
 
     resp3 = requests.put(url + '/user/profile/setname',json=change_name_last_short)
     resp3_payload = resp3.json()
-    assert resp3_payload['message'] == '<p>Last name is invalid<p>'
+    assert resp3_payload['message'] == '<p>Last name is invalid</p>'
     assert resp3_payload['code'] == 400
 
     change_name_last_long = {
         'token' : Jack['token'],
         'name_first' : 'Jack',
-        'name_last' : 'SmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmith'
+        'name_last' : 'SmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmith'
     }
 
     resp4 = requests.put(url + '/user/profile/setname',json=change_name_last_long)
     resp4_payload = resp4.json()
-    assert resp4_payload['message'] == '<p>Last name is invalid<p>'
+    assert resp4_payload['message'] == '<p>Last name is invalid</p>'
     assert resp4_payload['code'] == 400
 
     change_email_invalid = {
-        'token' : Jack['Token'],
+        'token' : Jack['token'],
         'email' : 'jsmithgmail.com'
     }
 
     resp5 = requests.put(url + '/user/profile/setemail',json=change_email_invalid)
     resp5_payload = resp5.json()
-    assert resp5_payload['message'] == '<p>Email is invalid<p>'
+    assert resp5_payload['message'] == '<p>Email is invalid</p>'
     assert resp5_payload['code'] == 400
 
     Jim = register_user('Jim','Smath', 'js@gmail.com', 'pasffef2U', url)
@@ -783,32 +787,32 @@ def test_invalid_user_inputs(url):
 
     resp6 = requests.put(url + '/user/profile/setemail',json=change_email_existing)
     resp6_payload = resp6.json()
-    assert resp6_payload['message'] == '<p>Email already in use<p>'
+    assert resp6_payload['message'] == '<p>Email already in use</p>'
     assert resp6_payload['code'] == 400
 
     change_handle_short = {
         'token' : Jack['token'],
-        'handle' : 'si'
+        'handle_str' : 'si'
     }
 
     resp7 = requests.put(url + '/user/profile/sethandle',json=change_handle_short)
     resp7_payload = resp7.json()
-    assert resp7_payload['message'] == '<p>Handle is invalid<p>'
+    assert resp7_payload['message'] == '<p>Handle is invalid</p>'
     assert resp7_payload['code'] == 400
 
     change_handle_long = {
         'token' : Jack['token'],
-        'handle' : 'SisinSisinSisinSisinSisin'
+        'handle_str' : 'SisinSisinSisinSisinSisin'
     }
 
     resp8 = requests.put(url + '/user/profile/sethandle',json=change_handle_long)
     resp8_payload = resp8.json()
-    assert resp8_payload['message'] == '<p>Handle is invalid<p>'
+    assert resp8_payload['message'] == '<p>Handle is invalid</p>'
     assert resp8_payload['code'] == 400
 
     change_handle_Jim = {
         'token' : Jim['token'],
-        'handle' : 'jsjsjsjs'
+        'handle_str' : 'jsjsjsjs'
     }
 
     resp9 = requests.put(url + '/user/profile/sethandle',json=change_handle_Jim)
@@ -816,12 +820,12 @@ def test_invalid_user_inputs(url):
 
     change_handle_used = {
         'token' : Jack['token'],
-        'handle' : 'jsjsjsjs'
+        'handle_str' : 'jsjsjsjs'
     }
 
     resp10 = requests.put(url + '/user/profile/sethandle',json=change_handle_used)
     resp10_payload = resp10.json()
-    assert resp10_payload['message'] == '<p>Handle already in use<p>'
+    assert resp10_payload['message'] == '<p>Handle already in use</p>'
     assert resp10_payload['code'] == 400
 
     channel_create_info = {
@@ -833,19 +837,20 @@ def test_invalid_user_inputs(url):
     resp11 = requests.post(url + '/channels/create',json=channel_create_info)
     jack_channel = resp11.json()
 
-    long_string = ''
+    long_string = 'edka'
+
     for _i in range(1001):
         long_string += 'a'
 
     send_message_long = {
         'token' : Jack['token'],
         'channel_id' : jack_channel['channel_id'],
-        'message' : long_string
+        'message' : 'sjkfj'
     }
 
     resp12 = requests.post(url + '/message/send',json=send_message_long)
     resp12_payload = resp12.json()
-    assert resp12_payload['message'] == '<p>Message is invalid<p>' 
+    assert resp12_payload['message'] == '<p>Message is invalid</p>' 
     assert resp12_payload['code'] == 400
 
     send_valid_message = {
@@ -871,7 +876,7 @@ def test_invalid_user_inputs(url):
     }
     resp15 = requests.delete(url + '/message/remove',json=remove_message_no_access)
     resp15_payload = resp15.json()
-    assert resp15_payload['message'] == '<p>User is not creator or owner<p>'
+    assert resp15_payload['message'] == '<p>User is not creator or owner</p>'
     assert resp15_payload['code'] == 400
 
     edit_message_no_access = {
@@ -882,7 +887,7 @@ def test_invalid_user_inputs(url):
 
     resp16 = requests.put(url + '/message/edit',json=edit_message_no_access)
     resp16_payload = resp16.json()
-    assert resp16_payload['message'] == '<p>User is not creator or owner<p>'
+    assert resp16_payload['message'] == '<p>User is not creator or owner</p>'
     assert resp16_payload['code'] == 400
 
     edit_message_long = {
@@ -893,7 +898,7 @@ def test_invalid_user_inputs(url):
 
     resp17 = requests.put(url + '/message/edit',json=edit_message_long)
     resp17_payload = resp17.json()
-    assert resp17_payload['message'] == '<p>Message is invalid<p>'
+    assert resp17_payload['message'] == '<p>Message is invalid</p>'
     assert resp17_payload['code'] == 400
 
 def test_list_users_and_channels(url):
@@ -905,10 +910,14 @@ def test_list_users_and_channels(url):
     Jill = register_user('Jill', 'Smith', 'jillsmith12@gmail.com', 'jilljill123', url)
     assert_different_people(Jack, Jill)
 
+    user_all_info = {
+        'token' : Jack['token'],
+    }
     # Jack calls for a list of all users in Flockr
-    resp1 = requests.get(url + '/users/all', params=Jack['token'])
+    resp1 = requests.get(url + '/users/all', json=user_all_info)
     user_list = resp1.json()
 
+    
     assert user_list['users'][0]['u_id'] == Jack['u_id']
     assert user_list['users'][1]['u_id'] == Jill['u_id']
 
