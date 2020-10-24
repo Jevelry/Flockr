@@ -9,6 +9,7 @@ import other
 import channel
 import message
 import user
+import datetime
 import pytest 
 
 @pytest.fixture
@@ -231,17 +232,56 @@ def test_get_message(channel1):
     assert message_info['u_id'] == user2['u_id']
     other.clear()
 
-"""
-data.add_message doesn't return anything so I can't test it
-"""
+def test_add_message():
+    """
+    add_message always returns None, but we can test it
+    by checking if the number of messages changes after add_message is run.
+    """
+    # Need user token so can't use user1 pytest fixture
+    user = auth.auth_register('test@gmail.com', 'testing','anew','user')
+    chan1 = channels.channels_create(user['token'], 'green', True)
+    assert data.get_message_num() == 0
+    fake_message = {
+        'message' : 'Pretend this is legit', 
+        'u_id' : user['u_id'],
+        'time_created' : datetime.datetime.now(),
+        'message_id' : data.make_message_id()
+    }
+    
+    assert data.add_message(fake_message, chan1['channel_id']) == None
+    assert data.get_message_num() == 1
+    other.clear()
 
-"""
-data.remove_message doesn't return anything so I can't test it
-"""
+def test_remove_message():
+    """
+    remove_message always returns None, but we can test it
+    by checking if the number of messages changes after remove_message is run.
+    """
+    # Need user token so can't use user1 pytest fixture
+    user = auth.auth_register('test@gmail.com', 'testing','anew','user')
+    chan1 = channels.channels_create(user['token'], 'green', True)
+    mess1 = message.message_send(user['token'], chan1['channel_id'], 'Greetings from earth...')
+    assert data.get_message_num() == 1
+    assert data.remove_message(mess1['message_id'], chan1['channel_id']) == None
+    assert data.get_message_num() == 1 # get_message_num returns total amount of created messages
+    other.clear()
 
-"""
-data.edit_message doesn't reutnr anything so I can't test it
-"""
+def test_edit_message():
+    """
+    remove_message always returns None, but we can test it
+    by checking if the number of messages changes after remove_message is run.
+    """
+    # Need user token so can't use user1 pytest fixture
+    user = auth.auth_register('bananas@gmail.com', 'in pajamas','are','coming')
+    chan1 = channels.channels_create(user['token'], 'down', True)
+    mess1 = message.message_send(user['token'], chan1['channel_id'], 'the stairs')
+    assert data.get_message_num() == 1
+    new_message = 'through the door'
+    assert data.edit_message(chan1['channel_id'], mess1['message_id'],new_message) == None
+    message_info = data.get_message(chan1['channel_id'], mess1['message_id'])
+    assert message_info['message'] == new_message
+    assert data.get_message_num() == 1
+    other.clear()
 
 def test_user_list():
     """

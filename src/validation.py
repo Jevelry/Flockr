@@ -266,16 +266,20 @@ def check_is_existing_channel_member(u_id, channel_id):
         raise InputError(description="User is not part of channel")
 
 def check_is_not_existing_channel_member(u_id, channel_id):
+    """
+    Check if inviteee is not part of channel yet
+
+    Parameters:
+        u_id(int): Identifier for users
+        channel_id(int): Identifier for channels
+
+    Returns:
+        Returns nothing if user is not part of channel
+        Raise an error if user is part of channel
+    """
     if data.check_user_in_channel(channel_id, u_id):
         raise InputError(description="User is already part of channel")
-    # Find user
-    # for user in data.data["users"]:
-    #     if user["u_id"] == u_id:
-    #         # Check user's channel list for channel_id
-    #         for channel in user["channel_list"]:
-    #             if channel == channel_id:
-    #                 raise InputError(description="User is not part of channel")
-    # return
+    
 
 def check_is_channel_owner(user_id, channel_id):
     """

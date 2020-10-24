@@ -7,46 +7,11 @@ The validation checks are generally done before these functions are called.
 """
 from error import AccessError, InputError
 """
-Global variable containing the state of flockr
+Global variable scontaining the state of flockr
 """
-'''
-data = {
-    'users' : [
-        # {
-        #     'channel_list' : [],
-        #     'first' : '',
-        #     'last' : '',
-        #     'email': '',
-        #     'u_id' : '',
-        #     'password' : ''
-        #     'handle' : ''
-        #     'permission_id' : ''
-        #     'num_logged_in : ''
-        # }
-    ],
-    'logged_in' : [], # List of u_id's
-    'channels' : [
-        # {
-        #     'name' : '',
-        #     'state' : '', # public or private
-        #     'channel_id' : '',
-        #     'num_channels' : '',
-        #     'owners' : [], # list of u_id's
-        #     'members' : [], # list of u_id's
-        #     'messages' : [
-        #         {
-        #             'message' : '',
-        #             'message_id' : '',
-        #             'u_id' : '',
-        #             'date' : ''
-        #         }
-        #     ]
-        # }
-    ],
-    'message_num' : '', #the number of messages that have been sent
-    'jwt_secret' : 'Mango2Team' # Secret jwt password (for tokens)
-}
-'''
+
+# Users is a dictionary that contains information of every user
+# and uses u_id as the key.
 users = {
      # u_id = {
         #     'channel_list'  = set()
@@ -61,8 +26,11 @@ users = {
         # }
 }
 
-logged_in = set() # Set of u_ids
+# Logged_in is a set of all logged in users by u_id.
+logged_in = set() 
 
+# Channels is a dictionary that contains information of every channel
+# and uses channel_id as the key.
 channels = {
     # channel_id {
         # channel_id = {
@@ -84,9 +52,13 @@ channels = {
     #}
 }
 
-message_num = 0 #the number of messages that have been sent
+# Message_num is the total number of messages that have been sent.
+# This number does not decrease when a message is removed.
+message_num = 0
 
-jwt_secret = "Mango2Team" # Secret jwt password (for tokens)
+# jwt_secret is the secret string used in jwt encoding.
+# It never changes.
+jwt_secret = "Mango2Team"
 
 
 # Clears the data variable.
@@ -108,20 +80,6 @@ def get_user_with(attributes):
     """
     Given an attribute(dict), finds user(dict) with matching attribute and returns it
     """
-    #user = None  
-    # user = None  
-    # for user in users:
-    #     for attr,val in attributes.items():
-    #         if user[attr] != val:
-    #             break
-    #     else:
-    #         usr = user   
-
-    #     '''    
-    #     if user[attributes.key()] == dict.get(attributes)
-    #     return user
-    # return None
-    # '''
     for user in users:
         if attributes.items() <= users[user].items():
             return users[user]
@@ -208,8 +166,6 @@ def check_user_in_channel(channel_id, u_id):
     """
     channel = get_channel_info(channel_id)
     return u_id in channel['members']
-    # if u_id not in channel_info['members']:
-    #     raise AccessError(description="User is not in channel")
 
 def check_channel_owner(channel_id, u_id):
     """
@@ -243,7 +199,9 @@ def channel_remove_owner(channel_id,u_id):
 
 def get_message_num():
     """
-    Return the value of message_num
+    Return the value of message_num (the total number of messages).
+    This function is used to generate a message_id, so it also includes
+    all deleted messages as part of the count.
     """
     return message_num
 
