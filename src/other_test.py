@@ -16,14 +16,22 @@ import pytest
 import other
 import user
 from error import InputError, AccessError
-# Tests for users_all
-# Sucessful
-def test_users_all_sucess():
+
+@pytest.fixture
+def user():
     """
-    Tests successful uses of users_all
+    Pytest fixture that automatically registers a user and returns their info
     """
     user = auth.auth_register('testmail@gmail.com', 'password', 'first_name', 'last_name')
     auth.auth_register('another_test@hotmail.com', 'password123', 'first_name', 'last_name')
+    return user
+
+# Tests for users_all
+# Sucessful
+def test_users_all_sucess(user):
+    """
+    Tests successful uses of users_all
+    """
 
     user_result = other.users_all(user['token'])
     assert user_result['users'][0]['u_id'] == 1
@@ -39,13 +47,11 @@ def test_users_all_sucess():
     other.clear()
 
 # Unsucessful
-def test_users_all_invalid_token():
+def test_users_all_invalid_token(user):
     """
     Tests unsuccessful uses of users_all,
     focusing on invalid tokens
     """
-    auth.auth_register('testmailtest@gmail.com', 'password121', 'first_name', 'last_name')
-    auth.auth_register('another_testtwo@hotmail.com', 'password12321', 'first_name', 'last_name')
     with pytest.raises(AccessError):
         assert other.users_all('invalid_token')
 
@@ -54,22 +60,20 @@ def test_users_all_invalid_token():
 
 # Tests for admin_userpermission_change
 # Sucessful
-def test_admin_userpermission_change_success():
+def test_admin_userpermission_change_success(user):
     """
     Tests successful uses of admin_userpermission_change
     """
-    user = auth.auth_register('cupboard@hotmail.com', 'cupcupboard', 'first_name', 'last_name')
     user2 = auth.auth_register('closet@yahoo.com.au', 'closetset12', 'first_name', 'last_name')
     assert other.admin_userpermission_change(user['token'], user2['u_id'], 1) == {}
 
     other.clear()
 
-def test_admin_userpermission_change_revert_success():
+def test_admin_userpermission_change_revert_success(user):
     """
     Tests successful uses of admin_userpermission_change,
     focusing on reverting changes
     """
-    user = auth.auth_register('cupcake@hotmail.com', 'strawberry1', 'first_name', 'last_name')
     user2 = auth.auth_register('pancake@yahoo.com.au', 'honeysyrup2', 'first_name', 'last_name')
     assert other.admin_userpermission_change(user['token'], user2['u_id'], 1) == {}
     assert other.admin_userpermission_change(user['token'], user2['u_id'], 2) == {}
@@ -77,52 +81,44 @@ def test_admin_userpermission_change_revert_success():
     other.clear()
 
 # Unsucessful
-def test_admin_userpermission_change_invalid_token():
+def test_admin_userpermission_change_invalid_token(user):
     """
     Tests unsuccessful uses of admin_userpermission_change,
     focusing on invalid tokens
     """
 
-    auth.auth_register('abc123abc@gmail.com', 'passwordabc1', 'first_name', 'last_name')
-    user2 = auth.auth_register('xyz456xyz@gmail.com', 'passwordxyz1', 'first_name', 'last_name')
-
     with pytest.raises(AccessError):
-        assert other.admin_userpermission_change('invalid_token', user2['u_id'], 1)
+        assert other.admin_userpermission_change('invalid_token', user['u_id'], 1)
 
     other.clear()
 
-def test_admin_userpermission_change_not_owner():
+def test_admin_userpermission_change_not_owner(user):
     """
     Tests unsuccessful uses of admin_userpermission_change,
     focusing on the 'admin' not having owner privileges
     """
-
-    user = auth.auth_register('lamp@gmail.com', 'lamp101', 'first_name', 'last_name')
     user2 = auth.auth_register('chair@gmail.com', 'chair202', 'first_name', 'last_name')
-
     with pytest.raises(AccessError):
         assert other.admin_userpermission_change(user2['token'], user['u_id'], 2)
 
     other.clear()
 
-def test_admin_userpermission_change_invalid_uid():
+def test_admin_userpermission_change_invalid_uid(user):
     """
     Testing unsuccessful uses of admin_userpermission_change,
     focusing on invalid user ids
     """
-
-    user = auth.auth_register('apple@gmail.com', 'apple123', 'first_name', 'last_name')
-    auth.auth_register('banana@gmail.com', 'banana321', 'first_name', 'last_name')
-
     with pytest.raises(InputError):
         assert other.admin_userpermission_change(user['token'], 'invalid_uid', 1)
 
     other.clear()
 
-def test_admin_userpermission_change_invalid_permission():
-    other.clear()
+def test_admin_userpermission_change_invalid_permission(user):
+    """
+    Testing unsuccessful uses of admin_userpermission_change,
+    focusing on invalid permission id
+    """
 
-    user = auth.auth_register('lamp@gmail.com', 'lamp101', 'first_name', 'last_name')
     user2 = auth.auth_register('chair@gmail.com', 'chair202', 'first_name', 'last_name')
 
     with pytest.raises(InputError):
@@ -133,15 +129,13 @@ def test_admin_userpermission_change_invalid_permission():
 
 # Tests for search
 # Sucessful
-def test_search_results_single():
+def test_search_results_single(user):
     """
     Tests successful uses of search,
     focusing on single message results
     """
 
-    user = auth.auth_register('cookies@gmail.com', 'chocchip123', 'first_name', 'last_name')
     test_channel = channels.channels_create(user['token'], 'test_name', True)
-
     test_message = 'This is a test message.'
     message.message_send(user['token'], test_channel['channel_id'], test_message)
     find_message = other.search(user['token'], 'is a test')
@@ -152,13 +146,12 @@ def test_search_results_single():
 
     other.clear()
 
-def test_search_results_multiple():
+def test_search_results_multiple(user):
     """
     Tests successful uses of search,
     focusing on queries that return multiple messages
     """
 
-    user = auth.auth_register('icecream@gmail.com', 'mintchip123', 'first_name', 'last_name')
     user2 = auth.auth_register('rockyroad@hotmail.com', 'chocfudge222', 'first_name', 'last_name')
     test_channel = channels.channels_create(user['token'], 'test_name', True)
     channel.channel_join(user2['token'], test_channel['channel_id'])
@@ -181,13 +174,11 @@ def test_search_results_multiple():
 
     other.clear()
 
-def test_search_no_results():
+def test_search_no_results(user):
     """
     Tests on successful uses of search,
     focusing on querise that don't return any strings
     """
-
-    user = auth.auth_register('lollipop@gmail.com', 'sweetysweet', 'first_name', 'last_name')
     channels.channels_create(user['token'], 'test_name', True)
 
     find_message = other.search(user['token'], 'is a test')
@@ -196,13 +187,12 @@ def test_search_no_results():
     other.clear()
 
 # Unsucessful
-def test_search_invalid_token():
+def test_search_invalid_token(user):
     """
     Tests unsuccessful uses of search,
     focusing on invalid tokens
     """
 
-    user = auth.auth_register('mango@gmail.com', 'mangogo', 'first_name', 'last_name')
     test_channel = channels.channels_create(user['token'], 'test_name', True)
     test_message = 'We love cats and dogs'
     message.message_send(user['token'], test_channel['channel_id'], test_message)
