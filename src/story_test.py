@@ -1,5 +1,5 @@
 """
-Contains all the 'user story' tests
+Contains common 'user story' tests
 Will test error conditions that a user can reasonably do as in a user cannot pass in
 an incorrect token
 """
@@ -11,8 +11,6 @@ import json
 import requests
 import pytest
 #import server
-
-
 
 # Use this fixture to get the URL of the server. It starts the server for you,
 # so you don't need to.
@@ -93,6 +91,7 @@ def test_edit_profile_and_messages(url):
         'name' : 'Welcome',
         'is_public' : True
     }
+    
     # Fred creates and joins channel 'Welcome'
     resp3 = requests.post(url + '/channels/create', json=chan1_info)
     chan1 = resp3.json()
@@ -104,6 +103,7 @@ def test_edit_profile_and_messages(url):
         'channel_id' : chan1['channel_id'],
         'message' : "Hello nobody"
     }
+    
     # Fred sends message to empty channel
     resp4 = requests.post(url + '/message/send', json=message1)
     mess1 = resp4.json()
@@ -114,6 +114,7 @@ def test_edit_profile_and_messages(url):
         'token' : Alan['token'],
         'channel_id' : chan1['channel_id']
     }
+    
     # Alan joins channel
     resp5 = requests.post(url + '/channel/join', json=chan_join_info)
     assert resp5.json() == {}
@@ -122,6 +123,7 @@ def test_edit_profile_and_messages(url):
         'token' : Fred['token'],
         'message_id' : mess1['message_id']
     }
+    
     # Fred deletes message
     resp6 = requests.delete(url+'/message/remove', json=message_remove1)
     assert resp6.json() == {}
@@ -131,6 +133,7 @@ def test_edit_profile_and_messages(url):
         'channel_id' : chan1['channel_id'],
         'message' : "Good morning Fred!"
     }
+    
     # Alan sends a message
     resp5 = requests.post(url + '/message/send', json=message2)
     mess2 = resp5.json()
@@ -155,6 +158,7 @@ def test_edit_profile_and_messages(url):
         'name_first' : 'George',
         'name_last' : 'Wazco'
     }
+    
     # Fred changes his name successfully
     resp7 = requests.put(url + '/user/profile/setname', json=change_name2)
     assert resp7.json() == {}
@@ -173,6 +177,7 @@ def test_edit_profile_and_messages(url):
         'message_id' : mess2['message_id'],
         'message' : 'Good morning George!'
     }
+    
     # Alan edits his original message
     resp9 = requests.put(url + '/message/edit', json=message_edit1)
     assert resp9.json() == {}
@@ -182,6 +187,7 @@ def test_edit_profile_and_messages(url):
         'channel_id' : chan1['channel_id'],
         'start' : 0
     }
+    
     # Alan checks only his message using channel_messages
     resp10 = requests.get(url + '/channel/messages', params=chan1_messages)
     payload10 = resp10.json()
@@ -389,6 +395,7 @@ def hostile_takeover(url):
         'token' : Joe['token'],
         'email' : 'theKING@gmail.com'
     }
+    
     resp14 = requests.put(url + '/user/profile/setemail', json = change_email)
     assert resp14.json() == {}
 
@@ -397,6 +404,7 @@ def hostile_takeover(url):
         'token' : Joe['token'],
         'handle_str' : 'WeAreNumberOne'
     }
+    
     resp15 = requests.put(url + '/user/profile/sethandle', json = change_handle)
     assert resp15.json() == {}
 
@@ -413,6 +421,7 @@ def hostile_takeover(url):
     logout2 = {
         'token' : Joe['token']
     }
+    
     resp17 = requests.post(url + '/auth/logout', json = logout2)
     assert resp17 == { 'is_success' : True }
 
@@ -454,6 +463,7 @@ def hostile_takeover(url):
         'email' : 'theKING@gmail.com',
         'handle_str' : 'WeAreNumberOne'
     }
+    
     expected_profile = { 'user' : expected_user }
     assert resp20.json() == expected_profile
 
@@ -461,6 +471,7 @@ def hostile_takeover(url):
     logout3 = {
         'token' : new_Joe['token']
     }
+    
     resp21 = requests.post(url + '/auth/logout', json = logout3)
     assert resp21 == { 'is_success' : True }
 
@@ -477,9 +488,13 @@ def test_editing_removing_messages(url):
     * channel_addowner
     """
 
+    # Paul and Seal register
     Paul = register_user('Paul', 'Schlamp', 'rs@bigpond.com', 'm23rdewf2DE', url)
     Seal = register_user('Seal', 'Sire', 'FireSire@hotmail.com', 'phlem$#PHLEM', url)
 
+    assert_different_people(Paul, Seal)
+    
+    # Paul creates a channel 'General'
     chan1_info = {
         'token' : Paul['token'],
         'name' : 'General',
@@ -489,6 +504,7 @@ def test_editing_removing_messages(url):
     resp3 = requests.post(url + '/channels/create', json=chan1_info)
     chan1 = resp3.json()
     
+    # Seal joins the channel 'General'
     chan1_join = {
         'token' : Seal['token'],
         'channel_id' : chan1['channel_id'],
@@ -497,20 +513,23 @@ def test_editing_removing_messages(url):
     resp4 = requests.post(url + '/channel/join', json=chan1_join)
     assert resp4.json() == {}
 
+    # Paul and Seal send messages to each other in 'General'
     message1_1_info = {
         'token' : Paul['token'],
         'channel_id': chan1['channel_id'],
         'message' : 'First rule in general channel do not talkaboutgeneralchannel'
     }
+    
     resp5 = requests.post(url + 'message/send', json=message1_1_info)
     resp5_return = resp5.json()
     assert len(resp5_return) == 1
+    
     message1_2_info = {
         'token' : Paul['token'],
         'channel_id' : chan1['channel_id'],
         'message' : 'Second Rule ... First rule again',
     }
-
+    
     requests.post(url + 'message/send', json=message1_2_info)
 
     message1_3_info = {
@@ -518,10 +537,10 @@ def test_editing_removing_messages(url):
         'channel_id' : chan1['channel_id'],
         'message' : 'You seem bad at this'
     }
-
+    
     requests.post(url + 'message/send', json=message1_3_info)
 
-
+    # Paul addes Seal as an owner of 'General'
     addowner_info = {
         'token' : Paul['token'],
         'channel_id' : chan1['channel_id'],
@@ -531,6 +550,7 @@ def test_editing_removing_messages(url):
     resp8 = requests.post(url + 'channel/addowner', json=addowner_info)
     assert resp8.json() == {}
 
+    # Seal calls for a list of all messages in 'General'
     get_messages_info = {
         'token' : Seal['token'],
         'channel_id' : chan1['channel_id'],
@@ -541,6 +561,7 @@ def test_editing_removing_messages(url):
     channel_message1 = resp9.json()
     assert channel_message1['end'] == -1 
 
+    # Seal edits a message
     for sent_message in channel_message1['messages']:
         edit_message_info = {
             'token' : Seal['token'],
@@ -558,35 +579,37 @@ def test_editing_removing_messages(url):
     for sent_message in channel_message2['messages']:
         assert sent_message['message'] == 'New message YaYaYaYa'
 
-    
+    # Slam registers and joins the channel 'General'
     Slam = register_user('Slam','Bam','nam@bigpond.net', 'rightEOUS!ath', url)
 
     chan1_join2 = {
         'token' : Slam['token'],
         'channel_id' : chan1['channel_id'],
     }
-
+    
     resp13 = requests.post(url + 'channel/join', json=chan1_join2)
     assert resp13.json() == {}
 
+    # Slam sends a message to 'General'
     message1_4_info = {
         'token' : Slam['token'],
         'channel_id': chan1['channel_id'],
         'message' : 'I love your channel'
     }
-
+    
     requests.post(url + 'message/send', json=message1_4_info)
 
+    # Slam calls for a list of messages
     get_messages_info2 = {
         'token' : Slam['token'],
         'channel_id' : chan1['channel_id'],
         'start' : 0
     }
-
+    
     resp15 = requests.get(url + 'channel/messages', params=get_messages_info2)
     channel_message3 = resp15.json()
 
-    """Minics how a person would find and delete a message"""
+    """Mimics how a person would find and delete a message"""
     for message in channel_message3['messages']:
         if message['message'] == 'I love your channel':
             message_remove_info = {
@@ -596,20 +619,22 @@ def test_editing_removing_messages(url):
             resp16 = requests.delete(url + 'message/remove', json=message_remove_info)
             assert resp16.json() == {}
 
+    # Slam sends a new message to 'General'
     message1_5_info = {
         'token' : Slam['token'],
         'channel_id' : chan1['channel_id'],
         'message' : 'I REALLY love your channel',
     }
-
+    
     resp17 = requests.post(url + 'message/send', json=message1_5_info)
     message1_5 = resp17.json()
 
+    # Slam removes a message
     message_remove_info = {
         'token' : Seal['token'],
         'message_id' : message1_5['message_id'],
     }
-
+    
     resp18 = requests.delete(url + 'message/remove',json=message_remove_info)
     assert resp18.json() == {}
 
@@ -624,9 +649,11 @@ def test_admin_permission_change(url):
     """
     Tests whether an owner of Flockr is an owner of all channels they've joined
     """
+    
     # Jack and Jill register
     Jack = register_user('Jack', 'Smith', 'jsmith@gmail.com', 'jackjack123', url)
     Jill = register_user('Jill', 'Smith', 'jillsmith12@gmail.com', 'jilljill123', url)
+    
     assert_different_people(Jack, Jill)
 
     # Jack makes Jill an owner/admin of Flockr
@@ -635,7 +662,7 @@ def test_admin_permission_change(url):
         'u_id' : Jill['u_id'],
         'permission_id' : 1,
     }
-
+    
     resp1 = requests.post(url + '/admin/userpermission/change',json=admin_change_params)
     assert resp1.json() == {}
 
@@ -645,7 +672,7 @@ def test_admin_permission_change(url):
         'name' : "Jack's Channel",
         'is_public' : True,
     }
-
+    
     resp2 = requests.post(url + '/channels/create', json=channel_create_info)
     channel = resp2.json()
 
@@ -654,7 +681,7 @@ def test_admin_permission_change(url):
         'token' : Jill['token'],
         'channel_id' : channel['channel_id'],
     }
-
+    
     requests.post(url + '/channel/join',json=channel_join_info)
 
     # Jack checks for the owners of 'Jack's Channel'
@@ -662,7 +689,7 @@ def test_admin_permission_change(url):
         'token' : Jack['token'],
         'channel_id' : channel['channel_id']
     }
-
+    
     resp3 = requests.get(url + '/channel/details',params=channel_detail_request)
     channel_details = resp3.json()
     assert channel_details['name'] == "Jack's Channel"
@@ -674,6 +701,7 @@ def test_admin_permission_change_invalid(url):
     """
     Tests invalid inputs of changing owner/admin permissions
     """
+    
     # Jack and Jill register
     Jack = register_user('Jack', 'Smith', 'jsmith@gmail.com', 'jackjack123', url)
     Jill = register_user('Jill', 'Smith', 'jillsmith12@gmail.com', 'jilljill123', url)
@@ -685,7 +713,7 @@ def test_admin_permission_change_invalid(url):
         'u_id' : Jill['u_id'],
         'permission_id' : 3,
     }
-
+    
     resp1 = requests.post(url + '/admin/userpermission/change',json=admin_change_params1)
     payload1 = resp1.json()
     assert payload1['message'] == '<p>Permission id is not a valid value</p>'
@@ -697,7 +725,7 @@ def test_admin_permission_change_invalid(url):
         'u_id' : 'invalid_uid',
         'permission_id' : 1,
     }
-
+    
     resp2 = requests.post(url + '/admin/userpermission/change',json=admin_change_params2)
     payload2 = resp2.json()
     assert payload2['message'] == '<p>Target user does not exist</p>'
@@ -709,7 +737,7 @@ def test_admin_permission_change_invalid(url):
         'u_id' : Jack['u_id'],
         'permission_id' : 2,
     }
-
+    
     resp3 = requests.post(url + '/admin/userpermission/change',json=admin_change_params3)
     payload3 = resp3.json()
     assert payload3['message'] == '<p>User is not owner of Flockr</p>'
@@ -720,11 +748,13 @@ def test_invalid_user_inputs(url):
     """
     Tests realistic invalid inputs from a user.
     e.g Entering an incorrect password is realistic
-    but passing an incorrect token is not because the user has no control over that
+    but passing an incorrect token is not because the 
+    user has no control over that
     """
+    # Jack registers
     Jack = register_user('Jack', 'Smith', 'jsmith@gmail.com', 'jackjack123', url)
 
-    #change name too short
+    # Jack attempts to change his first name to a short name
     change_name_short = {
         'token' : Jack['token'],
         'name_first' : '',
@@ -736,6 +766,7 @@ def test_invalid_user_inputs(url):
     assert resp1_payload['message'] == '<p>First name is invalid</p>'
     assert resp1_payload['code'] == 400
 
+    # Jack attempts to change his first name to a longer name
     change_name_long = {
         'token' : Jack['token'],
         'name_first' : 'JacksJacksJacksJacksJacksJacksJacksJacksJacksJacksJacks',
@@ -747,7 +778,7 @@ def test_invalid_user_inputs(url):
     assert resp2_payload['message'] == '<p>First name is invalid</p>'
     assert resp2_payload['code'] == 400
 
-
+    # Jack attempts to change his last name to a shorter name
     change_name_last_short = {
         'token' : Jack['token'],
         'name_first' : 'Jack',
@@ -759,6 +790,7 @@ def test_invalid_user_inputs(url):
     assert resp3_payload['message'] == '<p>Last name is invalid</p>'
     assert resp3_payload['code'] == 400
 
+    # Jack attempts to change his last name to a shorter name
     change_name_last_long = {
         'token' : Jack['token'],
         'name_first' : 'Jack',
@@ -770,6 +802,7 @@ def test_invalid_user_inputs(url):
     assert resp4_payload['message'] == '<p>Last name is invalid</p>'
     assert resp4_payload['code'] == 400
 
+    # Jack attempts to change his email
     change_email_invalid = {
         'token' : Jack['token'],
         'email' : 'jsmithgmail.com'
@@ -780,6 +813,7 @@ def test_invalid_user_inputs(url):
     assert resp5_payload['message'] == '<p>Email is invalid</p>'
     assert resp5_payload['code'] == 400
 
+    # Jim registers and attempts to sign up with the same email as Jack
     Jim = register_user('Jim','Smath', 'js@gmail.com', 'pasffef2U', url)
 
     change_email_existing = {
@@ -792,6 +826,7 @@ def test_invalid_user_inputs(url):
     assert resp6_payload['message'] == '<p>Email already in use</p>'
     assert resp6_payload['code'] == 400
 
+    # Jack attempts to change his handle shorter
     change_handle_short = {
         'token' : Jack['token'],
         'handle_str' : 'si'
@@ -802,6 +837,7 @@ def test_invalid_user_inputs(url):
     assert resp7_payload['message'] == '<p>Handle is invalid</p>'
     assert resp7_payload['code'] == 400
 
+    # Jack attempts to change his handle longer
     change_handle_long = {
         'token' : Jack['token'],
         'handle_str' : 'SisinSisinSisinSisinSisin'
@@ -812,6 +848,7 @@ def test_invalid_user_inputs(url):
     assert resp8_payload['message'] == '<p>Handle is invalid</p>'
     assert resp8_payload['code'] == 400
 
+    # Jim and Jack change their handles to be the same
     change_handle_Jim = {
         'token' : Jim['token'],
         'handle_str' : 'jsjsjsjs'
@@ -830,6 +867,7 @@ def test_invalid_user_inputs(url):
     assert resp10_payload['message'] == '<p>Handle already in use</p>'
     assert resp10_payload['code'] == 400
 
+    # Jack creates a channel 'jackattacka'
     channel_create_info = {
         'token' : Jack['token'],
         'name' : 'jackattacka',
@@ -839,6 +877,7 @@ def test_invalid_user_inputs(url):
     resp11 = requests.post(url + '/channels/create',json=channel_create_info)
     jack_channel = resp11.json()
 
+    # Jack sends some messages to 'jackattacka'
     long_string = 'edka'
 
     for _i in range(1001):
@@ -864,6 +903,7 @@ def test_invalid_user_inputs(url):
     resp13 = requests.post(url + '/message/send',json=send_valid_message)
     resp13_payload = resp13.json()
 
+    # Jim joins 'jackattacka'
     channel_join_info = {
         'token' : Jim['token'],
         'channel_id' : jack_channel['channel_id'],
@@ -872,15 +912,18 @@ def test_invalid_user_inputs(url):
     resp14 = requests.post(url + '/channel/join',json=channel_join_info)
     assert resp14.json() == {}
 
+    # Jim attempts to remove a message
     remove_message_no_access = {
         'token' : Jim['token'],
         'message_id': resp13_payload['message_id']
     }
+    
     resp15 = requests.delete(url + '/message/remove',json=remove_message_no_access)
     resp15_payload = resp15.json()
     assert resp15_payload['message'] == '<p>User is not creator or owner</p>'
     assert resp15_payload['code'] == 400
 
+    # Jim attempts to edit a message
     edit_message_no_access = {
         'token' : Jim['token'],
         'message_id' : resp13_payload['message_id'],
@@ -892,6 +935,7 @@ def test_invalid_user_inputs(url):
     assert resp16_payload['message'] == '<p>User is not creator or owner</p>'
     assert resp16_payload['code'] == 400
 
+    # Jack attempts to edit a message
     edit_message_long = {
         'token' : Jack['token'],
         'message_id' : resp13_payload['message_id'],
