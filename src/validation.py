@@ -1,10 +1,14 @@
 """
 This is a file that checks everything 
+data(data.py): Gives access to global data variable
+re(regex): Gives access to regex for valid_email
 
 """
 from error import InputError, AccessError
 import data
 import re
+import hashlib
+import jwt
 
 def check_valid_token(token):
     """
@@ -15,18 +19,32 @@ def check_valid_token(token):
 
     Returns:
         Raises an error if token is invalid
-        Returns nothing if valid token
+        Returns u_id if token is valid
     """
-    for user in data.data["logged_in"]:
-        if user["token"] == token:
-            return
-    raise AccessError(description="Token is invalid")
+    try:
+        # If parent function was called using http, token is in ASCII.
+        # If parent function was called via command line, token is a byte string.
+        # I don"t understand why.
+        if isinstance(token, bytes):
+            token = token.decode("ASCII")
+        payload = jwt.decode(token, data.get_jwt_secret(), algorithms = ["HS256"])
+        correct_token = jwt.encode(payload, data.get_jwt_secret(), algorithm = "HS256")
+        correct_str = correct_token.decode("ASCII")
 
+        # Secret is used to confirm if user is logged in or not.
+        # It also causes the token to change between sessions. 
+        user_secret = data.get_user_secret(payload["u_id"])
+        token_secret = payload["session_secret"]
+        if token == correct_str and user_secret == token_secret:
+            return payload["u_id"]
+    except:
+        raise AccessError(description = "Token is invalid")
+    raise AccessError(description = "User is not logged in")
 
 
 def check_valid_handle(handle_str):
     """
-    Determine whether supplied handle is valid
+    Determine whether supplied handle is valid (invalid when handle is less than 3 characters or more than 20 characters)
 
     Parameters:
         handle_str(string): New handle
@@ -36,7 +54,7 @@ def check_valid_handle(handle_str):
         Returns nothing if valid handle
     """
     if len(handle_str) < 3 or len(handle_str) > 20:
-        raise InputError(description="Handle is invalid")
+        raise InputError(description = "Handle is invalid")
     return
 
 
@@ -53,15 +71,14 @@ def check_valid_email(email):
         Returns nothing is valid email
     """
     # If email already taken.
-    for user in data.data['users']:
-        if user['email'] == email:
-            raise InputError(description="Email already in use")
+    if data.get_user_with({ "email" : email }) is not None:
+        raise InputError(description="Email already in use")
     # Must be standard email (may change to custom later).
     # Regex mostly taken from geeksforgeeks site (linked in spec (6.2)).
-    regex = r'^[a-z0-9]+[._]?[a-z0-9]+[@]\w+[.]\w{2,3}(\.\w{2})?$'
-    # If email doesn't match regex, it's not valid.
+    regex = r"^[a-z0-9]+[._]?[a-z0-9]+[@]\w+[.]\w{2,3}(\.\w{2})?$"
+    # If email doesn"t match regex, it"s not valid.
     if not re.search(regex, email):
-        raise InputError(description="Email is invalid")
+        raise InputError(description = "Email is invalid")
     return
 
 def check_existing_email(email):
@@ -75,9 +92,8 @@ def check_existing_email(email):
         Raises an error if email already exists
         Returns nothing if email doesn't exist
     """
-    for user in data.data['users']:
-        if user['email'] == email:
-            raise InputError(description="Email already in use")
+    if data.get_user_with({ "email" : email }) is not None:
+        raise InputError("Email already in use")
     return
 
 def check_existing_handle(handle_str):
@@ -91,15 +107,14 @@ def check_existing_handle(handle_str):
         Raises an error if handle already exists
         Returns nothing if handle doesn't exist
     """
-    for users in data.data["users"]:
-        if users["handle"] == handle_str:
-            raise InputError(description="Handle already in use")
+
+    if data.get_user_with({ "handle_str" : handle_str }) is not None:
+        raise InputError(description = "Handle already in use")
     return
 
 def check_correct_password(email, password):
     """
-    Determines whether password matches account
-    created with given email
+    Determines whether password matches account created with given email
 
     Parameters:
         email(string): Email used for account being logged into
@@ -109,13 +124,17 @@ def check_correct_password(email, password):
         Raises an error if password doesn't match email
         Returns nothing if password and email match
     """
-    for user in data.data['users']:
-        if user['email'] == email and user['password'] == password:
-            return
-    raise InputError(description="Password is incorrect")
+    password_hash = hashlib.sha256(password.encode()).hexdigest()
+    original = data.get_user_with({ "email" : email })
+    if original is None:
+        raise InputError(description = "Email does not exist")
+    if original["password"] != password_hash:
+        raise InputError(description = "Password is incorrect")
+
+
 def check_correct_email(email):
     """
-    Determine whether email exists when loging in
+    Determine whether email exists when logging in
 
     Parameters:
         email(string): Email in question
@@ -124,14 +143,13 @@ def check_correct_email(email):
         Raises an error if email doesn't exist
         Returns nothing if email exists
     """
-    for user in data.data['users']:
-        if user['email'] == email:
-            return
-    raise InputError(description="Email has not been registered")
+    if data.get_user_with({ "email" : email }) is not None:
+        return
+    raise InputError(description = "User does not exist")
 
 def check_valid_name(first, last):
     """
-    Determines whether first and last name are allowed.
+    Determines whether first and last name are allowed
 
     Parameters:
         first(string): User's given first name
@@ -143,15 +161,15 @@ def check_valid_name(first, last):
     """
     # If first name is invalid.
     if len(first) < 1 or len(first) > 50:
-        raise InputError("First name is not valid")
+        raise InputError("First name is invalid")
     # If last name is invalid.
     if len(last) < 1 or len(last) > 50:
-        raise InputError("Last name is not valid")
+        raise InputError("Last name is invalid")
     return
 
 def check_valid_password(password):
     """
-    Determines whether password is allowed.
+    Determines whether password is allowed (invalid when less than 6 characters)
 
     Parameters:
         password(string): Password given by user
@@ -161,35 +179,37 @@ def check_valid_password(password):
         Returns nothing if valid password
     """
     if len(password) < 6:
-        raise InputError(description="Password is not valid")
+        raise InputError(description = "Password is invalid")
     return
 
-def check_valid_token_inchannel(token, channel_id):
+def check_user_in_channel(u_id, channel_id):
     """
-    Determine whether supplied token is valid
+    Determine whether user is in a particular channel
 
     Parameters:
-        token(string): An authorisation hash
+        u_id(int): Identifier for user
         channel_id(int): Identifier for channel
 
     Returns:
-        Raises an error if token not in channel
-        Returns nothing if token is in channel
+        Raises an error if user not in channel
+        Returns nothing if user is in channel
     """
-    u_id = None
-    # Check if valid token, take u_id
-    for user in data.data["logged_in"]:
-        if user["token"] == token:
-            u_id = user["u_id"]
-    if u_id is None:
-        raise AccessError(description="User is not logged in")
-    # Check if user is existing member of channel
-    for user in data.data["users"]:
-        if user["u_id"] == u_id:
-            for channel in user["channel_list"]:
-                if channel == channel_id:
-                    return
-    raise AccessError(description="User is not in channel")
+    if not data.check_user_in_channel(channel_id, u_id):
+        raise AccessError(description = "User is not in channel")
+    # logged_in = False
+    # for user in data.data["logged_in"]:
+    #     if user == u_id:
+    #         logged_in = True
+    #         break
+    # if not logged_in:
+    #     raise AccessError(description="User is not logged in")
+    # # Check if user is existing member of channel
+    # for user in data.data["users"]:
+    #     if user["u_id"] == u_id:
+    #         for channel in user["channel_list"]:
+    #             if channel == channel_id:
+    #                 return
+    # raise AccessError(description="User is not in channel")
 
 def check_valid_channel_id(channel_id):
     """
@@ -202,10 +222,8 @@ def check_valid_channel_id(channel_id):
         Raises an error if channel doesn't exist
         Returns nothing if channel exists
     """
-    for channel in data.data["channels"]:
-        if channel["channel_id"] == channel_id:
-            return
-    raise InputError(description="Channel does not exist")
+    if data.get_channel_info(channel_id) is None:
+        raise InputError(description = "Channel does not exist")
 
 def check_valid_u_id(u_id):
     """
@@ -218,10 +236,8 @@ def check_valid_u_id(u_id):
         Raises an error if user doesn't exist
         Returns nothing if user exists
     """
-    for user in data.data["users"]:
-        if user["u_id"] == u_id:
-            return
-    raise InputError(description="User does not exist")
+    if data.get_user_info(u_id) is None:
+        raise InputError(description = "User does not exist")
 
 def check_is_existing_channel_member(u_id, channel_id):
     """
@@ -235,14 +251,24 @@ def check_is_existing_channel_member(u_id, channel_id):
         Raises an error if user is not part of channel
         Returns nothing if user is part of channel
     """
-    # Find user
-    for user in data.data["users"]:
-        if user["u_id"] == u_id:
-            # Check user's channel list for channel_id
-            for channel in user["channel_list"]:
-                if channel == channel_id:
-                    raise InputError(description="User is not part of channel")
-    return
+    if not data.check_user_in_channel(channel_id, u_id):
+        raise InputError(description = "User is not part of channel")
+
+def check_is_not_existing_channel_member(u_id, channel_id):
+    """
+    Check if inviteee is not part of channel yet
+
+    Parameters:
+        u_id(int): Identifier for users
+        channel_id(int): Identifier for channels
+
+    Returns:
+        Returns nothing if user is not part of channel
+        Raise an error if user is part of channel
+    """
+    if data.check_user_in_channel(channel_id, u_id):
+        raise InputError(description = "User is already part of channel")
+    
 
 def check_is_channel_owner(user_id, channel_id):
     """
@@ -256,12 +282,9 @@ def check_is_channel_owner(user_id, channel_id):
         Raises an error if user is not an owner of channel
         Returns nothing if user is an owner of channel
     """
-    for channel in data.data["channels"]:
-        if channel["channel_id"] == channel_id:
-            for owner in channel["owners"]:
-                if owner == user_id:
-                    return
-    raise AccessError(description="User is not owner of channel")
+    if not data.check_channel_owner(channel_id, user_id):
+        raise InputError(description="User is not owner of channel")
+
 
 def check_isnot_channel_owner(user_id, channel_id):
     """
@@ -275,36 +298,43 @@ def check_isnot_channel_owner(user_id, channel_id):
         Raises an error if user is an owner of channel
         Returns nothign is user is not an owner of channel
     """
-    for channel in data.data["channels"]:
-        if channel["channel_id"] == channel_id:
-            for owner in channel["owners"]:
-                if owner == user_id:
-                    raise InputError(description="User is owner of channel")
+    if data.check_channel_owner(channel_id, user_id):
+        raise InputError(description = "User is owner of channel")
 
 def valid_message(message):
     """
-    Will raise an input error if the message string is greater then 1000 characters long
+    Raise an input error if the message string is greater then 1000 characters long
 
     Parameters:
         message(string): The string of the message to be sent
     Returns:
     """
     if len(message) > 1000:
-        raise InputError
+        raise InputError(description = "Invalid message")
 
 def valid_message_id(message_id):
     """
-    Will check that message_id given has a message it refers to in the global variable will 
+    Check that message_id given has a message it refers to in the global variable will 
     raise an InputError
 
     Parameters:
-        message_id(string): The message_id of the channel being checked
+        message_id(int): The message_id of the channel being checked
     Returns:
     """
-    found_message = False
-    for channel in data.data['channels']:
-        for message in channel['messages']:
-            if message['message_id'] == message_id:
-                found_message = True
-    if not found_message:
-        raise InputError
+    if int(message_id) > data.get_message_num():
+        raise InputError(description = "Invalid message_id")
+
+ 
+def check_channel_is_public(channel_id):
+    """
+    Check if channel is public or private
+
+    Parameters:
+        channel_id(int): The id of channel
+    Returns:
+    """
+    channel = data.get_channel_info(channel_id)
+    if channel["is_public"]:
+        return
+    else:
+        raise AccessError(description = "Cannot join private channel")

@@ -1,11 +1,10 @@
 """
-data(data.py): gives access to global data variable
-error(error.py): gives access to error classes
+data(data.py): Gives access to global data variable
+error(error.py): Gives access to error classes
 """
 import data
 from error import InputError, AccessError
 import validation
-from user import get_uid
 
 def channels_list(token):
     """
@@ -17,37 +16,14 @@ def channels_list(token):
     Returns:
         List of channel dictionaries containing channel_id and name
     """
-    # Initialise channel_list to return to user
-    channels = []
-    '''
-    u_id = None
+    # Check if token is valid
+    u_id = validation.check_valid_token(token)
 
-    # Finds u_id associated with user token
-    # Returns AccessError if token does not exist
-    for user in data.data['logged_in']:
-        if user['token'] == token:
-            u_id = user['u_id']
-
-    if u_id is None:
-        raise AccessError
-    '''
-    validation.check_valid_token(token)
-    # Appends all channels that the user is in to channel_list
-    u_id = get_uid(token)
-    for channel in data.data['channels']:
-        for member_id in channel['members']:
-            if member_id == u_id:
-                channel_copy = {
-                    'channel_id' : channel['channel_id'],
-                    'name' : channel['name'],
-                }
-                channels.append(channel_copy)
-
-    return channels
+    return data.channels_list_user(u_id)
 
 def channels_listall(token):
     """
-    Returns a list of all channels
+    Returns a list of all channels after checking whether token is valid
 
     Parameters:
         token(string): A user authorisation hash
@@ -55,22 +31,10 @@ def channels_listall(token):
     Returns:
         List of channel dictionaries containing channel_id and name
     """
-    # Initialise channel_list to return to user
-    channels = []
-
-    # Finds u_id associated with user token
-    # Returns AccessError if token does not exist
+    # Check if token is valid
     validation.check_valid_token(token)
 
-    # Appends channel_id and name of all channels into channel_list
-    for channel in data.data['channels']:
-        channel_copy = {
-            'channel_id' : channel['channel_id'],
-            'name' : channel['name'],
-        }
-        channels.append(channel_copy)
-
-    return channels
+    return data.channels_list_all()
 
 
 def channels_create(token, name, is_public):
@@ -85,31 +49,29 @@ def channels_create(token, name, is_public):
     Returns:
         Dictionary with information about the created channel
     """
+    # Check if token is valid
+    u_id = validation.check_valid_token(token)
+
     # Returns InputError if channel name is more than 20 characters
     if len(name) > 20:
-        raise InputError('Name cannot be more than 20 characters long')
-
-    # Finds u_id associated with user token
-    # Returns AccessError if token does not exist
-    validation.check_valid_token(token)
-    # Creates a new channel and stores to 'channels' in data.py
-    u_id = get_uid(token)
+        raise InputError(description = "Name cannot be more than 20 characters long")
+    
+    # Creates a new channel and stores to "channels" in data.py
+    
     new_channel = {
-        'channel_id' : (len(data.data['channels']) + 1),
-        'name' : name,
-        'state' : is_public,
-        'owners' : [u_id],
-        'members' : [u_id],
-        'messages' : [],
+        "channel_id" : data.get_num_channels() + 1,
+        "name" : name,
+        "is_public" : is_public,
+        "owners" : {u_id},
+        "members" : {u_id},
+        "messages" : {},
     }
-    channel_copy = new_channel.copy()
-    data.data['channels'].append(channel_copy)
+    data.channel_create(new_channel)
 
-    # Add channel to user's channel_list
-    for user in data.data['users']:
-        if user['u_id'] == u_id:
-            user['channel_list'].append(new_channel['channel_id'])
-
+    # Stores channel as part of the user"s channel list
+    user = data.get_user_info(u_id)
+    data.update_user_channel_list(user, new_channel["channel_id"])    
+    
     return {
-        'channel_id': new_channel['channel_id'],
+        "channel_id": new_channel["channel_id"]
     }
