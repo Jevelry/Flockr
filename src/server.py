@@ -59,7 +59,7 @@ def convert_to_int(id):
 def echo():
     data = request.args.get("data")
     if data == "echo":
-        raise InputError(description="Cannot echo "echo"")
+        raise InputError(description="Cannot echo 'echo'")
     return dumps({
         "data": data
     })

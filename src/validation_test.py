@@ -51,7 +51,7 @@ def test_check_valid_token():
     user = auth.auth_register("runner@gmail.com", "english", "dan", "theman")
     assert validation.check_valid_token(user["token"]) == user["u_id"]
     with pytest.raises(AccessError):
-        assert validation.check_valid_token("user["token"]")
+        assert validation.check_valid_token(user["token"])
         assert validation.check_valid_token("bacon")
     other.clear()
     
