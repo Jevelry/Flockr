@@ -36,9 +36,9 @@ def check_name_change(user_info, first, last):
         Nothing 
     """
 
-    profile = user.user_profile(user_info['token'], user_info['u_id'])['user']
-    assert profile['name_first'] == first
-    assert profile['name_last'] == last
+    profile = user.user_profile(user_info["token"], user_info["u_id"])["user"]
+    assert profile["name_first"] == first
+    assert profile["name_last"] == last
 
 def check_email_change(user_info, new_email):
     """
@@ -51,8 +51,8 @@ def check_email_change(user_info, new_email):
     Returns:
         NothingS
     """
-    profile = user.user_profile(user_info['token'], user_info['u_id'])['user']
-    assert profile['email'] == new_email
+    profile = user.user_profile(user_info["token"], user_info["u_id"])["user"]
+    assert profile["email"] == new_email
             
 def check_handle_changed(user_info, new_handle):
     """
@@ -65,41 +65,43 @@ def check_handle_changed(user_info, new_handle):
     Returns:
         Nothing
     """
-    profile = user.user_profile(user_info['token'], user_info['u_id'])['user']
-    assert profile['handle_str'] == new_handle   
+    profile = user.user_profile(user_info["token"], user_info["u_id"])["user"]
+    assert profile["handle_str"] == new_handle   
             
 #USER_PROFILE TESTS
-#SUCCESSFUL
+#Successful
 def test_user_profile_request_self(user1):
     """
     Testing successful uses of user_profile
     focusing on request oneselves profile
     """
     user1_profile = {
-            'u_id': 1,
-            'email': 'kevin@gmail.com',
-            'name_first': 'Kevin',
-            'name_last': 'Huang',
-            'handle_str': 'KevinHuang',  
+            "u_id": 1,
+            "email": "kevin@gmail.com",
+            "name_first": "Kevin",
+            "name_last": "Huang",
+            "handle_str": "KevinHuang",  
         }
-    assert user.user_profile(user1["token"], user1["u_id"])['user'] == user1_profile
+    assert user.user_profile(user1["token"], user1["u_id"])["user"] == user1_profile
     other.clear()
+    
 def test_user_profile_request_others(user1):
     """
-    Testing Successful uses of user_profile 
+    Testing successful uses of user_profile 
     focusing on requesting other users profiles
     """
 
     user2 = auth.auth_register("lucyjang@gmail.com", "lj1234", "Lucy", "Jang")
     user1_profile = {
-            'u_id': 1,
-            'email': 'kevin@gmail.com',
-            'name_first': 'Kevin',
-            'name_last': 'Huang',
-            'handle_str': 'KevinHuang',  
+            "u_id": 1,
+            "email": "kevin@gmail.com",
+            "name_first": "Kevin",
+            "name_last": "Huang",
+            "handle_str": "KevinHuang",  
         }
-    assert user.user_profile(user2["token"], user1["u_id"])['user'] == user1_profile
+    assert user.user_profile(user2["token"], user1["u_id"])["user"] == user1_profile
     other.clear()
+    
 #Unsuccessful
 def test_user_profile_invalid_token(user1):
     """
@@ -121,8 +123,7 @@ def test_user_profile_invalid_uid(user1):
     other.clear()
     
 #USER_PROFILE_SETNAME TESTS
-#SUCCESSFUL
-
+#Successful
 def test_user_setname_valid_name(user1):
     """
     Testing successful uses of user_profile_setname
@@ -193,7 +194,7 @@ def test_user_setname_invalid_lastname(user1):
 
     
 #USER_PROFILE_SETEMAIL TESTS
-#SUCCESSFUL
+#Successful
 def test_user_setemail_valid_email(user1):
     """
     Testing successful uses of user_profile_setemail
@@ -245,7 +246,7 @@ def test_user_setemail_email_taken(user1):
 
 
 #USER_PROFILE_SETHANDLE TESTS
-#SUCCESSFUL
+#Successful
 def test_user_sethandle_valid_handle(user1):
     """
     Testing successful uses of user_profile_sethandle
@@ -254,7 +255,6 @@ def test_user_sethandle_valid_handle(user1):
     user.user_profile_sethandle(user1["token"], "newhandle")
     check_handle_changed(user1, "newhandle")
     other.clear()
-
 
 
 #Unsuccessful
@@ -296,4 +296,3 @@ def test_user_sethandle_handle_taken(user1):
     with pytest.raises(InputError):
         assert user.user_profile_sethandle(user1["token"], "onefivethreeone")
     other.clear()
-

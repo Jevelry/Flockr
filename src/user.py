@@ -11,8 +11,8 @@ import validation
 
 def user_profile(token, u_id):
     """
-    For a valid user, returns information about their user_id, 
-    email, first name, last name, and handle
+    Check whether user is valid and for a valid user, returns information 
+    about their user_id, email, first name, last name, and handle
     
     Parameters:
         token(string): An authorisation hash
@@ -31,27 +31,19 @@ def user_profile(token, u_id):
 
     user = data.get_user_info(u_id)
     profile = {
-        'u_id' : user['u_id'],
-        'email' : user['email'],
-        'name_first' : user['name_first'],
-        'name_last' : user['name_last'],
-        'handle_str' : user['handle_str'],
+        "u_id" : user["u_id"],
+        "email" : user["email"],
+        "name_first" : user["name_first"],
+        "name_last" : user["name_last"],
+        "handle_str" : user["handle_str"],
     }
-    return {'user' : profile}
-
-    # for users in data.data["users"]:
-    #     if users["u_id"] == u_id:
-    #         user["u_id"] = users["u_id"]
-    #         user["email"] = users["email"]
-    #         user["name_first"] = users["name_first"]
-    #         user["name_last"] = users["name_last"]
-    #         user["handle_str"] = users["handle"]
-    # return user      
+    return {"user" : profile}
+ 
 
     
 def user_profile_setname(token, name_first, name_last):
     """
-    For a valid user, update their name
+    Check whether use is valid and for a valid user, update their name
     
     Parameters:
         token(string): An authorisation hash
@@ -69,12 +61,12 @@ def user_profile_setname(token, name_first, name_last):
            
     #Everything valid, proceed with changing name
     user = data.get_user_info(u_id)
-    data.update_user(user,{"name_first": name_first,"name_last":name_last})  
+    data.update_user(user, {"name_first": name_first,"name_last":name_last})  
     return {}
         
 def user_profile_setemail(token, email):
     """
-    For a valid user, update their handle
+    Check whether use is valid and for a valid user, update their handle
     
     Parameters:
         token(string): An authorisation hash
@@ -98,7 +90,7 @@ def user_profile_setemail(token, email):
   
 def user_profile_sethandle(token, handle_str):
     """
-    For a valid user, update their handle
+    Check whether use is valid and for a valid user, update their handle
     
     Parameters:
         token(string): An authorisation hash
@@ -122,4 +114,3 @@ def user_profile_sethandle(token, handle_str):
     user = data.get_user_info(u_id) 
     data.update_user(user, {"handle_str": handle_str})
     return {}
-

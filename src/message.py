@@ -13,7 +13,7 @@ import validation
 def find_channel_with_message(message_id, u_id):
     """
     Will go through every channel and if message_in_channel returns a channel it
-    will return it otherwise it raises an input error
+    will return it otherwise it raises an Input Error
 
     Parameters:
         message_id(string): The id of the message being searched for
@@ -26,15 +26,15 @@ def find_channel_with_message(message_id, u_id):
     """
     channel_id = data.find_channel(message_id)
     message = data.get_message(channel_id, message_id)
-    if message['u_id'] == u_id or data.check_channel_owner(channel_id, u_id):
+    if message["u_id"] == u_id or data.check_channel_owner(channel_id, u_id):
         return channel_id
-    raise AccessError(description="User is not creator or owner")
+    raise AccessError(description = "User is not creator or owner")
 
 
 
 def message_send(token, channel_id, message):
     """
-    Adds a new message to the message to the messages in a channel
+    Adds a new message to the messages in a channel
 
     Parameters:
         token(string): An authorisation hash
@@ -58,18 +58,15 @@ def message_send(token, channel_id, message):
 
     new_message_id = data.make_message_id()
     new_message = {}
-    new_message['message'] = message
-    new_message['u_id'] = user_input_id
-    new_message['time_created'] = datetime.datetime.now().replace().timestamp()
-    new_message['message_id'] = new_message_id
+    new_message["message"] = message
+    new_message["u_id"] = user_input_id
+    new_message["time_created"] = datetime.datetime.now().replace().timestamp()
+    new_message["message_id"] = new_message_id
 
-    # for channel in data.data['channels']:
-    #     if channel['channel_id'] == channel_id:
-    #         channel['messages'].append(new_message)
     data.add_message(new_message, channel_id)
 
     return {
-        'message_id': new_message_id,
+        "message_id": new_message_id,
     }
 
 def message_remove(token, message_id):
@@ -82,6 +79,7 @@ def message_remove(token, message_id):
         message(string): The message of the message being added
 
     Returns:
+		Nothing
     """
     # Check valid token
     user_input_id = validation.check_valid_token(token)
@@ -116,7 +114,7 @@ def message_edit(token, message_id, message):
     validation.valid_message_id(message_id)
 
     # Editing a message to an empty string will delete the message.
-    if message == '':
+    if message == "":
         return message_remove(token, message_id)
         
 

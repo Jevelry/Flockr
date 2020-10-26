@@ -7,22 +7,22 @@ The validation checks are generally done before these functions are called.
 """
 from error import AccessError, InputError
 """
-Global variable scontaining the state of flockr
+Global variables containing the state of flockr
 """
 
 # Users is a dictionary that contains information of every user
 # and uses u_id as the key.
 users = {
      # u_id = {
-        #     'channel_list'  = set()
-        #     'name_first' : '',
-        #     'name_last' : '',
-        #     'email': '',
-        #     'u_id' : '',
-        #     'password' : ''
-        #     'handle' : ''
-        #     'permission_id' : ''
-        #     'num_logged_in : ''
+        #     "channel_list"  = set()
+        #     "name_first" : "",
+        #     "name_last" : "",
+        #     "email": "",
+        #     "u_id" : "",
+        #     "password" : ""
+        #     "handle" : ""
+        #     "permission_id" : ""
+        #     "num_logged_in : ""
         # }
 }
 
@@ -34,18 +34,18 @@ logged_in = set()
 channels = {
     # channel_id {
         # channel_id = {
-        #     'name' : '',
-        #     'is_public' : '', # public or private (True or False)
-        #     'channel_id' : ''
-        #     'owners' = set(),
-        #     'members' : set(),
-         #    'messages' = {
+        #     "name" : "",
+        #     "is_public" : "", # public or private (True or False)
+        #     "channel_id" : ""
+        #     "owners" = set(),
+        #     "members" : set(),
+         #    "messages" = {
         #         message_id = {
             #         {
-            #             'message' : '',
-            #             'message_id' : '',
-            #             'u_id' : '',
-            #             'date' : ''
+            #             "message" : "",
+            #             "message_id" : "",
+            #             "u_id" : "",
+            #             "date" : ""
             #         }
             #    }
         #      
@@ -65,7 +65,7 @@ jwt_secret = "Mango2Team"
 # Removes all users, channels, etc.
 def clear_data():
     """
-    Restarts the global variable to it's default state (empty)
+    Restarts the global variable to it"s default state (empty)
     """
     global users, channels, logged_in, message_num
     users = {}
@@ -101,7 +101,7 @@ def get_user_secret(u_id):
     to validate tokens
     """
     user = get_user_info(u_id)
-    return user['session_secret']
+    return user["session_secret"]
 
 def update_user(user,attributes):
     """
@@ -114,7 +114,7 @@ def update_user_channel_list(user,channel_id):
     """
     Given a user(dict) and channel_id(int), adds the channel id to the users channel list
     """
-    user['channel_list'].add(channel_id)  
+    user["channel_list"].add(channel_id)  
           
 def register_user(user):
     """
@@ -155,47 +155,47 @@ def channel_add_member(channel_id, u_id):
     """
     channel = channels[channel_id]   
     if u_id == 1:
-        channel['owners'].add(u_id)
-    channel['members'].add(u_id)
+        channel["owners"].add(u_id)
+    channel["members"].add(u_id)
     user = get_user_info(u_id)
     user["channel_list"].add(channel_id)
 
 def check_user_in_channel(channel_id, u_id):
     """
-    Given a channel_id(int) and u_id(int),returns true if user is a member of channel
+    Given a channel_id(int) and u_id(int), returns true if user is a member of channel
     """
     channel = get_channel_info(channel_id)
-    return u_id in channel['members']
+    return u_id in channel["members"]
 
 def check_channel_owner(channel_id, u_id):
     """
     Given a channel_id(int) and u_id(int), returns true if user is an owner of channel
     """
     channel_info = get_channel_info(channel_id)
-    return u_id in channel_info['owners']
+    return u_id in channel_info["owners"]
 
 def channel_add_owner(channel_id, u_id):
     """
     Given a channel_id(int) and u_id(int), adds user to list of owners of channel
     """
     channel = channels[channel_id]   
-    channel['owners'].add(u_id)
+    channel["owners"].add(u_id)
 
 def channel_remove_member(channel_id, u_id):
     """
     Given a channel_id(int) and u_id(int), removes that member from the channel
     """
     channel = channels[channel_id]
-    if u_id in channel['owners']:
-        channel['owners'].remove(u_id)
-    channel['members'].remove(u_id)
+    if u_id in channel["owners"]:
+        channel["owners"].remove(u_id)
+    channel["members"].remove(u_id)
 
 def channel_remove_owner(channel_id,u_id):
     """
     Given a channel_id(int) and u_id(int), removes that member as an owner of the channel
     """
     channel = channels[channel_id]   
-    channel['owners'].remove(u_id)
+    channel["owners"].remove(u_id)
 
 def get_message_num():
     """
@@ -232,27 +232,27 @@ def channels_list_user(u_id):
     """
     user = get_user_info(u_id)
     channels_info = []
-    for channel in user['channel_list']:
+    for channel in user["channel_list"]:
         chan_info = get_channel_info(channel)
         channel_copy = {
-            'channel_id' : chan_info['channel_id'],
-            'name' : chan_info['name']
+            "channel_id" : chan_info["channel_id"],
+            "name" : chan_info["name"]
         }
         channels_info.append(channel_copy)
-    return {'channels' : channels_info}    
+    return {"channels" : channels_info}    
 
 def channels_list_all():
     """
-    Generates a list of all channels and returns it
+    Generates a list of all existing channels and returns it
     """
     channels_info = []
     for channel in channels:
         channel_copy = {
-            'channel_id' : channel,
-            'name' : channels[channel]['name']
+            "channel_id" : channel,
+            "name" : channels[channel]["name"]
         }
         channels_info.append(channel_copy)
-    return {'channels' : channels_info}
+    return {"channels" : channels_info}
 
 def get_num_channels():
     """
@@ -264,31 +264,31 @@ def channel_create(new_channel):
     """
     Given a new_channel(dict), adds it to list of existing channels
     """ 
-    channels[new_channel['channel_id']] = new_channel 
+    channels[new_channel["channel_id"]] = new_channel 
 
 def find_channel(message_id):
     """
     Given a message_id, returns channel_id of channel with that message
     """
     for channel in channels:
-        if message_id in channels[channel]['messages']:
+        if message_id in channels[channel]["messages"]:
             return channel
-    raise InputError(description="Message not in any channel")
+    raise InputError(description = "Message not in any channel")
 
 def get_message(channel, message_id):
     """
     Given channel containing message and message_id,
     returns dictionary containing message info
     """
-    return channels[channel]['messages'][message_id]
+    return channels[channel]["messages"][message_id]
 
 def add_message(message, channel_id):
     """
     Adds given message to channel with given channel_id
     """
     channel = channels[channel_id]
-    message_id = message['message_id']
-    channel['messages'][message_id] = message
+    message_id = message["message_id"]
+    channel["messages"][message_id] = message
 
 def remove_message(message_id, channel_id):
     """
@@ -296,14 +296,14 @@ def remove_message(message_id, channel_id):
     channel with given channel_id.
     """
     channel = channels[channel_id]
-    del channel['messages'][message_id]
+    del channel["messages"][message_id]
 
 def edit_message(channel_id, message_id, message):
     """
     Edits the target message and changes
-    target_message['message'] to message
+    target_message["message"] to message
     """
-    channels[channel_id]['messages'][message_id]['message'] = message
+    channels[channel_id]["messages"][message_id]["message"] = message
 
 def user_list():
     """
@@ -312,11 +312,11 @@ def user_list():
     list_users = []
     for user in users.values():
         user_info = {
-            'u_id' : user['u_id'],
-            'email' : user['email'],
-            'name_last' : user['name_last'],
-            'name_first' : user['name_first'],
-            'handle_str' : user['handle_str']
+            "u_id" : user["u_id"],
+            "email" : user["email"],
+            "name_last" : user["name_last"],
+            "name_first" : user["name_first"],
+            "handle_str" : user["handle_str"]
         }
         list_users.append(user_info)
     return list_users
@@ -327,4 +327,4 @@ def change_permission(u_id, permission):
     to whatever was specified
     """
     user = get_user_info(u_id)
-    user['permission_id'] = permission
+    user["permission_id"] = permission

@@ -44,7 +44,8 @@ def channel_invite(token, channel_id, u_id):
 
 def channel_details(token, channel_id):
     """
-    Given a Channel with ID channel_id that the authorised user is part of,
+    Checks that given information (token, channel_id, u_id) is valid then 
+    given a Channel with ID channel_id that the authorised user is part of,
     provide basic details about the channel
 
     Parameters:
@@ -71,27 +72,28 @@ def channel_details(token, channel_id):
     }
     # Find channel and copy infomation into channel_details
     channel = data.get_channel_info(channel_id)
-    channel_info['name'] = channel['name']
-    for u_id in channel['members']:
+    channel_info["name"] = channel["name"]
+    for u_id in channel["members"]:
         user = data.get_user_info(u_id)
         member = {}
-        member['u_id'] = user['u_id']
-        member['name_first'] = user['name_first']
-        member['name_last'] = user['name_last']
-        channel_info['all_members'].append(member)
+        member["u_id"] = user["u_id"]
+        member["name_first"] = user["name_first"]
+        member["name_last"] = user["name_last"]
+        channel_info["all_members"].append(member)
 
-    for u_id in channel['owners']:
+    for u_id in channel["owners"]:
         user = data.get_user_info(u_id)
         owner = {}
-        owner['u_id'] = user['u_id']
-        owner['name_first'] = user['name_first']
-        owner['name_last'] = user['name_last']
-        channel_info['owner_members'].append(owner)
+        owner["u_id"] = user["u_id"]
+        owner["name_first"] = user["name_first"]
+        owner["name_last"] = user["name_last"]
+        channel_info["owner_members"].append(owner)
     return channel_info
 
 def channel_messages(token, channel_id, start):
     """
-    Given a Channel with ID channel_id that the authorised user is part of,
+    Checks that given information (token, channel_id, u_id) is valid then 
+    given a Channel with ID channel_id that the authorised user is part of,
     return up to 50 messages between index "start" and "start + 50". Message
     with index 0 is the most recent message in the channel. This function
     returns a new index "end" which is the value of "start + 50", or, if this
@@ -109,7 +111,7 @@ def channel_messages(token, channel_id, start):
     # Check if valid token
     u_id = validation.check_valid_token(token)
 
-    #Check if given valid channel_id
+    # Check if given valid channel_id
     validation.check_valid_channel_id(channel_id)
 
     # Check if user is authorised(member of channel)
@@ -123,12 +125,16 @@ def channel_messages(token, channel_id, start):
     }
 
     channel = data.get_channel_info(channel_id)
-    if len(channel['messages']) < start:
-        raise InputError(description='Start value is too high')
-    for message in list(channel['messages'].keys())[start:start + 50]:
-        messages_list['messages'].append(channel['messages'][message])
-    if len(channel['messages']) < start + 50:
-        messages_list['end'] = -1
+    # Checking if start value is greater than number of total messages 
+    # and if so, raise Input Error
+    if len(channel["messages"]) < start:
+        raise InputError(description = "Start value is too high")
+    for message in list(channel["messages"].keys())[start:start + 50]:
+        messages_list["messages"].append(channel["messages"][message])
+    # Returns -1 when "end" is less than start + 50 and no more messages
+    # to load
+    if len(channel["messages"]) < start + 50:
+        messages_list["end"] = -1
     return messages_list
 
 def channel_leave(token, channel_id):
@@ -175,13 +181,12 @@ def channel_join(token, channel_id):
     validation.check_valid_channel_id(channel_id)
 
 
-    #Checks the person wasn't already in the channel
+    #Checks the person wasn"t already in the channel
     validation.check_is_not_existing_channel_member(user_id, channel_id)
        
     validation.check_channel_is_public(channel_id)
     #Checks the channel is public and adds the user to the members
     data.channel_add_member(channel_id, user_id)
-
     return {}
 
 
@@ -217,6 +222,8 @@ def channel_addowner(token, channel_id, u_id):
     data.channel_add_owner(channel_id, u_id)
 
     return {}
+    
+    
 def channel_removeowner(token, channel_id, u_id):
     """
     Remove user with user id u_id an owner of this channel
