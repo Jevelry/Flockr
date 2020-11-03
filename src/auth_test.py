@@ -15,6 +15,7 @@ import email
 from email.header import decode_header
 import webbrowser
 import os
+import time
 
 
 def get_code_from_email():
@@ -31,26 +32,29 @@ def get_code_from_email():
     imap = imaplib.IMAP4_SSL("imap.gmail.com")
     # authenticate
     imap.login(username, password)
-    status, messages = imap.select("INBOX")
+    _status, messages = imap.select("INBOX")
 
     # total number of emails
     messages = int(messages[0])
 
-    res, msg = imap.fetch(str(messages), "(RFC822)")
+    _res, msg = imap.fetch(str(messages), "(RFC822)")
     for response in msg:
         if isinstance(response, tuple):
-                        # parse a bytes email into a message object
-            msg = email.message_from_bytes(response[1])
+            # parse a bytes email into a message object
+            msg = email.message_from_bytes(response[1])#response[1]
             # decode the email subject
             subject = decode_header(msg["Subject"])[0][0]
             if isinstance(subject, bytes):
                 # if it's a bytes, decode to str
-                code = subject.decode()
-                assert code is not None
+                subject = subject.decode()
+            code = subject
+            
     imap.close()
     imap.logout()
+    if code is None:
+        raise InputError(description='Email has no subject')
     return code
-
+'''
 
 # AUTH_LOGIN tests
 # Successful
@@ -327,7 +331,7 @@ def test_invalid_last_name_auth_register():
         )
 
     other.clear()
-
+'''
 def test_successful_passwordreset_request():
     """
     Tests successful uses of password_reset_request
@@ -338,7 +342,9 @@ def test_successful_passwordreset_request():
     user1 = auth.auth_register('flockr1531@gmail.com', 'hellothere', 'Brother', 'Arnold')
     auth.auth_logout(user1['token'])
     assert auth.auth_passwordreset_request('flockr1531@gmail.com') == {}
-    assert get_code_from_email() is not None
+    time.sleep(2)
+    code = get_code_from_email()
+    assert code is not None
     other.clear()
 
 def test_incorrect_email_unsuccessful_request():
@@ -368,8 +374,10 @@ def test_logged_in_unsuccessful_request():
 def test_successful_passwordreset_reset():
     user1 = auth.auth_register('flockr1531@gmail.com', 'thistooksolong', 'one', 'hundred')
     auth.auth_logout(user1['token'])
-    auth.auth_password_reset_request('flockr1531@gmail.com')
+    auth.auth_passwordreset_request('flockr1531@gmail.com')
+    time.sleep(2)
     code = get_code_from_email()
+    print(code)
     assert auth.auth_passwordreset_reset(code, 'new_password') == {}
     with pytest.raises(InputError):
         assert auth.auth_login('flockr1531@gmail.com', 'thistooksolong')
@@ -397,7 +405,8 @@ def test_invalid_new_password_unsuccessful_reset():
     """
     user1 = auth.auth_register('flockr1531@gmail.com', 'password', 'first', 'last')
     auth.auth_logout(user1['token'])
-    auth.auth_password_reset_request('flockr1531@gmail.com')
+    auth.auth_passwordreset_request('flockr1531@gmail.com')
+    time.sleep(2)
     code = get_code_from_email()
     with pytest.raises(InputError):
         assert auth.auth_passwordreset_reset(code, '')

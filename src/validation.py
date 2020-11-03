@@ -96,6 +96,36 @@ def check_existing_email(email):
         raise InputError("Email already in use")
     return
 
+def check_logged_out(u_id):
+    """
+    Determines whether the user is logged out or not
+
+    Parameters:
+        u_id(int): Identifier for a user
+
+    Returns:
+        Nothing if user is logged out
+        InputError if user is logged in
+    """
+    if data.check_logged_in(u_id):
+        raise InputError(description="User is logged in")
+
+def check_valid_reset_code(reset_code):
+    """
+    Determines who reset code belongs to
+
+    Parameters:
+        reset_code(str): A hash used for resetting a user's password
+
+    Returns:
+        User dictionary of whoever has the reset_code
+        Raises an error if reset_code doesn't belong to a user
+    """
+    user = data.get_user_with({'reset_code' : reset_code})
+    if user:
+        return user
+    raise InputError(description='Reset code is not valid')
+
 def check_existing_handle(handle_str):
     """
     Determine whether supplied handle already exists
@@ -196,20 +226,7 @@ def check_user_in_channel(u_id, channel_id):
     """
     if not data.check_user_in_channel(channel_id, u_id):
         raise AccessError(description = "User is not in channel")
-    # logged_in = False
-    # for user in data.data["logged_in"]:
-    #     if user == u_id:
-    #         logged_in = True
-    #         break
-    # if not logged_in:
-    #     raise AccessError(description="User is not logged in")
-    # # Check if user is existing member of channel
-    # for user in data.data["users"]:
-    #     if user["u_id"] == u_id:
-    #         for channel in user["channel_list"]:
-    #             if channel == channel_id:
-    #                 return
-    # raise AccessError(description="User is not in channel")
+
 
 def check_valid_channel_id(channel_id):
     """
