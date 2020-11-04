@@ -504,3 +504,257 @@ def test_edit_not_owner_or_creator():
     with pytest.raises(AccessError):
         message.message_edit(test_user2['token'], message_id['message_id'], new_message)
     other.clear()
+
+
+# Tests for message_pin
+# Successful
+def test_message_pin_valid():
+    """
+    Testing if multiple messages can be successfully pinned 
+    """
+    user1 = auth.auth_register("johnsmith@gmail.com", "password", "John", "Smith")
+    user2 = auth.auth_register("lukeskywalker@gmail.com", "starwars", "Luke", "Skywalker")
+    new_channel = channels.channels_create(user1["token"], "First Channel", True)
+    channel.channel_join(user2["token"], new_channel["channel_id"])
+
+	message_1 = "Hi Luke!"
+	message_2 = "Hello John! Nice to meet you!"
+	message_id1 = message.message_send(user1["token"], new_channel["channel_id"], message_1)
+	message_id2 = message.message_send(user2["token"], new_channel["channel_id"], message_2)
+	
+	message.message_pin(user1["token"], message_1)
+	message.message_pin(user2["token"], message_2)
+	
+	test_message_from_channel = channel.channel_messages(user1["token"], new_channel['channel_id'], 0)
+	
+	assert test_message_from_channel["messages"][0]["message"] == message_1
+	assert test_message_from_channel["messages"][0]["message_id"] == message_id1
+	assert test_message_from_channel["messages"][0]["u_id"] == user1["u_id"]
+	assert test_message_from_channel["messages"][0]["date"] == 1606963294
+	assert test_message_from_channel["messages"][0]["is_pinned"] == True
+	
+	assert test_message_from_channel["messages"][1]["message"] == message_2
+	assert test_message_from_channel["messages"][1]["message_id"] == message_id2
+	assert test_message_from_channel["messages"][1]["u_id"] == user2["u_id"]
+	assert test_message_from_channel["messages"][1]["date"] == 1606963296
+	assert test_message_from_channel["messages"][1]["is_pinned"] == True
+    
+    other.clear()
+    
+
+# Unsuccessful    
+def test_message_pin_invalid_message_id():
+	"""
+	Testing that Input Error is raised when the message_id is invalid
+    """
+    user1 = auth.auth_register("darthvader@gmail.com", "iamyourfather", "Anakin", "Skywalker")
+    new_channel = channels.channels_create(user1["token"], "Star Wars", True)
+
+    with pytest.raises(InputError):
+		message.message_pin(user1["token"], 123415)
+
+	other.clear()
+	
+	
+def test_message_pin_already_pinned():
+	"""
+	Testing that Input Error is raised when user is trying to pin a message
+	which has already been pinned
+	"""
+	user1 = auth.auth_register("darthvader@gmail.com", "iamyourfather", "Anakin", "Skywalker")
+    new_channel = channels.channels_create(user1["token"], "Star Wars", True)		
+
+	test_message1 = "Very proud of my new channel!"
+	message1_id = message.message_send(user1["token"], new_channel["channel_id"], test_message1)
+	message.message_pin(user1["token"], message1_id)
+	
+	with pytest.raises(InputError):
+		message.message_pin(user1["token"], message1_id)
+		
+    other.clear()
+
+    
+def test_message_pin_not_member():
+	"""
+	Testing that Access Error is raised when user who is not member of the channel
+	tries to pin a message
+	"""
+	user1 = auth.auth_register("johnsmith@gmail.com", "password", "John", "Smith")
+    user2 = auth.auth_register("lukeskywalker@gmail.com", "starwars", "Luke", "Skywalker")
+    new_channel = channels.channels_create(user2["token"], "General", True)
+    
+	test_message1 = "Very proud of my new channel!" 
+    message1_id = message.message_send(user2["token"], new_channel["channel_id"], test_message1)
+    
+    with pytest.raises(AccessError):
+		message.message_pin(user1["token"], message1_id)
+	
+	other.clear()
+		
+def test_message_pin_after_leaving():
+	"""
+	Testing that Access Error is raised when owner of channel leaves and tries to
+	pin a message in that channel
+	"""
+	user1 = auth.auth_register("johnsmith@gmail.com", "password", "John", "Smith")
+    user2 = auth.auth_register("lukeskywalker@gmail.com", "starwars", "Luke", "Skywalker")
+    new_channel = channels.channels_create(user2["token"], "General", True)
+    
+	test_message1 = "Welcome!" 
+    message1_id = message.message_send(user2["token"], new_channel["channel_id"], test_message1)    
+    channel.channel_leave(user2["token"], new_channel["channel_id"])
+    
+    with pytest.raises(AccessError):
+		message.message_pin(user2["token"], message1_id)
+		
+	other.clear()	
+
+
+def test_message_pin_not_owner():
+	"""
+	Testing that Access Error is raised when the authorised user is not an owner
+	"""
+	user1 = auth.auth_register("johnsmith@gmail.com", "password", "John", "Smith")
+    user2 = auth.auth_register("lukeskywalker@gmail.com", "starwars", "Luke", "Skywalker")
+    new_channel = channels.channels_create(user1["token"], "General", True)
+    channel.channel_join(user2["token"], new_channel["channel_id"])
+    
+    test_message1 = "New channel is created"
+    message1_id = message.message_send(user2["token"], new_channel["channel_id"], test_message1)
+    
+    with pytest.raises(AccessError):
+		message.message_pin(user2["token"], message1_id)
+    
+	other.clear()
+    
+    
+    
+# Tests for message_sendlater
+# Sucessful
+def test_message_sendlater_success():
+    user1 = auth.auth_register('apple1@gmail.com', 'paswword' , 'first_name', 'last_name')
+    test_channel_id = channels.channel_create(user1['token'], 'test_channel', True)
+    
+    test_message = 'Test message from the past!'
+    test_message_id = message.message_sendlater(user['token'], test_channel_id, test_message, 1606963294)
+    test_message_from_channel = channel.channel_messages(user1['token'], test_channel_id['channel_id'], 0)
+
+    assert test_message_from_channel['messages'][0]['message'] == test_message
+    assert test_message_from_channel['messages'][0]['message_id'] == test_message_id['message_id']
+    assert test_message_from_channel['messages'][0]['u_id'] == user1['u_id']
+    assert test_message_from_channel['messages'][0]['date'] == 1606963294
+
+    other.clear()
+
+def test_message_sendlater_success_multiple():
+    user1 = auth.auth_register('raspberry@gmail.com', 'paswword' , 'first_name', 'last_name')
+    user2 = auth.auth_register('blueberry@gmail.com', 'password', 'first_name', 'last_name')
+    user3 = auth.auth_register('strawberry@gmail.com', 'password', 'first_name', 'last_name')
+    test_channel = channels.channel_create(user1['token'], 'test_channel', True)
+    channel.channel_join(user2['token'], test_channel['channel_id'])
+    channel.channel_join(user3['token'], test_channel['channel_id'])
+
+    test_message1 = 'Test 1 bleep blop bloop'
+    test_message2 = 'Test 2 1 0 1 1'
+    test_message3 = 'Test 3 FLip Flop Slop'
+    test_message4 = 'Test 4 Gling glong glip'
+
+    test_message_id1 = message.message_sendlater(test_user1['token'], test_channel['channel_id'], test_message1, 1606963294)
+    test_message_id2 = message.message_sendlater(test_user2['token'], test_channel['channel_id'], test_message2, 1606963295)
+    test_message_id3 = message.message_sendlater(test_user3['token'], test_channel['channel_id'], test_message3, 1606963296)
+    test_message_id4 = message.message_sendlater(test_user1['token'], test_channel['channel_id'], test_message4, 1606963297)
+    test_messages_from_channel = channel.channel_messages(user1['token'], test_channel['channel_id'],  0)
+
+    assert test_message_from_channel['messages'][0]['message'] == test_message1
+    assert test_message_from_channel['messages'][0]['message_id'] == test_message_id1['message_id']
+    assert test_message_from_channel['messages'][0]['u_id'] == user1['u_id']
+    assert test_message_from_channel['messages'][0]['date'] == 1606963294
+
+    assert test_message_from_channel['messages'][1]['message'] == test_message2
+    assert test_message_from_channel['messages'][1]['message_id'] == test_message_id2['message_id']
+    assert test_message_from_channel['messages'][1]['u_id'] == user2['u_id']
+    assert test_message_from_channel['messages'][1]['date'] == 1606963295
+
+    assert test_message_from_channel['messages'][2]['message'] == test_message3
+    assert test_message_from_channel['messages'][2]['message_id'] == test_message_id3['message_id']
+    assert test_message_from_channel['messages'][2]['u_id'] == user3['u_id']
+    assert test_message_from_channel['messages'][2]['date'] == 1606963296
+
+    assert test_message_from_channel['messages'][3]['message'] == test_message4
+    assert test_message_from_channel['messages'][3]['message_id'] == test_message_id4['message_id']
+    assert test_message_from_channel['messages'][3]['u_id'] == user1['u_id']
+    assert test_message_from_channel['messages'][3]['date'] == 1606963297
+
+    other.clear()
+    
+# Unsucessful
+def test_message_sendlater_invalid_token():
+    user1 = auth.auth_register('apple1@gmail.com', 'paswword' , 'first_name', 'last_name')
+    test_channel = channels.channel_create(user1['token'], 'test_channel', True)
+    
+    test_message = 'Test message from the past!'
+    test_message_id = message.message_sendlater(user1['token'], test_channel, test_message, 1606963294)
+    test_message_from_channel = channel.channel_messages(user1['token'], test_channel['channel_id'], 0)
+
+    assert test_message_from_channel['messages'][0]['message'] == test_message
+    assert test_message_from_channel['messages'][0]['message_id'] == test_message_id['message_id']
+    assert test_message_from_channel['messages'][0]['u_id'] == user1['u_id']
+    assert test_message_from_channel['messages'][0]['date'] == 1606963294
+
+    other.clear()
+
+def test_message_sendlater_invalid_channel():
+    user1 = auth.auth_register('grape@gmail.com', 'paswword' , 'first_name', 'last_name')
+    channels.channel_create(user1['token'], 'test_channel', True)
+    
+    test_message = 'Test message from the past!'
+
+    with pytest.raises(InputError):
+        test_message_id = message.message_sendlater(user1['token'], 'invalid_channel_id', test_message, 1606963294)
+  
+    other.clear()
+
+def test_message_sendlater_invalid_message():
+    user1 = auth.auth_register('mango@gmail.com', 'paswword' , 'first_name', 'last_name')
+    test_channel = channels.channel_create(user1['token'], 'test_channel', True)
+
+    test_message = (
+        'Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula '
+        'eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient '
+        'montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, '
+        'pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, '
+        'aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis '
+        'vitae, justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt. Cras '
+        'dapibus. Vivamus elementum semper nisi. Aenean vulputate eleifend tellus. Aenean leo '
+        'ligula, porttitor eu, consequat vitae, eleifend ac, enim. Aliquam lorem ante, dapibus '
+        'in, viverra quis, feugiat a, tellus. Phasellus viverra nulla ut metus varius laoreet. '
+        'Quisque rutrum. Aenean imperdiet. Etiam ultricies nisi vel augue. Curabitur ullamcorper '
+        'ultricies nisi. Nam eget dui. Etiam rhoncus. Maecenas tempus, tellus eget condimentum '
+        'rhoncus, sem quam semper libero, sit amet adipiscing sem neque sed ipsum...too long'
+    )
+
+    with pytest.raises(InputError):
+        test_message_id = message.message_sendlater(user1['token'], test_channel['channel_id'], test_message, 1606963294)
+
+def test_message_sendlater_invalid_time():
+    user1 = auth.auth_register('melon@gmail.com', 'paswword' , 'first_name', 'last_name')
+    test_channel = channels.channel_create(user1['token'], 'test_channel', True)
+    
+    test_message = 'Test message from the future!'
+
+    with pytest.raises(InputError):
+        test_message_id = message.message_sendlater(user1['token'], test_channel['channel_id'], test_message, 0)
+  
+    other.clear()
+
+def test_message_sendlater_not_in_channel():
+    user1 = auth.auth_register('melon@gmail.com', 'paswword' , 'first_name', 'last_name')
+    user2 = auth.auth_register('blueberry@gmail.com', 'password', 'first_name', 'last_name')
+    test_channel = channels.channel_create(user1['token'], 'test_channel', True)
+    
+    test_message = 'Test message from the past!'
+
+    with pytest.raises(AccessError):
+        test_message_id = message.message_sendlater(user2['token'], test_channel['channel_id'], test_message, 1606963294)
+  
+    other.clear()
