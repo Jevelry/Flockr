@@ -43,7 +43,7 @@ def standup_active(token, channel_id):
     """
     return {
         "is_active": False,
-        "time_finish": 0
+        "time_finish": None
     }
 
 def standup_send(token, channel_id, message):
