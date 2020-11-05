@@ -1,9 +1,3 @@
-# Does standup post if there were no standup/send
-# Does standup/start send it as one message if it is over 1000 characters (Any size restrictions)
-# Does it post in the given format
-# Can we have a standup period of zero
-# how would we test the time is exactly the same
-
 """
     datetime: Gives access to datetime functions to compare with standup function returns
     pytest: Gives access to pytest command (for testing)
@@ -156,9 +150,10 @@ def test_send_multiple():
     new_message = "Know the new message"
     new_message2 = "Second message"
     standup.standup_send(channel_creater["token"], test_channel_id1["channel_id"], new_message)
+    standup.standup_send(test_user1["token"], test_channel_id1["channel_id"], new_message2)
     inserted_message = creater_profile["user"]["handle_str"] + ": " + new_message + " "
-    inserted_message += test_user_profile["user"]["handle_str"] + ": " + new_message + " "
-    time.sleep(1)
+    inserted_message += test_user_profile["user"]["handle_str"] + ": " + new_message2 + " "
+    time.sleep(2)
     message_from_channel = channel.channel_messages(channel_creater["token"],
                                                     test_channel_id1["channel_id"], 0)
     assert inserted_message == message_from_channel["messages"][0]["message"]
@@ -221,17 +216,8 @@ def test_send_not_in_channel():
     channel_creater = auth.auth_register("creator@bigpond.com", "password", "Quick", "Shadow")
     test_user1 = auth.auth_register("optumis4ime@hotmail.com", "password", "Optimus", "Prime")
     test_channel_id1 = channels.channels_create(channel_creater["token"], "test1", True)
-    channel.channel_join(test_user1["token"], test_channel_id1["channel_id"])
+    standup.standup_start(channel_creater["token"], test_channel_id1["channel_id"], 1)
     message_exp = "Not Large Message"
     with pytest.raises(AccessError):
         standup.standup_send(test_user1["token"], test_channel_id1["channel_id"], message_exp)
     other.clear()
-
-import threading
-def print_shit():
-    print("Shit")
-
-if __name__ == "__main__":
-    t = threading.Timer(1, print_shit)
-    t.start()
-    print("before Shit")
