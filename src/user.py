@@ -7,6 +7,9 @@ re(regex): Gives access to regex for valid_email
 """
 import data
 import validation
+from PIL import Image
+import urllib.request
+import os.path
 
 
 def user_profile(token, u_id):
@@ -136,13 +139,17 @@ def user_profile_uploadphoto(token, img_url, x_start, y_start, x_end, y_end):
     #Check if url is jpg
     validation.check_jpg_in_url(img_url)
 
+    #Create profile_pic directory if it doesn't exist
+    path = "src/profile_pics"
+    if os.path.isdir(path) == False:
+        os.mkdir(path)
     #Get image
-    res = request.get(img_url)
-    
-    with open("image.jpg", "wb") as img:
-        img.write(res.body)
-
+    urllib.request.urlretrieve(img_url, f"src/profile_pics/{u_id}.jpg")
 
     #Check if dimensions are valid
+    profile_pic = Image.open(f"src/profile_pics/{u_id}.jpg")
+    validation.check_dimensions(profile_pic, x_start, y_start, x_end, y_end)
 
     #Everything valid, proceed with cropping and saving image
+    cropped = profile_pic.crop((x_start, y_start, x_end, y_end))
+    cropped.save(f"src/profile_pics/{u_id}.jpg")

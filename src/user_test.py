@@ -15,6 +15,7 @@ import other
 from error import InputError, AccessError
 import data
 import os
+import shutil
 
 @pytest.fixture
 def user1():
@@ -303,27 +304,29 @@ def test_user_sethandle_handle_taken(user1):
 def test_user_uploadphoto_success(user1):
     user.user_profile_uploadphoto(user1["token"],"https://i.redd.it/8rq2umri7cm51.jpg",200,200,1800,2000)
     #check if new directory exists
-    assert os.path.isdir("/import/ravel/1/z5311917/1531/project/src/profilepictures") is True
+    assert os.path.isdir("src/profile_pics") is True
+    assert os.path.isfile("src/profile_pics/1.jpg") is True
     
     other.clear()
-    os.rmdir("/import/ravel/1/z5311917/1531/project/src/profilepictures")
+    shutil.rmtree("src/profile_pics")
 
 #UNSUCCESSFUL
 def test_user_uploadphoto_invalid_token(user1):
     with pytest.raises(AccessError):
-        assert user.user_profile_uploadphoto("invalid_token", "https://i.redd.it/8rq2umri7cm51.jpg", 200, 200, 1800, 2000)
+        assert user.user_profile_uploadphoto("invalid_token", "https://i.redd.it/8rq2umri7cm51.jpg", 200, 200, 300, 300)
     other.clear()
 
-
-def test_user_uploadphoto_invalid_url(user1):
+#Code assumes user at least enters a valid url
+def test_user_uploadphoto_invalid_http_status(user1):
     with pytest.raises(InputError):
-        assert user.user_profile_uploadphoto(user1["token"], "thisain'tawebsite", 0, 0, 10, 10)
+        assert user.user_profile_uploadphoto(user1["token"], "https://samsung-redemption.com/au/customer/redemption/details/204262", 0, 0, 10, 10)
     other.clear()
     
 
 def test_user_uploadphoto_invalid_dimensions(user1):
     with pytest.raises(InputError):
         assert user.user_profile_uploadphoto(user1["token"], "https://i.redd.it/8rq2umri7cm51.jpg", 1000, 200, 5000, 6000)
+        assert user.user_profile_uploadphoto(user1["token"], "https://i.redd.it/8rq2umri7cm51.jpg", 1000, 200, 100, 100)
     other.clear()
 
 def test_user_uploadphoto_not_jpg(user1):
