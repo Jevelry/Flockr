@@ -28,7 +28,7 @@ def find_channel_with_message(message_id, u_id):
     message = data.get_message(channel_id, message_id)
     if message["u_id"] == u_id or data.check_channel_owner(channel_id, u_id):
         return channel_id
-    raise AccessError(description = "User is not creator or owner")
+    raise AccessError(description="User is not creator or owner")
 
 
 
@@ -52,7 +52,7 @@ def message_send(token, channel_id, message):
 
     # Check that the channel_id is valid
     validation.check_valid_channel_id(channel_id)
-    
+
     # Check that user is in channel
     validation.check_user_in_channel(user_input_id, channel_id)
 
@@ -86,8 +86,7 @@ def message_remove(token, message_id):
 
     # Check valid message id
     validation.valid_message_id(message_id)
-    
-    
+
     channel_id = find_channel_with_message(message_id, user_input_id)
     data.remove_message(message_id, channel_id)
 
@@ -109,14 +108,14 @@ def message_edit(token, message_id, message):
 
     # Check valid message
     validation.valid_message(message)
-    
+
     # Check valid message id
     validation.valid_message_id(message_id)
 
     # Editing a message to an empty string will delete the message.
     if message == "":
         return message_remove(token, message_id)
-        
+
 
     channel_id = find_channel_with_message(message_id, user_input_id)
     data.edit_message(channel_id, message_id, message)
