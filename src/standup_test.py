@@ -134,8 +134,8 @@ def test_send_valid():
     creater_profile = user.user_profile(channel_creater["token"], channel_creater["u_id"])
     new_message = "Know the new message"
     standup.standup_send(channel_creater["token"], test_channel_id1["channel_id"], new_message)
-    inserted_message = creater_profile["hanndle"] + ": " + new_message
-    time.sleep(1)
+    inserted_message = creater_profile["user"]["handle_str"] + ": " + new_message + " "
+    time.sleep(2)
     message_from_channel = channel.channel_messages(channel_creater["token"],
                                                     test_channel_id1["channel_id"], 0)
     assert inserted_message == message_from_channel["messages"][0]["message"]
@@ -156,8 +156,8 @@ def test_send_multiple():
     new_message = "Know the new message"
     new_message2 = "Second message"
     standup.standup_send(channel_creater["token"], test_channel_id1["channel_id"], new_message)
-    inserted_message = creater_profile["hanndle"] + ": " + new_message
-    inserted_message += '\n' + test_user_profile["handle"] + ": " + new_message2
+    inserted_message = creater_profile["user"]["handle_str"] + ": " + new_message + " "
+    inserted_message += test_user_profile["user"]["handle_str"] + ": " + new_message + " "
     time.sleep(1)
     message_from_channel = channel.channel_messages(channel_creater["token"],
                                                     test_channel_id1["channel_id"], 0)
@@ -226,3 +226,12 @@ def test_send_not_in_channel():
     with pytest.raises(AccessError):
         standup.standup_send(test_user1["token"], test_channel_id1["channel_id"], message_exp)
     other.clear()
+
+import threading
+def print_shit():
+    print("Shit")
+
+if __name__ == "__main__":
+    t = threading.Timer(1, print_shit)
+    t.start()
+    print("before Shit")
