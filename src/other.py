@@ -11,11 +11,16 @@ import channels
 
 def clear():
     """
-    Clears global data variable
+    Clears global data variable and terminates any running timers
     """
 
     # Keeping everything related to the
     # global variable in the same file.
+    channels_list = data.channels_list_all()
+    for channel in channels_list["channels"]:
+        if data.check_standup_running(channel["channel_id"]):
+            timer_class = data.get_timer_class(channel["channel_id"])
+            timer_class.cancel()
     data.clear_data()
 
 def users_all(token):
