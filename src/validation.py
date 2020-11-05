@@ -9,6 +9,7 @@ import data
 import re
 import hashlib
 import jwt
+import requests
 
 def check_valid_token(token):
     """
@@ -355,3 +356,13 @@ def check_channel_is_public(channel_id):
         return
     else:
         raise AccessError(description = "Cannot join private channel")
+
+def check_valid_url(url):
+    request = request.get(url)
+    if request.status_code != 200:
+        raise InputError(description = "Invalid url")
+
+def check_jpg_in_url(url):
+    request = request.get(url)
+    if request.headers['content-type'] != "image/jpeg"
+        raise InputError(description = "Url not a jpg")

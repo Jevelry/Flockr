@@ -14,6 +14,7 @@ import user
 import other
 from error import InputError, AccessError
 import data
+import os
 
 @pytest.fixture
 def user1():
@@ -295,4 +296,37 @@ def test_user_sethandle_handle_taken(user1):
     auth.auth_register("1531grouptask@hotmail.com","amazingstuff", "onefive", "threeone")
     with pytest.raises(InputError):
         assert user.user_profile_sethandle(user1["token"], "onefivethreeone")
+    other.clear()
+
+#USER_PROFILE_UPLOADPHOTO TESTS
+#Successful
+def test_user_uploadphoto_success(user1):
+    user.user_profile_uploadphoto(user1["token"],"https://i.redd.it/8rq2umri7cm51.jpg",200,200,1800,2000)
+    #check if new directory exists
+    assert os.path.isdir("/import/ravel/1/z5311917/1531/project/src/profilepictures") is True
+    
+    other.clear()
+    os.rmdir("/import/ravel/1/z5311917/1531/project/src/profilepictures")
+
+#UNSUCCESSFUL
+def test_user_uploadphoto_invalid_token(user1):
+    with pytest.raises(AccessError):
+        assert user.user_profile_uploadphoto("invalid_token", "https://i.redd.it/8rq2umri7cm51.jpg", 200, 200, 1800, 2000)
+    other.clear()
+
+
+def test_user_uploadphoto_invalid_url(user1):
+    with pytest.raises(InputError):
+        assert user.user_profile_uploadphoto(user1["token"], "thisain'tawebsite", 0, 0, 10, 10)
+    other.clear()
+    
+
+def test_user_uploadphoto_invalid_dimensions(user1):
+    with pytest.raises(InputError):
+        assert user.user_profile_uploadphoto(user1["token"], "https://i.redd.it/8rq2umri7cm51.jpg", 1000, 200, 5000, 6000)
+    other.clear()
+
+def test_user_uploadphoto_not_jpg(user1):
+    with pytest.raises(InputError):
+        assert user.user_profile_uploadphoto(user1["token"], "https://google.com.au", 1000, 200, 5000, 6000)
     other.clear()

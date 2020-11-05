@@ -114,3 +114,35 @@ def user_profile_sethandle(token, handle_str):
     user = data.get_user_info(u_id) 
     data.update_user(user, {"handle_str": handle_str})
     return {}
+
+def user_profile_uploadphoto(token, img_url, x_start, y_start, x_end, y_end):
+    """
+    Given a valid user, image url and dimensions, crops the image and stores i as a profile picture
+    
+    Parameters:
+        token(string): An authorisation hash
+        image_url(string): url of image
+        x_start, x_end, y_start, y_end (int): dimensions to crop
+        
+    Returns:
+        Nothing
+    """
+    #Check for valid token
+    u_id = validation.check_valid_token(token)
+
+    #Check for valid url
+    validation.check_valid_url(img_url)
+
+    #Check if url is jpg
+    validation.check_jpg_in_url(img_url)
+
+    #Get image
+    res = request.get(img_url)
+    
+    with open("image.jpg", "wb") as img:
+        img.write(res.body)
+
+
+    #Check if dimensions are valid
+
+    #Everything valid, proceed with cropping and saving image
