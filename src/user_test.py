@@ -82,7 +82,8 @@ def test_user_profile_request_self(user1):
             "email": "kevin@gmail.com",
             "name_first": "Kevin",
             "name_last": "Huang",
-            "handle_str": "KevinHuang",  
+            "handle_str": "KevinHuang",
+            "profile_img_url": "" 
         }
     assert user.user_profile(user1["token"], user1["u_id"])["user"] == user1_profile
     other.clear()
@@ -99,7 +100,8 @@ def test_user_profile_request_others(user1):
             "email": "kevin@gmail.com",
             "name_first": "Kevin",
             "name_last": "Huang",
-            "handle_str": "KevinHuang",  
+            "handle_str": "KevinHuang", 
+            "profile_img_url": "" 
         }
     assert user.user_profile(user2["token"], user1["u_id"])["user"] == user1_profile
     other.clear()
@@ -300,9 +302,12 @@ def test_user_sethandle_handle_taken(user1):
     other.clear()
 
 #USER_PROFILE_UPLOADPHOTO TESTS
+"""
+NOTE: In these tests, "google.com.au" is used as a placeholder for the local_host url
+"""
 #Successful
 def test_user_uploadphoto_success(user1):
-    user.user_profile_uploadphoto(user1["token"],"https://i.redd.it/8rq2umri7cm51.jpg",200,200,1800,2000)
+    user.user_profile_uploadphoto(user1["token"],"https://i.redd.it/8rq2umri7cm51.jpg",200,200,1800,2000, "google.com.au")
     #check if new directory exists
     assert os.path.isdir("src/static") is True
     assert os.path.isfile("src/static/1.jpg") is True
@@ -313,23 +318,23 @@ def test_user_uploadphoto_success(user1):
 #UNSUCCESSFUL
 def test_user_uploadphoto_invalid_token(user1):
     with pytest.raises(AccessError):
-        assert user.user_profile_uploadphoto("invalid_token", "https://i.redd.it/8rq2umri7cm51.jpg", 200, 200, 300, 300)
+        assert user.user_profile_uploadphoto("invalid_token", "https://i.redd.it/8rq2umri7cm51.jpg", 200, 200, 300, 300, "google.com.au")
     other.clear()
 
 #Code assumes user at least enters a valid url
 def test_user_uploadphoto_invalid_http_status(user1):
     with pytest.raises(InputError):
-        assert user.user_profile_uploadphoto(user1["token"], "https://samsung-redemption.com/au/customer/redemption/details/204262", 0, 0, 10, 10)
+        assert user.user_profile_uploadphoto(user1["token"], "https://samsung-redemption.com/au/customer/redemption/details/204262", 0, 0, 10, 10, "google.com.au")
     other.clear()
     
 
 def test_user_uploadphoto_invalid_dimensions(user1):
     with pytest.raises(InputError):
-        assert user.user_profile_uploadphoto(user1["token"], "https://i.redd.it/8rq2umri7cm51.jpg", 1000, 200, 5000, 6000)
-        assert user.user_profile_uploadphoto(user1["token"], "https://i.redd.it/8rq2umri7cm51.jpg", 1000, 200, 100, 100)
+        assert user.user_profile_uploadphoto(user1["token"], "https://i.redd.it/8rq2umri7cm51.jpg", 1000, 200, 5000, 6000, "google.com.au")
+        assert user.user_profile_uploadphoto(user1["token"], "https://i.redd.it/8rq2umri7cm51.jpg", 1000, 200, 100, 100, "google.com.au")
     other.clear()
 
 def test_user_uploadphoto_not_jpg(user1):
     with pytest.raises(InputError):
-        assert user.user_profile_uploadphoto(user1["token"], "https://google.com.au", 1000, 200, 5000, 6000)
+        assert user.user_profile_uploadphoto(user1["token"], "https://google.com.au", 1000, 200, 5000, 6000, "google.com.au")
     other.clear()
