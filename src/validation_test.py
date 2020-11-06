@@ -6,8 +6,9 @@ channels(channels.py): Gives access to channels functions
 message(message.py): Gives access to message functions (send, edit, remove)
 pytest(pytest module): Gives access to pytest command
 other(other.py): Gives access to other functions (clear)
-user(user.py): Gives access to user functions 
+user(user.py): Gives access to user functions
 error(error.py): Gives access to error classes
+standup(standup.py): Gives access to the standup
 """
 from error import InputError, AccessError
 import data
@@ -21,6 +22,7 @@ import channels
 import channel
 import message
 import other
+import standup
 
 @pytest.fixture
 def user1():
@@ -281,10 +283,36 @@ def test_check_channel_is_public():
     check_channel_is_public returns nothing if the channel is public
     check_channel_is_public raises an AccessError if the channel is private
     """
-    user1 = auth.auth_register("im@about.to", "gotosleep", "assoonasi","finishthis")
+    user1 = auth.auth_register("im@about.to", "gotosleep", "assoonasi", "finishthis")
     channel1 = channels.channels_create(user1["token"], "thisispublicwoo", True)
     channel2 = channels.channels_create(user1["token"], "someoneelsecandodata", False)
     assert validation.check_channel_is_public(channel1["channel_id"]) == None
     with pytest.raises(AccessError):
         assert validation.check_channel_is_public(channel2["channel_id"])
     other.clear()
+
+def test_check_standup_running():
+    """
+    Checks tests check_standup_running and check_standup_not_running
+    """
+    user_channel_creater = auth.auth_register("creator@bigpond.com", "password", "Quick", "Shadow")
+    test_channel_id = channels.channels_create(user_channel_creater["token"], "test", True)
+    # Tests check_standup_running raises an erro when no standup is running and
+    # check_standup_not_running does not raise an error
+    with pytest.raises(InputError):
+        validation.check_standup_running(test_channel_id["channel_id"])
+    validation.check_standup_not_running(test_channel_id["channel_id"])
+    # Tests check_standup_not_running raises an error when a standup is running and
+    # check_standup_running does not raise an error
+    standup.standup_start(user_channel_creater["token"], test_channel_id["channel_id"], 1)
+    with pytest.raises(InputError):
+        validation.check_standup_not_running(test_channel_id["channel_id"])
+    validation.check_standup_running(test_channel_id["channel_id"])
+
+def test_check_length_valid():
+    """
+    Tests check_length_valid returns an error when the input is negative and doesn't when it is 
+    positive
+    """
+    with pytest.raises(InputError):
+        validation.check_length_valid(-1)

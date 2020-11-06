@@ -79,6 +79,8 @@ def channel_details(token, channel_id):
         member["u_id"] = user["u_id"]
         member["name_first"] = user["name_first"]
         member["name_last"] = user["name_last"]
+        member["name_last"] = user["name_last"]
+        member["profile_img_url"] = user["profile_img_url"]
         channel_info["all_members"].append(member)
 
     for u_id in channel["owners"]:
@@ -87,6 +89,7 @@ def channel_details(token, channel_id):
         owner["u_id"] = user["u_id"]
         owner["name_first"] = user["name_first"]
         owner["name_last"] = user["name_last"]
+        owner["profile_img_url"] = user["profile_img_url"]
         channel_info["owner_members"].append(owner)
     return channel_info
 
@@ -129,7 +132,7 @@ def channel_messages(token, channel_id, start):
     # and if so, raise Input Error
     if len(channel["messages"]) < start:
         raise InputError(description = "Start value is too high")
-    for message in list(channel["messages"].keys())[start:start + 50]:
+    for message in reversed(list(channel["messages"].keys())[start:start + 50]):
         messages_list["messages"].append(channel["messages"][message])
     # Returns -1 when "end" is less than start + 50 and no more messages
     # to load

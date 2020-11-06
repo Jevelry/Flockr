@@ -7,6 +7,10 @@ re(regex): Gives access to regex for valid_email
 """
 import data
 import validation
+from PIL import Image
+import urllib.request
+import os.path
+from flask import request
 
 
 def user_profile(token, u_id):
@@ -36,6 +40,7 @@ def user_profile(token, u_id):
         "name_first" : user["name_first"],
         "name_last" : user["name_last"],
         "handle_str" : user["handle_str"],
+        "profile_img_url" : user["profile_img_url"]
     }
     return {"user" : profile}
  
@@ -113,4 +118,44 @@ def user_profile_sethandle(token, handle_str):
 
     user = data.get_user_info(u_id) 
     data.update_user(user, {"handle_str": handle_str})
+    return {}
+
+def user_profile_uploadphoto(token, img_url, x_start, y_start, x_end, y_end, host_url):
+    """
+    Given a valid user, image url and dimensions, crops the image and stores i as a profile picture
+    
+    Parameters:
+        token(string): An authorisation hash
+        image_url(string): url of image
+        x_start, x_end, y_start, y_end (int): dimensions to crop
+        
+    Returns:
+        Nothing
+    """
+    #Check for valid token
+    u_id = validation.check_valid_token(token)
+
+    #Check for valid url
+    validation.check_valid_url(img_url)
+
+    #Check if url is jpg
+    validation.check_jpg_in_url(img_url)
+
+    #Create profile_pic directory if it doesn't exist
+    path = "src/static"
+    if os.path.isdir(path) == False:
+        os.mkdir(path)
+    #Get image
+    urllib.request.urlretrieve(img_url, f"src/static/{u_id}.jpg")
+
+    #Check if dimensions are valid
+    profile_pic = Image.open(f"src/static/{u_id}.jpg")
+    validation.check_dimensions(profile_pic, x_start, y_start, x_end, y_end)
+
+    #Everything valid, proceed with cropping and saving image
+    cropped = profile_pic.crop((x_start, y_start, x_end, y_end))
+    cropped.save(f"src/static/{u_id}.jpg")
+
+    data.update_user_img(host_url,token)
+    
     return {}

@@ -272,6 +272,7 @@ def test_channel_details_valid_token():
         "u_id": 1,
         "name_first": "Kevin",
         "name_last": "Huang",
+        "profile_img_url": ""
     }]
     assert channel_details["name"] == "temp_channel"
     assert channel_details["owner_members"] == member
@@ -291,6 +292,7 @@ def test_channel_details_valid_channel_id():
             "u_id": 1,
             "name_first": "Kevin",
             "name_last": "Huang",
+            "profile_img_url": ""
         }
     ]
     assert channel_details["name"] == "temp_channel"
@@ -320,6 +322,7 @@ def test_channel_details_multiple_members():
             "u_id": 1,
             "name_first": "Kevin",
             "name_last": "Huang",
+            "profile_img_url": ""
         }
     ]
     all_members = [
@@ -327,26 +330,31 @@ def test_channel_details_multiple_members():
             "u_id": 1,
             "name_first": "Kevin",
             "name_last": "Huang",
+            "profile_img_url": ""
         },
         {
             "u_id": 2,
             "name_first": "Lucy",
             "name_last": "Jang",
+            "profile_img_url": ""
         },
         {
             "u_id": 3,
             "name_first": "Ricky",
             "name_last": "Mai",
+            "profile_img_url": ""
         },
         {
             "u_id": 4,
             "name_first": "Elliot",
             "name_last": "Rotenstein",
+            "profile_img_url": ""
         },
         {
             "u_id": 5,
             "name_first": "Hugo",
             "name_last": "Sullivan",
+            "profile_img_url": ""
         }
     ]
     assert channel_details["name"] == "temp_channel"
