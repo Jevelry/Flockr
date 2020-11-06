@@ -62,21 +62,21 @@ def test_send_valid_multiple():
     message_from_channel = channel.channel_messages(user_channel_creater["token"],
                                                     test_channel_id["channel_id"], 0)
 
-    assert message_exp1 == message_from_channel["messages"][0]["message"]
-    assert test_user1["u_id"] == message_from_channel["messages"][0]["u_id"]
-    assert message_id1["message_id"] == message_from_channel["messages"][0]["message_id"]
-
-    assert message_exp2 == message_from_channel["messages"][1]["message"]
-    assert test_user2["u_id"] == message_from_channel["messages"][1]["u_id"]
-    assert message_id2["message_id"] == message_from_channel["messages"][1]["message_id"]
-
-    assert message_exp3 == message_from_channel["messages"][2]["message"]
-    assert test_user3["u_id"] == message_from_channel["messages"][2]["u_id"]
-    assert message_id3["message_id"] == message_from_channel["messages"][2]["message_id"]
-
-    assert message_exp4 == message_from_channel["messages"][3]["message"]
+    assert message_exp1 == message_from_channel["messages"][3]["message"]
     assert test_user1["u_id"] == message_from_channel["messages"][3]["u_id"]
-    assert message_id4["message_id"] == message_from_channel["messages"][3]["message_id"]
+    assert message_id1["message_id"] == message_from_channel["messages"][3]["message_id"]
+
+    assert message_exp2 == message_from_channel["messages"][2]["message"]
+    assert test_user2["u_id"] == message_from_channel["messages"][2]["u_id"]
+    assert message_id2["message_id"] == message_from_channel["messages"][2]["message_id"]
+
+    assert message_exp3 == message_from_channel["messages"][1]["message"]
+    assert test_user3["u_id"] == message_from_channel["messages"][1]["u_id"]
+    assert message_id3["message_id"] == message_from_channel["messages"][1]["message_id"]
+
+    assert message_exp4 == message_from_channel["messages"][0]["message"]
+    assert test_user1["u_id"] == message_from_channel["messages"][0]["u_id"]
+    assert message_id4["message_id"] == message_from_channel["messages"][0]["message_id"]
 
     other.clear()
 
@@ -181,9 +181,9 @@ def test_remove_valid_sender():
     message_from_channel = channel.channel_messages(user_channel_creater["token"],
                                                     test_channel_id["channel_id"], 0)
     #Checks that the message was added
-    assert message_exp == message_from_channel["messages"][0]["message"]
-    assert test_user1["u_id"] == message_from_channel["messages"][0]["u_id"]
-    assert message_id["message_id"] == message_from_channel["messages"][0]["message_id"]
+    assert message_exp == message_from_channel["messages"][1]["message"]
+    assert test_user1["u_id"] == message_from_channel["messages"][1]["u_id"]
+    assert message_id["message_id"] == message_from_channel["messages"][1]["message_id"]
     message.message_remove(test_user1["token"], message_id["message_id"])
     new_message_from_channel = channel.channel_messages(user_channel_creater["token"],
                                                         test_channel_id["channel_id"], 0)
@@ -202,12 +202,13 @@ def test_remove_valid_owner():
     test_user1 = auth.auth_register("optumis4ime@hotmail.com", "password", "Optimus", "Prime")
     test_channel_id = channels.channels_create(user_channel_creater["token"], "test", True)
     channel.channel_join(test_user1["token"], test_channel_id["channel_id"])
-    message_exp = "Test 1 test 2 swiggity Swagg"
-    message_id = message.message_send(test_user1["token"], test_channel_id["channel_id"],
-                                      message_exp)
+    
     message_exp2 = "Test this is different from message_exp"
     message.message_send(user_channel_creater["token"], test_channel_id["channel_id"],
                          message_exp2)
+    message_exp = "Test 1 test 2 swiggity Swagg"
+    message_id = message.message_send(test_user1["token"], test_channel_id["channel_id"],
+                                      message_exp)
     message_from_channel = channel.channel_messages(user_channel_creater["token"],
                                                     test_channel_id["channel_id"], 0)
     #Checks that the message was added
@@ -316,10 +317,10 @@ def test_edit_valid_sender():
     channel.channel_join(test_user1['token'], test_channel_id['channel_id'])
     message_exp = 'Test 1 test 2 swiggity Swagg'
     message_exp2 = 'This is to stop there being no message in the channel'
-    message_id = message.message_send(test_user1['token'], test_channel_id['channel_id'],
-                                      message_exp)
     message.message_send(user_channel_creater['token'], test_channel_id['channel_id'],
                          message_exp2)
+    message_id = message.message_send(test_user1['token'], test_channel_id['channel_id'],
+                                      message_exp)
     message_from_channel = channel.channel_messages(user_channel_creater['token'],
                                                     test_channel_id['channel_id'], 0)
     #Checks that the message was added
@@ -346,10 +347,10 @@ def test_edit_valid_owner():
     channel.channel_join(test_user1['token'], test_channel_id['channel_id'])
     message_exp = 'Test 1 test 2 swiggity Swagg'
     message_exp2 = 'This is to stop there being no message in the channel'
-    message_id = message.message_send(test_user1['token'], test_channel_id['channel_id'],
-                                      message_exp)
     message.message_send(user_channel_creater['token'], test_channel_id['channel_id'],
                          message_exp2)
+    message_id = message.message_send(test_user1['token'], test_channel_id['channel_id'],
+                                      message_exp)
     message_from_channel = channel.channel_messages(user_channel_creater['token'],
                                                     test_channel_id['channel_id'], 0)
     #Checks that the message was added
@@ -458,10 +459,11 @@ def test_edit_no_message():
     channel.channel_join(test_user1['token'], test_channel_id['channel_id'])
     message_exp = 'Test 1 test 2 swiggity Swagg'
     message_exp2 = 'This is to stop there being no message in the channel'
-    message_id = message.message_send(test_user1['token'], test_channel_id['channel_id'],
-                                      message_exp)
     message.message_send(user_channel_creater['token'], test_channel_id['channel_id'],
                          message_exp2)
+    message_id = message.message_send(test_user1['token'], test_channel_id['channel_id'],
+                                      message_exp)
+ 
     message_from_channel = channel.channel_messages(user_channel_creater['token'],
                                                     test_channel_id['channel_id'], 0)
     #Checks that the message was added
@@ -490,10 +492,10 @@ def test_edit_not_owner_or_creator():
     message_exp = 'Test 1 test 2 swiggity Swagg'
     message_exp2 = 'This is to stop there being no message in the channel'
     new_message = 'This is the edit message and changes'
-    message_id = message.message_send(test_user1['token'], test_channel_id['channel_id'],
-                                      message_exp)
     message.message_send(user_channel_creater['token'], test_channel_id['channel_id'],
                          message_exp2)
+    message_id = message.message_send(test_user1['token'], test_channel_id['channel_id'],
+                                      message_exp)
     message_from_channel = channel.channel_messages(user_channel_creater['token'],
                                                     test_channel_id['channel_id'], 0)
     #Checks that the message was added

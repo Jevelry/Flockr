@@ -1,6 +1,8 @@
 """
 Contains all functions to do with the global variables and dictionaries.
 Only file that interacts with the data state.
+The threading is stored here and is run here so all functions dealing with
+the class will be stored here
 Note: Many functions in this file assume that everything is valid.
 eg message_remove assumes that the message is already in the channel.
 The validation checks are generally done before these functions are called.
@@ -22,7 +24,7 @@ users = {
         #     "email": "",
         #     "u_id" : "",
         #     "password" : ""
-        #     "handle" : ""
+        #     "handle_str" : ""
         #     "permission_id" : ""
         #     "num_logged_in : ""
         #     "profile_img_url: ""
@@ -42,6 +44,14 @@ channels = {
         #     "channel_id" : ""
         #     "owners" = set(),
         #     "members" : set(),
+        #     "standup" = {
+        #           running : "", # currently running (True or False)
+        #           u_id : "",
+        #           message : "",
+        #           time_finish : "",
+        #           timer_class : ""   # the class that was returned from the timer
+        #                              # which is used to cancel the timer
+        # }
          #    "messages" = {
         #         message_id = {
             #         {
@@ -266,8 +276,10 @@ def get_num_channels():
 def channel_create(new_channel):
     """
     Given a new_channel(dict), adds it to list of existing channels
-    """ 
-    channels[new_channel["channel_id"]] = new_channel 
+    """
+    channels[new_channel["channel_id"]] = new_channel
+    standup = {"running" : False}
+    channels[new_channel["channel_id"]]["standup"] = standup 
 
 def find_channel(message_id):
     """
@@ -333,6 +345,47 @@ def change_permission(u_id, permission):
     user = get_user_info(u_id)
     user["permission_id"] = permission
 
+def create_standup(channel_id, u_id, timer_class, time_finish):
+    """
+    Will add a new standup to a channel
+    """
+    channels[channel_id]["standup"]["running"] = True
+    channels[channel_id]["standup"]["u_id"] = u_id
+    channels[channel_id]["standup"]["message"] = ''
+    channels[channel_id]["standup"]["time_finish"] = time_finish
+    channels[channel_id]["standup"]["timer_class"] = timer_class
+
+def add_message_standup(u_id, message, channel_id):
+    """
+    Will add the message to the end of the standup message string
+    """
+    handle = users[u_id]["handle_str"]
+    channels[channel_id]["standup"]["message"] += handle + ": " + message + " "
+
+def check_standup_running(channel_id):
+    """
+    Checks if the standup is running
+    """
+    return channels[channel_id]["standup"]["running"]
+
+def return_standup_message(channel_id):
+    """
+    Will change the standup to false, and return the message
+    """
+    channels[channel_id]["standup"]["running"] = False
+    return channels[channel_id]["standup"]["message"]
+
+def get_timer_class(channel_id):
+    """
+    Will return the timer class so the timer can be terminated
+    """
+    return channels[channel_id]["standup"]["timer_class"]
+
+def get_standup_timer_finish(channel_id):
+    """
+    Will return the time the standup finishes at
+    """
+    return channels[channel_id]["standup"]["time_finish"]
 def update_user_img(host_url,token):
     u_id = validation.check_valid_token(token)
     user = get_user_info(u_id)
