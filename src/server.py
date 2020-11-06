@@ -12,7 +12,7 @@ error(error.py): Gives access to error classes
 """
 
 from json import dumps
-from flask import Flask, request
+from flask import Flask, request, send_from_directory
 from flask_cors import CORS
 from error import InputError
 import auth
@@ -296,5 +296,25 @@ def sethandle():
     handle = data["handle_str"]
     return user.user_profile_sethandle(token, handle)
     
+@APP.route("/user/profile/uploadphoto", methods = ["POST"])    
+def upload_photo():
+    """
+    Crop image from img_url and saves it.
+    """
+    data = request.get_json()
+    token = data["token"]
+    img_url = data["img_url"]
+    x_start = int(data["x_start"])
+    x_end = int(data["x_end"])
+    y_start = int(data["y_start"])
+    y_end = int(data["y_end"])
+    host_url = request.url_root
+    return user.user_profile_uploadphoto(token, img_url, x_start, y_start, x_end, y_end, host_url)
+
+@APP.route('/static/<path:path>')
+def send_js(path):
+    return send_from_directory("src/static/",path)
+
+
 if __name__ == "__main__":
     APP.run(port=0) # Do not edit this port
