@@ -57,6 +57,7 @@ def message_send(token, channel_id, message):
     # Check that user is in channel
     validation.check_user_in_channel(user_input_id, channel_id)
 
+    
     new_message_id = data.make_message_id()
     new_message = {}
     new_message["message"] = message
@@ -64,15 +65,20 @@ def message_send(token, channel_id, message):
     new_message["time_created"] = datetime.datetime.now().replace().timestamp()
     new_message["message_id"] = new_message_id
 
-    data.add_message(new_message, channel_id)
-
     # Check if message will start a hangman session
     if validation.check_start_hangman(channel_id, message): # pass token if pin
-        hangman.start(user_input_id, channel_id, message, new_message_id)
+        return hangman.start(user_input_id, channel_id, mew_message, new_message_id)
+
+
+    data.add_message(new_message, channel_id)
+
+    # # Check if message will start a hangman session
+    # if validation.check_start_hangman(channel_id, message): # pass token if pin
+    #     hangman.start(user_input_id, channel_id, message, new_message_id)
 
     # Check if hangman is active and message is a guess
     if validation.check_if_hangman(channel_id, message):
-        hangman.guess(user_input_id, channel_id, message, new_message_id, token)
+        hangman.guess(user_input_id, channel_id, message)
 
     return {
         "message_id": new_message_id,
