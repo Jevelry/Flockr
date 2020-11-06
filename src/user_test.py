@@ -83,7 +83,8 @@ def test_user_profile_request_self(user1):
             "name_first": "Kevin",
             "name_last": "Huang",
             "handle_str": "KevinHuang",
-            "profile_img_url": "" 
+            "profile_img_url": ""
+            
         }
     assert user.user_profile(user1["token"], user1["u_id"])["user"] == user1_profile
     other.clear()

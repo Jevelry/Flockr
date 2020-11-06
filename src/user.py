@@ -10,6 +10,7 @@ import validation
 from PIL import Image
 import urllib.request
 import os.path
+from flask import request
 
 
 def user_profile(token, u_id):
@@ -39,6 +40,7 @@ def user_profile(token, u_id):
         "name_first" : user["name_first"],
         "name_last" : user["name_last"],
         "handle_str" : user["handle_str"],
+        "profile_img_url" : user["profile_img_url"]
     }
     return {"user" : profile}
  
@@ -118,7 +120,7 @@ def user_profile_sethandle(token, handle_str):
     data.update_user(user, {"handle_str": handle_str})
     return {}
 
-def user_profile_uploadphoto(token, img_url, x_start, y_start, x_end, y_end):
+def user_profile_uploadphoto(token, img_url, x_start, y_start, x_end, y_end, host_url):
     """
     Given a valid user, image url and dimensions, crops the image and stores i as a profile picture
     
@@ -154,4 +156,6 @@ def user_profile_uploadphoto(token, img_url, x_start, y_start, x_end, y_end):
     cropped = profile_pic.crop((x_start, y_start, x_end, y_end))
     cropped.save(f"src/static/{u_id}.jpg")
 
+    data.update_user_img(host_url,token)
+    
     return {}
