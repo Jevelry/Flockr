@@ -304,11 +304,11 @@ def test_user_sethandle_handle_taken(user1):
 def test_user_uploadphoto_success(user1):
     user.user_profile_uploadphoto(user1["token"],"https://i.redd.it/8rq2umri7cm51.jpg",200,200,1800,2000)
     #check if new directory exists
-    assert os.path.isdir("static") is True
-    assert os.path.isfile("static/1.jpg") is True
+    assert os.path.isdir("src/static") is True
+    assert os.path.isfile("src/static/1.jpg") is True
     
     other.clear()
-    shutil.rmtree("static")
+    shutil.rmtree("src/static")
 
 #UNSUCCESSFUL
 def test_user_uploadphoto_invalid_token(user1):
