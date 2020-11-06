@@ -351,7 +351,6 @@ def check_standup_running(channel_id):
     """
     if not data.check_standup_running(channel_id):
         raise InputError(description="There is no standup running on this channel")
-    return
 
 def check_standup_not_running(channel_id):
     """
