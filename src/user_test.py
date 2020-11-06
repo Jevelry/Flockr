@@ -304,8 +304,8 @@ def test_user_sethandle_handle_taken(user1):
 def test_user_uploadphoto_success(user1):
     user.user_profile_uploadphoto(user1["token"],"https://i.redd.it/8rq2umri7cm51.jpg",200,200,1800,2000)
     #check if new directory exists
-    assert os.path.isdir("src/profile_pics") is True
-    assert os.path.isfile("src/profile_pics/1.jpg") is True
+    assert os.path.isdir("src/static") is True
+    assert os.path.isfile("src/static/1.jpg") is True
     
     other.clear()
     shutil.rmtree("src/profile_pics")

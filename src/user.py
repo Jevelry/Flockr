@@ -140,16 +140,18 @@ def user_profile_uploadphoto(token, img_url, x_start, y_start, x_end, y_end):
     validation.check_jpg_in_url(img_url)
 
     #Create profile_pic directory if it doesn't exist
-    path = "src/profile_pics"
+    path = "src/static"
     if os.path.isdir(path) == False:
         os.mkdir(path)
     #Get image
-    urllib.request.urlretrieve(img_url, f"src/profile_pics/{u_id}.jpg")
+    urllib.request.urlretrieve(img_url, f"src/static/{u_id}.jpg")
 
     #Check if dimensions are valid
-    profile_pic = Image.open(f"src/profile_pics/{u_id}.jpg")
+    profile_pic = Image.open(f"src/static/{u_id}.jpg")
     validation.check_dimensions(profile_pic, x_start, y_start, x_end, y_end)
 
     #Everything valid, proceed with cropping and saving image
     cropped = profile_pic.crop((x_start, y_start, x_end, y_end))
-    cropped.save(f"src/profile_pics/{u_id}.jpg")
+    cropped.save(f"src/static/{u_id}.jpg")
+
+    return {}

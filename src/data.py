@@ -8,6 +8,8 @@ eg message_remove assumes that the message is already in the channel.
 The validation checks are generally done before these functions are called.
 """
 from error import AccessError, InputError
+from urllib.parse import urljoin
+import validation
 """
 Global variables containing the state of flockr
 """
@@ -382,3 +384,7 @@ def get_standup_timer_finish(channel_id):
     Will return the time the standup finishes at
     """
     return channels[channel_id]["standup"]["time_finish"]
+def update_user_img(host_url,token):
+    u_id = validation.check_valid_token(token)
+    user = get_user_info(u_id)
+    user["profile_img_url"] = host_url + f"/static/{u_id}"
