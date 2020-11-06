@@ -331,7 +331,8 @@ def user_list():
             "email" : user["email"],
             "name_last" : user["name_last"],
             "name_first" : user["name_first"],
-            "handle_str" : user["handle_str"]
+            "handle_str" : user["handle_str"],
+            "profile_img_url": user["profile_img_url"]
         }
         list_users.append(user_info)
     return list_users
