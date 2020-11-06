@@ -325,17 +325,24 @@ def test_user_uploadphoto_invalid_token(user1):
 #Code assumes user at least enters a valid url
 def test_user_uploadphoto_invalid_http_status(user1):
     with pytest.raises(InputError):
-        assert user.user_profile_uploadphoto(user1["token"], "https://samsung-redemption.com/au/customer/redemption/details/204262", 0, 0, 10, 10, "google.com.au")
+        assert user.user_profile_uploadphoto(user1["token"], "http://google.com.au", 0, 0, 10, 10, "google.com.au")
     other.clear()
     
 
-def test_user_uploadphoto_invalid_dimensions(user1):
+def test_user_uploadphoto_negaqtive_dimensions(user1):
+    with pytest.raises(InputError):    
+        assert user.user_profile_uploadphoto(user1["token"], "https://i.redd.it/8rq2umri7cm51.jpg", -100, -200, -1000, -1000, "google.com.au")
+    other.clear()
+def test_uploadphoto_out_of_bounds(user1):
     with pytest.raises(InputError):
         assert user.user_profile_uploadphoto(user1["token"], "https://i.redd.it/8rq2umri7cm51.jpg", 1000, 200, 5000, 6000, "google.com.au")
+    other.clear()
+def test_uploadphoto_dimensions_backwards(user1):
+    with pytest.raises(InputError):
         assert user.user_profile_uploadphoto(user1["token"], "https://i.redd.it/8rq2umri7cm51.jpg", 1000, 200, 100, 100, "google.com.au")
     other.clear()
-
 def test_user_uploadphoto_not_jpg(user1):
+    
     with pytest.raises(InputError):
         assert user.user_profile_uploadphoto(user1["token"], "https://google.com.au", 1000, 200, 5000, 6000, "google.com.au")
     other.clear()
