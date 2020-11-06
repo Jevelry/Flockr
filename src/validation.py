@@ -355,3 +355,60 @@ def check_channel_is_public(channel_id):
         return
     else:
         raise AccessError(description = "Cannot join private channel")
+
+def check_if_hangman(channel_id, message):
+    """
+    Checks if channel is in 'hangman' mode
+
+    Parameters:
+        channel_id(int): The id of channel
+
+    Returns:
+        boolean depending on whether channel is in hangman mode
+    """
+    channel = data.get_channel_info(channel_id)
+    commands = message.split(' ')
+    return channel['hangman']['is_active'] and commands[0] == '/guess'
+
+def check_start_hangman(channel_id, message):
+    """
+    Checks whether message will/should start a hangman session
+
+    Parameters:
+        channel_id(int): The id of channel
+        message(str): Contents of the message about to be sent
+
+    Returns:
+        True if hangman is not active and message will start it
+        False if message is not '/hangman start'
+        Raise InputError if message will start hangman, but hangman is already active
+    """
+    if message == '/hangman start':
+        #channel = data.get_channel_info(channel_id)
+        hangman_info = data.get_hangman_info(channel_id)
+        if hangman_info['is_active']:
+            raise InputError(description='A hangman session is already active')
+        return True
+    return False
+
+def check_guesser_not_creator(u_id, channel_id):
+    """
+    Checks whether a user is guessing their own word
+
+    Parameters:
+        u_id(int) : An identifier for users
+        channel_id(int): An identifier for channels
+        
+    Returns:
+        InputError if the guesser also started the hangman session
+        Nothing if the guesser and starter are different users
+    """
+    status_message = data.get_hangman_status_message(channel_id)
+    if status_message['u_id'] == u_id:
+        raise InputError(description='Users can not guess their own word')
+
+def check_valid_guess(message):
+    if len(message) != 8:
+        raise InputError(description='Guess is not valid')
+
+

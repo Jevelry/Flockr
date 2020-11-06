@@ -8,6 +8,7 @@ import datetime
 from error import AccessError, InputError
 import data
 import validation
+import hangman
 
 
 def find_channel_with_message(message_id, u_id):
@@ -64,6 +65,14 @@ def message_send(token, channel_id, message):
     new_message["message_id"] = new_message_id
 
     data.add_message(new_message, channel_id)
+
+    # Check if message will start a hangman session
+    if validation.check_start_hangman(channel_id, message): # pass token if pin
+        hangman.start(user_input_id, channel_id, message, new_message_id)
+
+    # Check if hangman is active and message is a guess
+    if validation.check_if_hangman(channel_id, message):
+        hangman.guess(user_input_id, channel_id, message, new_message_id, token)
 
     return {
         "message_id": new_message_id,
