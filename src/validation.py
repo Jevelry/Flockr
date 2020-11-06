@@ -378,7 +378,6 @@ def check_length_valid(length):
     """
     if length <= 0:
         raise InputError(description="The length is invalid")
-    raise AccessError(description = "Cannot join private channel")
 
 def check_valid_url(url):
     request = requests.get(url)
