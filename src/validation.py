@@ -323,7 +323,7 @@ def valid_message_id(message_id):
     Returns:
     """
     if int(message_id) > data.get_message_num():
-        raise InputError(description = "Invalid message_id")
+        raise InputError(description="Invalid message_id")
 
  
 def check_channel_is_public(channel_id):
@@ -358,3 +358,43 @@ def check_dimensions(image,x_start, y_start, x_end, y_end):
         raise InputError(description = "Invalid dimensions")
     if x_start > width or x_end > width or y_start > height or y_end > height:
         raise InputError(description = "Invalid dimensions")
+        raise AccessError(description="Cannot join private channel")
+
+def check_standup_running(channel_id):
+    """
+    Checks if there is a standup running in the given channel
+
+    Parameters:
+        channel_id(int): The id of channel
+    Returns:
+        Raises error if the channel doesn't have a standup running
+        If it is running it returns nothing
+    """
+    if not data.check_standup_running(channel_id):
+        raise InputError(description="There is no standup running on this channel")
+
+def check_standup_not_running(channel_id):
+    """
+    Checks if there is a standup running in the given channel
+
+    Parameters:
+        channel_id(int): The id of channel
+    Returns:
+        Raises error if the channel does have a standup running
+        If it is not running it returns nothing
+    """
+    if data.check_standup_running(channel_id):
+        raise InputError(description="There is a standup running on this channel")
+
+def check_length_valid(length):
+    """
+    Checks if the length is valid
+
+    Parameters:
+        length(int): The length of a standup
+    Returns:
+        Raises error if the length is invalid
+        If it is valid it returns nothing
+    """
+    if length <= 0:
+        raise InputError(description="The length is invalid")
