@@ -1053,13 +1053,12 @@ def test_message_sendlater_success():
     test_channel_id = channels.channel_create(user1['token'], 'test_channel', True)
     
     test_message = 'Test message from the past!'
-    test_message_id = message.message_sendlater(user['token'], test_channel_id, test_message, 1606963294)
+    test_message_id = message.message_sendlater(user['token'], test_channel_id, test_message, 1604707000)
     test_message_from_channel = channel.channel_messages(user1['token'], test_channel_id['channel_id'], 0)
 
     assert test_message_from_channel['messages'][0]['message'] == test_message
     assert test_message_from_channel['messages'][0]['message_id'] == test_message_id['message_id']
     assert test_message_from_channel['messages'][0]['u_id'] == user1['u_id']
-    assert test_message_from_channel['messages'][0]['date'] == 1606963294
 
     other.clear()
 
@@ -1076,50 +1075,31 @@ def test_message_sendlater_success_multiple():
     test_message3 = 'Test 3 FLip Flop Slop'
     test_message4 = 'Test 4 Gling glong glip'
 
-    test_message_id1 = message.message_sendlater(test_user1['token'], test_channel['channel_id'], test_message1, 1606963294)
-    test_message_id2 = message.message_sendlater(test_user2['token'], test_channel['channel_id'], test_message2, 1606963295)
-    test_message_id3 = message.message_sendlater(test_user3['token'], test_channel['channel_id'], test_message3, 1606963296)
-    test_message_id4 = message.message_sendlater(test_user1['token'], test_channel['channel_id'], test_message4, 1606963297)
+    test_message_id1 = message.message_sendlater(test_user1['token'], test_channel['channel_id'], test_message1, 1604707000)
+    test_message_id2 = message.message_sendlater(test_user2['token'], test_channel['channel_id'], test_message2, 1604707001)
+    test_message_id3 = message.message_sendlater(test_user3['token'], test_channel['channel_id'], test_message3, 1604707002)
+    test_message_id4 = message.message_sendlater(test_user1['token'], test_channel['channel_id'], test_message4, 1604707003)
     test_messages_from_channel = channel.channel_messages(user1['token'], test_channel['channel_id'],  0)
 
     assert test_message_from_channel['messages'][0]['message'] == test_message1
     assert test_message_from_channel['messages'][0]['message_id'] == test_message_id1['message_id']
     assert test_message_from_channel['messages'][0]['u_id'] == user1['u_id']
-    assert test_message_from_channel['messages'][0]['date'] == 1606963294
 
     assert test_message_from_channel['messages'][1]['message'] == test_message2
     assert test_message_from_channel['messages'][1]['message_id'] == test_message_id2['message_id']
     assert test_message_from_channel['messages'][1]['u_id'] == user2['u_id']
-    assert test_message_from_channel['messages'][1]['date'] == 1606963295
 
     assert test_message_from_channel['messages'][2]['message'] == test_message3
     assert test_message_from_channel['messages'][2]['message_id'] == test_message_id3['message_id']
     assert test_message_from_channel['messages'][2]['u_id'] == user3['u_id']
-    assert test_message_from_channel['messages'][2]['date'] == 1606963296
 
     assert test_message_from_channel['messages'][3]['message'] == test_message4
     assert test_message_from_channel['messages'][3]['message_id'] == test_message_id4['message_id']
     assert test_message_from_channel['messages'][3]['u_id'] == user1['u_id']
-    assert test_message_from_channel['messages'][3]['date'] == 1606963297
 
     other.clear()
     
 # Unsucessful
-def test_message_sendlater_invalid_token():
-    user1 = auth.auth_register('apple1@gmail.com', 'paswword' , 'first_name', 'last_name')
-    test_channel = channels.channel_create(user1['token'], 'test_channel', True)
-    
-    test_message = 'Test message from the past!'
-    test_message_id = message.message_sendlater(user1['token'], test_channel, test_message, 1606963294)
-    test_message_from_channel = channel.channel_messages(user1['token'], test_channel['channel_id'], 0)
-
-    assert test_message_from_channel['messages'][0]['message'] == test_message
-    assert test_message_from_channel['messages'][0]['message_id'] == test_message_id['message_id']
-    assert test_message_from_channel['messages'][0]['u_id'] == user1['u_id']
-    assert test_message_from_channel['messages'][0]['date'] == 1606963294
-
-    other.clear()
-
 def test_message_sendlater_invalid_channel():
     user1 = auth.auth_register('grape@gmail.com', 'paswword' , 'first_name', 'last_name')
     channels.channel_create(user1['token'], 'test_channel', True)
@@ -1153,6 +1133,8 @@ def test_message_sendlater_invalid_message():
     with pytest.raises(InputError):
         test_message_id = message.message_sendlater(user1['token'], test_channel['channel_id'], test_message, 1606963294)
 
+    other.clear()
+    
 def test_message_sendlater_invalid_time():
     user1 = auth.auth_register('melon@gmail.com', 'paswword' , 'first_name', 'last_name')
     test_channel = channels.channel_create(user1['token'], 'test_channel', True)
