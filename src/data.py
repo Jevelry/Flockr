@@ -6,6 +6,8 @@ eg message_remove assumes that the message is already in the channel.
 The validation checks are generally done before these functions are called.
 """
 from error import AccessError, InputError
+from urllib.parse import urljoin
+import validation
 """
 Global variables containing the state of flockr
 """
@@ -23,6 +25,7 @@ users = {
         #     "handle" : ""
         #     "permission_id" : ""
         #     "num_logged_in : ""
+        #     "profile_img_url: ""
         # }
 }
 
@@ -316,7 +319,8 @@ def user_list():
             "email" : user["email"],
             "name_last" : user["name_last"],
             "name_first" : user["name_first"],
-            "handle_str" : user["handle_str"]
+            "handle_str" : user["handle_str"],
+            "profile_img_url": user["profile_img_url"]
         }
         list_users.append(user_info)
     return list_users
@@ -328,3 +332,8 @@ def change_permission(u_id, permission):
     """
     user = get_user_info(u_id)
     user["permission_id"] = permission
+
+def update_user_img(host_url,token):
+    u_id = validation.check_valid_token(token)
+    user = get_user_info(u_id)
+    user["profile_img_url"] = host_url + f"static/{u_id}.jpg"

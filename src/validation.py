@@ -9,6 +9,7 @@ import data
 import re
 import hashlib
 import jwt
+import requests
 
 def check_valid_token(token):
     """
@@ -338,3 +339,22 @@ def check_channel_is_public(channel_id):
         return
     else:
         raise AccessError(description = "Cannot join private channel")
+
+def check_valid_url(url):
+    request = requests.get(url)
+    if request.status_code != 200:
+        raise InputError(description = "Invalid url")
+
+def check_jpg_in_url(url):
+    request = requests.get(url)
+    if request.headers['content-type'] != "image/jpeg":
+        raise InputError(description = "Url is not a jpg")
+
+def check_dimensions(image,x_start, y_start, x_end, y_end):
+    width, height = image.size
+    if x_start < 0 or x_end < 0 or y_start< 0 or y_end < 0:
+        raise InputError(description = "Invalid dimensions")
+    if x_start > x_end or y_start > y_end:
+        raise InputError(description = "Invalid dimensions")
+    if x_start > width or x_end > width or y_start > height or y_end > height:
+        raise InputError(description = "Invalid dimensions")
