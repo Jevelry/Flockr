@@ -505,6 +505,255 @@ def test_edit_not_owner_or_creator():
         message.message_edit(test_user2['token'], message_id['message_id'], new_message)
     other.clear()
 
+
+
+###################################################################################################
+# Tests for message_react
+# Successful    
+def test_message_react_valid():
+    """
+    Testing if multiple messages can be reacted
+    """
+    user1 = auth.auth_register("johnsmith@gmail.com", "password", "John", "Smith")
+    user2 = auth.auth_register("lukeskywalker@gmail.com", "starwars", "Luke", "Skywalker")
+    new_channel = channels.channels_create(user1["token"], "First Channel", True)
+    channel.channel_join(user2["token"], new_channel["channel_id"])
+    
+    test_message1 = "Hello Luke!"
+    test_message2 = "Hi John!"
+    message_id1 = message.message_send(user1["token"], new_channel["channel_id"], test_message1)
+    message_id2 = message.message_send(user2["token"], new_channel["channel_id"], test_message2)
+    message.message_react(user1["token"], message_id1["message_id"], 1)   
+    message.message_react(user2["token"], message_id2["message_id"], 1)   
+    message_from_channel = channel.channel_messages(user1["token"], new_channel["channel_id"], 0)
+      
+    assert message_from_channel["messages"][0]["message"] == test_message1
+    assert message_from_channel['messages'][0]['u_id'] == user1['u_id']
+    assert message_from_channel['messages'][0]['message_id'] == message_id['message_id']
+    assert message_from_channel["messages"][0]["time_created"] == 1606963294
+    assert message_from_channel["messages"][0]["is_pinned"] == False
+    assert message_from_channel["messages"][0]["reacts"]["react_id"] == 1
+    assert message_from_channel["messages"][0]["reacts"]["u_id"] == user1["u_id"]
+    assert message_from_channel["messages"][0]["reacts"]["is_this_user_reacted"] == True
+    
+    assert message_from_channel["messages"][1]["message"] == test_message1
+    assert message_from_channel['messages'][1]['u_id'] == user1['u_id']
+    assert message_from_channel['messages'][1]['message_id'] == message_id['message_id']
+    assert message_from_channel["messages"][1]["time_created"] == 1606963294
+    assert message_from_channel["messages"][1]["is_pinned"] == False
+    assert message_from_channel["messages"][1]["reacts"]["react_id"] == 1
+    assert message_from_channel["messages"][1]["reacts"]["u_id"] == user2["u_id"]
+    assert message_from_channel["messages"][1]["reacts"]["is_this_user_reacted"] == True
+    
+    other.clear()
+    
+
+def test_message_react_same_message():
+    """
+    Testing if same message can be reacted by different users
+    """
+    user1 = auth.auth_register("johnsmith@gmail.com", "password", "John", "Smith")
+    user2 = auth.auth_register("lukeskywalker@gmail.com", "starwars", "Luke", "Skywalker")
+    new_channel = channels.channels_create(user1["token"], "First Channel", True)
+    channel.channel_join(user2["token"], new_channel["channel_id"])
+    
+    test_message1 = "Hello Luke!"
+    message_id1 = message.message_send(user1["token"], new_channel["channel_id"], test_message1)
+    message.message_react(user1["token"], message_id1["message_id"], 1)   
+    message.message_react(user2["token"], message_id1["message_id"], 1)   
+    message_from_channel = channel.channel_messages(user1["token"], new_channel["channel_id"], 0)
+    
+    assert message_from_channel["messages"][0]["message"] == test_message1
+    assert message_from_channel['messages'][0]['u_id'] == user1['u_id']
+    assert message_from_channel['messages'][0]['message_id'] == message_id['message_id']
+    assert message_from_channel["messages"][0]["time_created"] == 1606963294
+    assert message_from_channel["messages"][0]["is_pinned"] == False
+    assert message_from_channel["messages"][0]["reacts"]["react_id"] == 1
+    assert message_from_channel["messages"][0]["reacts"]["u_id"] == user1["u_id"]
+    assert message_from_channel["messages"][0]["reacts"]["is_this_user_reacted"] == True
+    
+    assert message_from_channel["messages"][0]["message"] == test_message1
+    assert message_from_channel['messages'][0]['u_id'] == user2['u_id']
+    assert message_from_channel['messages'][0]['message_id'] == message_id['message_id']
+    assert message_from_channel["messages"][0]["time_created"] == 1606963294
+    assert message_from_channel["messages"][0]["is_pinned"] == False
+    assert message_from_channel["messages"][0]["reacts"]["react_id"] == 1
+    assert message_from_channel["messages"][0]["reacts"]["u_id"] == user2["u_id"]
+    assert message_from_channel["messages"][0]["reacts"]["is_this_user_reacted"] == True
+    
+    other.clear()
+    
+
+# Unsuccessful    
+def test_message_react_invalid_message_id():
+    """
+    Testing that Input Error is raised when the message_id is an invalid message 
+    that authorised use is member of
+    """
+    user1 = auth.auth_register("darthvader@gmail.com", "iamyourfather", "Anakin", "Skywalker")
+    new_channel = channels.channels_create(user1["token"], "Star Wars", True)
+
+    with pytest.raises(InputError):
+		assert message.message_react(user1["token"], 123415, 1)
+
+	other.clear()
+    
+def test_message_react_invalid_react_id():
+    """
+    Testing that Input Error is raised when the react_id is an invalid React ID 
+    """
+    user1 = auth.auth_register("darthvader@gmail.com", "iamyourfather", "Anakin", "Skywalker")
+    new_channel = channels.channels_create(user1["token"], "Star Wars", True)
+    
+    test_message1 = "Hello"
+    message_id1 = message.message_send(user1["token"], new_channel["channel_id"], test_message1)
+    
+    with pytest.raises(InputError):
+		assert message.message_react(user1["token"], message1_id["message_id"], 2)
+
+	other.clear()
+	
+	
+def test_message_react_already_reacted():
+    """
+    Testing that Input Error is raised when a user attempts to react same message twice
+    """
+    user1 = auth.auth_register("darthvader@gmail.com", "iamyourfather", "Anakin", "Skywalker")
+    new_channel = channels.channels_create(user1["token"], "Star Wars", True)
+    
+    test_message1 = "Hello"
+    message_id1 = message.message_send(user1["token"], new_channel["channel_id"], test_message1)
+    message.message_react(user1["token"], message_id1["message_id"], 1)  
+    
+    with pytest.raises(InputError):
+        assert message.message_react(user1["token"], message1_id["message_id"], 1)
+        
+    other.clear()
+    
+    
+###################################################################################################
+# Tests for message_unreact 
+# Successful
+
+def test_message_unreact_valid():
+    """
+    Testing if multiple messages can be unreacted 
+    """
+        user1 = auth.auth_register("johnsmith@gmail.com", "password", "John", "Smith")
+    user2 = auth.auth_register("lukeskywalker@gmail.com", "starwars", "Luke", "Skywalker")
+    new_channel = channels.channels_create(user1["token"], "First Channel", True)
+    channel.channel_join(user2["token"], new_channel["channel_id"])
+    
+    test_message1 = "Hello Luke!"
+    test_message2 = "Hi John!"
+    message_id1 = message.message_send(user1["token"], new_channel["channel_id"], test_message1)
+    message_id2 = message.message_send(user2["token"], new_channel["channel_id"], test_message2)
+    message.message_react(user1["token"], message_id1["message_id"], 1)   
+    message.message_react(user2["token"], message_id2["message_id"], 1)   
+    message_from_channel = channel.channel_messages(user1["token"], new_channel["channel_id"], 0)
+      
+    assert message_from_channel["messages"][0]["message"] == test_message1
+    assert message_from_channel['messages'][0]['u_id'] == user1['u_id']
+    assert message_from_channel['messages'][0]['message_id'] == message_id['message_id']
+    assert message_from_channel["messages"][0]["is_pinned"] == False
+    assert message_from_channel["messages"][0]["reacts"]["react_id"] == 1
+    assert message_from_channel["messages"][0]["reacts"]["u_id"] == user1["u_id"]
+    assert message_from_channel["messages"][0]["reacts"]["is_this_user_reacted"] == True
+    
+    assert message_from_channel["messages"][1]["message"] == test_message1
+    assert message_from_channel['messages'][1]['u_id'] == user1['u_id']
+    assert message_from_channel['messages'][1]['message_id'] == message_id['message_id']
+    assert message_from_channel["messages"][1]["is_pinned"] == False
+    assert message_from_channel["messages"][1]["reacts"]["react_id"] == 1
+    assert message_from_channel["messages"][1]["reacts"]["u_id"] == user2["u_id"]
+    assert message_from_channel["messages"][1]["reacts"]["is_this_user_reacted"] == True
+    
+    message.message_unreact(user1["token"], message_id1["message_id"], 1) 
+    message.message_unreact(user2["token"], message_id2["message_id"], 1)   
+      
+    assert message_from_channel["messages"][0]["message"] == test_message1
+    assert message_from_channel['messages'][0]['u_id'] == user1['u_id']
+    assert message_from_channel['messages'][0]['message_id'] == message_id['message_id']
+    assert message_from_channel["messages"][0]["is_pinned"] == False
+    assert message_from_channel["messages"][0]["reacts"]["react_id"] == 1
+    assert message_from_channel["messages"][0]["reacts"]["u_id"] == user1["u_id"]
+    assert message_from_channel["messages"][0]["reacts"]["is_this_user_reacted"] == False
+    
+    assert message_from_channel["messages"][1]["message"] == test_message1
+    assert message_from_channel['messages'][1]['u_id'] == user1['u_id']
+    assert message_from_channel['messages'][1]['message_id'] == message_id['message_id']
+    assert message_from_channel["messages"][1]["is_pinned"] == False
+    assert message_from_channel["messages"][1]["reacts"]["react_id"] == 1
+    assert message_from_channel["messages"][1]["reacts"]["u_id"] == user2["u_id"]
+    assert message_from_channel["messages"][1]["reacts"]["is_this_user_reacted"] == False
+    
+    other.clear()
+    
+    
+def test_message_unreact_same_message():
+    """
+    Testing if same message can be reacted by different users
+    """
+    user1 = auth.auth_register("johnsmith@gmail.com", "password", "John", "Smith")
+    user2 = auth.auth_register("lukeskywalker@gmail.com", "starwars", "Luke", "Skywalker")
+    new_channel = channels.channels_create(user1["token"], "First Channel", True)
+    channel.channel_join(user2["token"], new_channel["channel_id"])
+    
+    test_message1 = "Hello Luke!"
+    message_id1 = message.message_send(user1["token"], new_channel["channel_id"], test_message1)
+    message.message_react(user1["token"], message_id1["message_id"], 1)   
+    message.message_react(user2["token"], message_id1["message_id"], 1)   
+    message_from_channel = channel.channel_messages(user1["token"], new_channel["channel_id"], 0)
+    
+
+    other.clear()
+    
+    
+def test_message_unreact_invalid_message_id
+    """
+    Testing that Input Error is raised when the message_id is an invalid message 
+    that authorised use is member of
+    """
+    user1 = auth.auth_register("darthvader@gmail.com", "iamyourfather", "Anakin", "Skywalker")
+    new_channel = channels.channels_create(user1["token"], "Star Wars", True)
+       
+    with pytest.raises(InputError):
+		assert message.message_unreact(user1["token"], 123415, 1)
+
+	other.clear()    
+	
+
+def test_message_unreact_invalid_react_id():
+    """
+    Testing that Input Error is raised when the react_id is an invalid React ID 
+    """
+    user1 = auth.auth_register("darthvader@gmail.com", "iamyourfather", "Anakin", "Skywalker")
+    new_channel = channels.channels_create(user1["token"], "Star Wars", True)
+    
+    test_message1 = "Hello"
+    message_id1 = message.message_send(user1["token"], new_channel["channel_id"], test_message1)
+    message.message_react(user1["token"], message_id1["message_id"], 1)
+    
+    with pytest.raises(InputError):
+		assert message.message_react(user1["token"], message1_id["message_id"], 2)
+
+	other.clear()
+	
+	
+def test_message_unreact_already_reacted():
+    """
+    Testing that Input Error is raised when a user attempts to unreact same message twice
+    """
+    user1 = auth.auth_register("darthvader@gmail.com", "iamyourfather", "Anakin", "Skywalker")
+    new_channel = channels.channels_create(user1["token"], "Star Wars", True)
+    
+    test_message1 = "Hello"
+    message_id1 = message.message_send(user1["token"], new_channel["channel_id"], test_message1)
+    
+    with pytest.raises(InputError):
+        assert message.message_unreact(user1["token"], message1_id["message_id"], 1)
+        
+    other.clear()
 ###################################################################################################   
 # Tests for message_pin
 # Successful
