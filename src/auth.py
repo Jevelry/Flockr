@@ -189,6 +189,7 @@ def auth_register(email, password, name_first, name_last):
     new["password"] = hashlib.sha256(password.encode()).hexdigest()
     new["email"] = new_email
     new["handle_str"] = generate_handle(name_first, name_last)
+    new["profile_img_url"] = ""
     new["session_secret"] = random.randrange(100000) # Just needs to be a big number
     new["reset_code"] = None
     if new["u_id"] == 1:

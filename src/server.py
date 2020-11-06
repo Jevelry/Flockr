@@ -304,23 +304,17 @@ def upload_photo():
     data = request.get_json()
     token = data["token"]
     img_url = data["img_url"]
-    x_start = data["x_start"]
-    x_end = data["x_end"]
-    y_start = data["y_start"]
-    y_end = data["y_end"]
-    user.user_profile_uploadphoto(token, img_url, x_start, y_start, x_end, y_end)
+    x_start = int(data["x_start"])
+    x_end = int(data["x_end"])
+    y_start = int(data["y_start"])
+    y_end = int(data["y_end"])
+    host_url = request.url_root
+    return user.user_profile_uploadphoto(token, img_url, x_start, y_start, x_end, y_end, host_url)
 
-    host_url = request.host_url
-    data.update_user_img(host_url, token)
-
-    return {}
-
-@APP.route("/static/<path:path>")
+@APP.route('/static/<path:path>')
 def send_js(path):
-    """
-    Serves image back to server
-    """
-    return send_from_directory('/static/', path) 
+    return send_from_directory("src/static/",path)
+
 
 if __name__ == "__main__":
     APP.run(port=0) # Do not edit this port

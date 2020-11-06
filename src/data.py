@@ -27,6 +27,7 @@ users = {
         #     "handle_str" : ""
         #     "permission_id" : ""
         #     "num_logged_in : ""
+        #     "profile_img_url: ""
         # }
 }
 
@@ -387,4 +388,4 @@ def get_standup_timer_finish(channel_id):
 def update_user_img(host_url,token):
     u_id = validation.check_valid_token(token)
     user = get_user_info(u_id)
-    user["profile_img_url"] = host_url + f"/static/{u_id}"
+    user["profile_img_url"] = host_url + f"static/{u_id}.jpg"
