@@ -363,10 +363,9 @@ def check_valid_url(url):
         raise InputError(description = "Invalid url")
 
 def check_jpg_in_url(url):
-    request = request.get(url)
-    if request.headers['content-type'] != "image/jpeg"
+    request = requests.get(url)
+    if request.headers['content-type'] != "image/jpeg":
         raise InputError(description = "Url not a jpg")
-        raise AccessError(description="Cannot join private channel")
 
 def check_standup_running(channel_id):
     """
@@ -406,9 +405,16 @@ def check_length_valid(length):
     """
     if length <= 0:
         raise InputError(description="The length is invalid")
-    request = requests.get(url)
-    if request.headers['content-type'] != "image/jpeg":
-        raise InputError(description = "Url is not a jpg")
+
+# def check_valid_url(url):
+#     request = requests.get(url)
+#     if request.status_code != 200:
+#         raise InputError(description = "Invalid url")
+
+# def check_jpg_in_url(url):
+#     request = requests.get(url)
+#     if request.headers['content-type'] != "image/jpeg":
+#         raise InputError(description = "Url is not a jpg")
 
 def check_dimensions(image,x_start, y_start, x_end, y_end):
     width, height = image.size
