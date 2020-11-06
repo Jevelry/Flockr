@@ -41,7 +41,8 @@ def get_code_from_email():
     for response in msg:
         if isinstance(response, tuple):
             # parse a bytes email into a message object
-            msg = email.message_from_bytes(response[1])#response[1]
+            # Have to disable pylint because it doesn't recognise 'response' as a tuple
+            msg = email.message_from_bytes(response[1])#pylint: disable=unsubscriptable-object
             # decode the email subject
             subject = decode_header(msg["Subject"])[0][0]
             if isinstance(subject, bytes):

@@ -37,7 +37,6 @@ logged_in = set()
 # Channels is a dictionary that contains information of every channel
 # and uses channel_id as the key.
 channels = {
-    # channel_id {
         # channel_id = {
         #     "name" : "",
         #     "is_public" : "", # public or private (True or False)
@@ -61,6 +60,15 @@ channels = {
             #             "date" : ""
             #         }
             #    }
+            #}
+            # "hangman" : {
+            #     is_active : False,
+            #     u_id : '',
+            #     word : None,
+            #     guesses : set(),
+            #     failures : 0,
+            #     status_message : ''
+            # }
         #      
     #}
 }
@@ -162,6 +170,18 @@ def get_channel_info(channel_id):
     except:
         return None
     
+def get_hangman_info(channel_id):
+    """
+    Given a channel_id(int), returns infomation on channel's hangman session(dict).
+    Assumes channel_id exists.
+    """
+    channel = get_channel_info(channel_id)
+    return channel['hangman']
+
+def get_hangman_status_message(channel_id):
+    message_id = list(channels)[-1]
+    return get_message(channel_id, message_id)
+
 def channel_add_member(channel_id, u_id):
     """
     Given a channel_id(int) and u_id(int), add the u_id to channel
