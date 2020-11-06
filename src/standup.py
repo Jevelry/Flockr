@@ -36,6 +36,9 @@ def send_standup(*args):
     new_message_id = data.make_message_id()
     new_message = {}
     new_message["message"] = data.return_standup_message(args[1])
+    if new_message["message"] == "":
+        #If no message was added to the standup it will not print standup
+        return
     new_message["u_id"] = args[0]
     new_message["time_created"] = datetime.datetime.now().replace().timestamp()
     new_message["message_id"] = new_message_id
@@ -71,7 +74,7 @@ def standup_start(token, channel_id, length):
 
     # Will begin the timer which will wait the length amount of time before calling the
     # function
-    timer_class = threading.Timer(length, send_standup,[user_input_id, channel_id])
+    timer_class = threading.Timer(length, send_standup, [user_input_id, channel_id])
 
     # Calculates when the standup will finish
     time_finish = get_time_finish(length)

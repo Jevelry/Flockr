@@ -78,6 +78,19 @@ def test_start_not_in_channel():
         standup.standup_start(test_user1["token"], test_channel_id1["channel_id"], 1)
     other.clear()
 
+def test_start_no_standup_sent():
+    """
+    Checks no message is printed if there were no standup_sends called
+    """
+    channel_creater = auth.auth_register("creator@bigpond.com", "password", "Quick", "Shadow")
+    test_channel_id1 = channels.channels_create(channel_creater["token"], "test1", True)
+    standup.standup_start(channel_creater["token"], test_channel_id1["channel_id"], 1)
+    time.sleep(2)
+    message_from_channel = channel.channel_messages(channel_creater["token"],
+                                                    test_channel_id1["channel_id"], 0)
+    assert len(message_from_channel["messages"]) == 0
+    other.clear()
+
 def test_active_valid():
     """
     Tests if the standup_active can correctly determine when a standup is occuring
@@ -91,7 +104,7 @@ def test_active_valid():
     after_start = standup.standup_active(channel_creater["token"], test_channel_id1["channel_id"])
     assert after_start["is_active"] is True
     assert after_start["time_finish"] == stand_time["time_finish"]
-    time.sleep(1)
+    time.sleep(2)
     after_end = standup.standup_active(channel_creater["token"], test_channel_id1["channel_id"])
     assert after_end["is_active"] is False
     assert after_end["time_finish"] is None
@@ -221,3 +234,7 @@ def test_send_not_in_channel():
     with pytest.raises(AccessError):
         standup.standup_send(test_user1["token"], test_channel_id1["channel_id"], message_exp)
     other.clear()
+
+if __name__ == "__main__":
+    test_active_valid()
+    print("pickl")
