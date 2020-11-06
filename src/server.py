@@ -316,10 +316,10 @@ def upload_photo():
     return {}
 
 @APP.route("/static/<path:path>")
+def send_js(path)
     """
     Serves image back to server
     """
-def send_js(path)
     return send_from_directory('/static/', path) 
 
 if __name__ == "__main__":
