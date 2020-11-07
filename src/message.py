@@ -9,6 +9,7 @@ from error import AccessError, InputError
 import data
 import validation
 import hangman
+import threading
 
 
 def find_channel_with_message(message_id, u_id):
@@ -67,18 +68,18 @@ def message_send(token, channel_id, message):
 
     # Check if message will start a hangman session
     if validation.check_start_hangman(channel_id, message): # pass token if pin
-        return hangman.start(user_input_id, channel_id, mew_message, new_message_id)
-
-
-    data.add_message(new_message, channel_id)
-
-    # # Check if message will start a hangman session
-    # if validation.check_start_hangman(channel_id, message): # pass token if pin
-    #     hangman.start(user_input_id, channel_id, message, new_message_id)
-
+        return hangman.start(user_input_id, channel_id, new_message, new_message_id)
+        
     # Check if hangman is active and message is a guess
     if validation.check_if_hangman(channel_id, message):
         hangman.guess(user_input_id, channel_id, message)
+
+    # Check if hangman should stop (/hangman stop)
+    if validation.check_if_stop_message(message):
+        print("STOPPPPP")
+        return hangman.stop(user_input_id, channel_id)
+
+    data.add_message(new_message, channel_id)    
 
     return {
         "message_id": new_message_id,
@@ -168,8 +169,8 @@ def message_sendlater(token, channel_id, message, time_sent):
 
     if set_timer < 0:
         raise InputError
-
-    t = threading.Timer(time, message_send(token, channel_id, message))
+    # set_timer used to be time
+    t = threading.Timer(set_timer, message_send(token, channel_id, message))
     t.start()
 
     new_message_id = data.get_message_num()

@@ -10,6 +10,7 @@ import re
 import hashlib
 import jwt
 import requests
+import re
 
 def check_valid_token(token):
     """
@@ -424,19 +425,42 @@ def check_dimensions(image,x_start, y_start, x_end, y_end):
         raise InputError(description = "Invalid dimensions")
     if x_start > width or x_end > width or y_start > height or y_end > height:
         raise InputError(description = "Invalid dimensions")
+def check_can_start_hangman(channel_id):
+    channel = data.get_channel_info(channel_id)
+    info = data.get_hangman_info(channel_id)
+    if len(channel['members']) < 2:
+        raise InputError(description="Not enough people to start hangman")
+    if info['is_active']:
+        raise InputError(description="Hangman is already active")
+
+def check_valid_word(word):
+    new_word = re.sub(r'[ \-\']', '', word)
+    if not new_word.isalpha() or len(new_word) < 3:
+        raise InputError(description="Word is invalid") 
+
+def check_active_hangman(channel_id):
+    """
+    Checks if a hangman session is active
+    """
+    channel = data.get_channel_info(channel_id)
+    if not channel['hangman']['is_active']:
+        raise InputError(description="There is no currently active hangman session")
+
 def check_if_hangman(channel_id, message):
     """
     Checks if channel is in 'hangman' mode
+    and if message is a guess
 
     Parameters:
         channel_id(int): The id of channel
 
     Returns:
-        boolean depending on whether channel is in hangman mode
+        True if guess is valid
     """
-    channel = data.get_channel_info(channel_id)
-    commands = message.split(' ')
-    return channel['hangman']['is_active'] and commands[0] == '/guess'
+    hang_info = data.get_hangman_info(channel_id)
+    if not hang_info['is_active'] and message.startswith('/guess '):
+        raise InputError(description="Hangman is not active")
+    return message.startswith('/guess ')
 
 def check_start_hangman(channel_id, message):
     """
@@ -451,13 +475,44 @@ def check_start_hangman(channel_id, message):
         False if message is not '/hangman start'
         Raise InputError if message will start hangman, but hangman is already active
     """
-    if message == '/hangman start':
+    if message.startswith('/hangman start'):
         #channel = data.get_channel_info(channel_id)
         hangman_info = data.get_hangman_info(channel_id)
         if hangman_info['is_active']:
             raise InputError(description='A hangman session is already active')
         return True
     return False
+
+
+def check_if_stop_message(message):
+    """
+    Checks if message is intended to stop active hangman session
+
+    Parameters:
+        message(str): Contents of the message about to be sent
+
+    Returns:
+        True if message == '/hangman start'
+        Else False
+    """
+    return message == '/hangman stop'
+
+def check_stop_permission(u_id, channel_id):
+    """
+    Checks if user has permission to use '/hangman stop'
+
+    Parameters:
+        u_id(int): Identifier used for users
+        channel_id(int): Identifier used for channels
+    
+    Returns:
+        Nothing if user has permission
+        Raises InputError if user does not have permission
+    """
+    channel = data.get_channel_info(channel_id)
+    hang_info = data.get_hangman_info(channel_id)
+    if u_id not in channel['owners'] and hang_info['u_id'] != u_id:
+        raise InputError(description="User does not have permission to use command")
 
 def check_guesser_not_creator(u_id, channel_id):
     """
@@ -476,7 +531,64 @@ def check_guesser_not_creator(u_id, channel_id):
         raise InputError(description='Users can not guess their own word')
 
 def check_valid_guess(message):
-    if len(message) != 8:
+    print(message[7])
+    if len(message) != 8 or not message[7].isalpha():
         raise InputError(description='Guess is not valid')
 
+# def check_standup_running(channel_id):
+#     """
+#     Checks if there is a standup running in the given channel
 
+#     Parameters:
+#         channel_id(int): The id of channel
+#     Returns:
+#         Raises error if the channel doesn't have a standup running
+#         If it is running it returns nothing
+#     """
+#     if not data.check_standup_running(channel_id):
+#         raise InputError(description="There is no standup running on this channel")
+
+# def check_standup_not_running(channel_id):
+#     """
+#     Checks if there is a standup running in the given channel
+
+#     Parameters:
+#         channel_id(int): The id of channel
+#     Returns:
+#         Raises error if the channel does have a standup running
+#         If it is not running it returns nothing
+#     """
+#     if data.check_standup_running(channel_id):
+#         raise InputError(description="There is a standup running on this channel")
+
+# def check_length_valid(length):
+#     """
+#     Checks if the length is valid
+
+#     Parameters:
+#         length(int): The length of a standup
+#     Returns:
+#         Raises error if the length is invalid
+#         If it is valid it returns nothing
+#     """
+#     if length <= 0:
+#         raise InputError(description="The length is invalid")
+
+# def check_valid_url(url):
+#     request = requests.get(url)
+#     if request.status_code != 200:
+#         raise InputError(description = "Invalid url")
+
+# def check_jpg_in_url(url):
+#     request = requests.get(url)
+#     if request.headers['content-type'] != "image/jpeg":
+#         raise InputError(description = "Url is not a jpg")
+
+# def check_dimensions(image,x_start, y_start, x_end, y_end):
+#     width, height = image.size
+#     if x_start < 0 or x_end < 0 or y_start< 0 or y_end < 0:
+#         raise InputError(description = "Invalid dimensions")
+#     if x_start > x_end or y_start > y_end:
+#         raise InputError(description = "Invalid dimensions")
+#     if x_start > width or x_end > width or y_start > height or y_end > height:
+#         raise InputError(description = "Invalid dimensions")
