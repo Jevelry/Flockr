@@ -596,9 +596,9 @@ def test_message_react_invalid_message_id():
     new_channel = channels.channels_create(user1["token"], "Star Wars", True)
 
     with pytest.raises(InputError):
-		assert message.message_react(user1["token"], 123415, 1)
+        assert message.message_react(user1["token"], 123415, 1)
 
-	other.clear()
+    other.clear()
     
 def test_message_react_invalid_react_id():
     """
@@ -611,9 +611,9 @@ def test_message_react_invalid_react_id():
     message_id1 = message.message_send(user1["token"], new_channel["channel_id"], test_message1)
     
     with pytest.raises(InputError):
-		assert message.message_react(user1["token"], message1_id["message_id"], 2)
+        assert message.message_react(user1["token"], message1_id["message_id"], 2)
 
-	other.clear()
+    other.clear()
 	
 	
 def test_message_react_already_reacted():
@@ -641,7 +641,7 @@ def test_message_unreact_valid():
     """
     Testing if multiple messages can be unreacted 
     """
-        user1 = auth.auth_register("johnsmith@gmail.com", "password", "John", "Smith")
+    user1 = auth.auth_register("johnsmith@gmail.com", "password", "John", "Smith")
     user2 = auth.auth_register("lukeskywalker@gmail.com", "starwars", "Luke", "Skywalker")
     new_channel = channels.channels_create(user1["token"], "First Channel", True)
     channel.channel_join(user2["token"], new_channel["channel_id"])
@@ -711,7 +711,7 @@ def test_message_unreact_same_message():
     other.clear()
     
     
-def test_message_unreact_invalid_message_id
+def test_message_unreact_invalid_message_id():
     """
     Testing that Input Error is raised when the message_id is an invalid message 
     that authorised use is member of
@@ -720,9 +720,9 @@ def test_message_unreact_invalid_message_id
     new_channel = channels.channels_create(user1["token"], "Star Wars", True)
        
     with pytest.raises(InputError):
-		assert message.message_unreact(user1["token"], 123415, 1)
+        assert message.message_unreact(user1["token"], 123415, 1)
 
-	other.clear()    
+    other.clear()    
 	
 
 def test_message_unreact_invalid_react_id():
@@ -737,9 +737,9 @@ def test_message_unreact_invalid_react_id():
     message.message_react(user1["token"], message_id1["message_id"], 1)
     
     with pytest.raises(InputError):
-		assert message.message_react(user1["token"], message1_id["message_id"], 2)
+        assert message.message_react(user1["token"], message1_id["message_id"], 2)
 
-	other.clear()
+    other.clear()
 	
 	
 def test_message_unreact_already_reacted():
@@ -769,115 +769,115 @@ def test_message_pin_valid():
     new_channel = channels.channels_create(user1["token"], "First Channel", True)
     channel.channel_join(user2["token"], new_channel["channel_id"])
 
-	message_1 = "Hi Luke!"
-	message_2 = "Hello John! Nice to meet you!"
-	message_id1 = message.message_send(user1["token"], new_channel["channel_id"], message_1)
-	message_id2 = message.message_send(user2["token"], new_channel["channel_id"], message_2)
+    message_1 = "Hi Luke!"
+    message_2 = "Hello John! Nice to meet you!"
+    message_id1 = message.message_send(user1["token"], new_channel["channel_id"], message_1)
+    message_id2 = message.message_send(user2["token"], new_channel["channel_id"], message_2)
 	
-	message.message_pin(user1["token"], message_1)
-	message.message_pin(user2["token"], message_2)
+    message.message_pin(user1["token"], message_1)
+    message.message_pin(user2["token"], message_2)
 	
-	test_message_from_channel = channel.channel_messages(user1["token"], new_channel['channel_id'], 0)
+    test_message_from_channel = channel.channel_messages(user1["token"], new_channel['channel_id'], 0)
 	
-	assert test_message_from_channel["messages"][0]["message"] == message_1
-	assert test_message_from_channel["messages"][0]["message_id"] == message_id1
-	assert test_message_from_channel["messages"][0]["u_id"] == user1["u_id"]
-	assert test_message_from_channel["messages"][0]["date"] == 1606963294
-	assert test_message_from_channel["messages"][0]["is_pinned"] == True
-	
-	assert test_message_from_channel["messages"][1]["message"] == message_2
-	assert test_message_from_channel["messages"][1]["message_id"] == message_id2
-	assert test_message_from_channel["messages"][1]["u_id"] == user2["u_id"]
-	assert test_message_from_channel["messages"][1]["date"] == 1606963296
-	assert test_message_from_channel["messages"][1]["is_pinned"] == True
-    
+    assert test_message_from_channel["messages"][0]["message"] == message_1
+    assert test_message_from_channel["messages"][0]["message_id"] == message_id1
+    assert test_message_from_channel["messages"][0]["u_id"] == user1["u_id"]
+    assert test_message_from_channel["messages"][0]["date"] == 1606963294
+    assert test_message_from_channel["messages"][0]["is_pinned"] == True
+
+    assert test_message_from_channel["messages"][1]["message"] == message_2
+    assert test_message_from_channel["messages"][1]["message_id"] == message_id2
+    assert test_message_from_channel["messages"][1]["u_id"] == user2["u_id"]
+    assert test_message_from_channel["messages"][1]["date"] == 1606963296
+    assert test_message_from_channel["messages"][1]["is_pinned"] == True
+
     other.clear()
     
 
 # Unsuccessful    
 def test_message_pin_invalid_message_id():
-	"""
-	Testing that Input Error is raised when the message_id is invalid
     """
-    user1 = auth.auth_register("darthvader@gmail.com", "iamyourfather", "Anakin", "Skywalker")
+    Testing that Input Error is raised when the message_id is invalid
+    """
+    user1 = auth.auth_register("vader@gmail.com", "father", "Anakin", "Skywalker")
     new_channel = channels.channels_create(user1["token"], "Star Wars", True)
 
     with pytest.raises(InputError):
-		message.message_pin(user1["token"], 123415)
+        message.message_pin(user1["token"], 123415)
 
-	other.clear()
+    other.clear()
 	
 	
 def test_message_pin_already_pinned():
-	"""
-	Testing that Input Error is raised when user is trying to pin a message
-	which has already been pinned
-	"""
-	user1 = auth.auth_register("darthvader@gmail.com", "iamyourfather", "Anakin", "Skywalker")
+    """
+    Testing that Input Error is raised when user is trying to pin a message
+    which has already been pinned
+    """
+    user1 = auth.auth_register("darthvader@gmail.com", "iamyourfather", "Anakin", "Skywalker")
     new_channel = channels.channels_create(user1["token"], "Star Wars", True)		
 
-	test_message1 = "Very proud of my new channel!"
-	message1_id = message.message_send(user1["token"], new_channel["channel_id"], test_message1)
-	message.message_pin(user1["token"], message1_id)
-	
-	with pytest.raises(InputError):
-		message.message_pin(user1["token"], message1_id)
-		
+    test_message1 = "Very proud of my new channel!"
+    message1_id = message.message_send(user1["token"], new_channel["channel_id"], test_message1)
+    message.message_pin(user1["token"], message1_id)
+
+    with pytest.raises(InputError):
+        message.message_pin(user1["token"], message1_id)
+        
     other.clear()
 
     
 def test_message_pin_not_member():
-	"""
-	Testing that Access Error is raised when user who is not member of the channel
-	tries to pin a message
-	"""
-	user1 = auth.auth_register("johnsmith@gmail.com", "password", "John", "Smith")
+    """
+    Testing that Access Error is raised when user who is not member of the channel
+    tries to pin a message
+    """
+    user1 = auth.auth_register("johnsmith@gmail.com", "password", "John", "Smith")
     user2 = auth.auth_register("lukeskywalker@gmail.com", "starwars", "Luke", "Skywalker")
     new_channel = channels.channels_create(user2["token"], "General", True)
-    
-	test_message1 = "Very proud of my new channel!" 
+
+    test_message1 = "Very proud of my new channel!" 
     message1_id = message.message_send(user2["token"], new_channel["channel_id"], test_message1)
-    
+
     with pytest.raises(AccessError):
-		message.message_pin(user1["token"], message1_id)
-	
-	other.clear()
+        message.message_pin(user1["token"], message1_id)
+
+    other.clear()
 		
 def test_message_pin_after_leaving():
-	"""
-	Testing that Access Error is raised when owner of channel leaves and tries to
-	pin a message in that channel
-	"""
-	user1 = auth.auth_register("johnsmith@gmail.com", "password", "John", "Smith")
+    """
+    Testing that Access Error is raised when owner of channel leaves and tries to
+    pin a message in that channel
+    """
+    user1 = auth.auth_register("johnsmith@gmail.com", "password", "John", "Smith")
     user2 = auth.auth_register("lukeskywalker@gmail.com", "starwars", "Luke", "Skywalker")
     new_channel = channels.channels_create(user2["token"], "General", True)
-    
-	test_message1 = "Welcome!" 
+
+    test_message1 = "Welcome!" 
     message1_id = message.message_send(user2["token"], new_channel["channel_id"], test_message1)    
     channel.channel_leave(user2["token"], new_channel["channel_id"])
-    
+
     with pytest.raises(AccessError):
-		message.message_pin(user2["token"], message1_id)
-		
-	other.clear()	
+        message.message_pin(user2["token"], message1_id)
+        
+    other.clear()	
 
 
 def test_message_pin_not_owner():
-	"""
-	Testing that Access Error is raised when the authorised user is not an owner
-	"""
-	user1 = auth.auth_register("johnsmith@gmail.com", "password", "John", "Smith")
+    """
+    Testing that Access Error is raised when the authorised user is not an owner
+    """
+    user1 = auth.auth_register("johnsmith@gmail.com", "password", "John", "Smith")
     user2 = auth.auth_register("lukeskywalker@gmail.com", "starwars", "Luke", "Skywalker")
     new_channel = channels.channels_create(user1["token"], "General", True)
     channel.channel_join(user2["token"], new_channel["channel_id"])
-    
+
     test_message1 = "New channel is created"
     message1_id = message.message_send(user2["token"], new_channel["channel_id"], test_message1)
-    
+
     with pytest.raises(AccessError):
-		message.message_pin(user2["token"], message1_id)
-    
-	other.clear()
+        message.message_pin(user2["token"], message1_id)
+
+    other.clear()
     
 
 ###################################################################################################    
@@ -890,64 +890,64 @@ def test_message_unpin_valid():
     """    
     user1 = auth.auth_register("lucyjang@gmail.com", "lucyjang", "Lucy", "Jang")
     user2 = auth.auth_register("kevinhuang@gmail.com", "kevinhuang", "Kevin", "Huang")
-    new_channel = channel.channel_create(user1["token"], "Project Chat" True)
+    new_channel = channel.channel_create(user1["token"], "Project Chat", True)
     channel.channel_join(user2["token"], new_channel["channel_id"])
-    
+
     test_message1 = "Hey how's it going?"
     test_message2 = "I'm going well!"
     message1_id = message.message_send(user1["token"], new_channel["channel_id"], test_message1)
     message2_id = message.message_send(user2["token"], new_channel["channel_id"], test_message2)
-    
+
     message.message_pin(user1["token"], message1_id)
     message.message_pin(user2["token"], message2_id)
-    
+
     test_message_from_channel = channel.channel_messages(user1["token"], new_channel['channel_id'], 0)
+
+    assert test_message_from_channel["messages"][0]["message"] == message_1
+    assert test_message_from_channel["messages"][0]["message_id"] == message_id1
+    assert test_message_from_channel["messages"][0]["u_id"] == user1["u_id"]
+    assert test_message_from_channel["messages"][0]["date"] == 1606963294
+    assert test_message_from_channel["messages"][0]["is_pinned"] == True
 	
-	assert test_message_from_channel["messages"][0]["message"] == message_1
-	assert test_message_from_channel["messages"][0]["message_id"] == message_id1
-	assert test_message_from_channel["messages"][0]["u_id"] == user1["u_id"]
-	assert test_message_from_channel["messages"][0]["date"] == 1606963294
-	assert test_message_from_channel["messages"][0]["is_pinned"] == True
+    assert test_message_from_channel["messages"][1]["message"] == message_2
+    assert test_message_from_channel["messages"][1]["message_id"] == message_id2
+    assert test_message_from_channel["messages"][1]["u_id"] == user2["u_id"]
+    assert test_message_from_channel["messages"][1]["date"] == 1606963296
+    assert test_message_from_channel["messages"][1]["is_pinned"] == True
+
+    message.message_unpin(user1["token"], message1_id)
+    message.message_unpun(user2["token"], message2_id)
 	
-	assert test_message_from_channel["messages"][1]["message"] == message_2
-	assert test_message_from_channel["messages"][1]["message_id"] == message_id2
-	assert test_message_from_channel["messages"][1]["u_id"] == user2["u_id"]
-	assert test_message_from_channel["messages"][1]["date"] == 1606963296
-	assert test_message_from_channel["messages"][1]["is_pinned"] == True
-	
-	message.message_unpin(user1["token"], message1_id)
-	message.message_unpun(user2["token"], message2_id)
-	
-	assert test_message_from_channel["messages"][0]["message"] == message_1
-	assert test_message_from_channel["messages"][0]["message_id"] == message_id1
-	assert test_message_from_channel["messages"][0]["u_id"] == user1["u_id"]
-	assert test_message_from_channel["messages"][0]["date"] == 1606963294
-	assert test_message_from_channel["messages"][0]["is_pinned"] == False
-	
-	assert test_message_from_channel["messages"][1]["message"] == message_2
-	assert test_message_from_channel["messages"][1]["message_id"] == message_id2
-	assert test_message_from_channel["messages"][1]["u_id"] == user2["u_id"]
-	assert test_message_from_channel["messages"][1]["date"] == 1606963296
-	assert test_message_from_channel["messages"][1]["is_pinned"] == False
-	
-	other.clear()
+    assert test_message_from_channel["messages"][0]["message"] == message_1
+    assert test_message_from_channel["messages"][0]["message_id"] == message_id1
+    assert test_message_from_channel["messages"][0]["u_id"] == user1["u_id"]
+    assert test_message_from_channel["messages"][0]["date"] == 1606963294
+    assert test_message_from_channel["messages"][0]["is_pinned"] == False
+
+    assert test_message_from_channel["messages"][1]["message"] == message_2
+    assert test_message_from_channel["messages"][1]["message_id"] == message_id2
+    assert test_message_from_channel["messages"][1]["u_id"] == user2["u_id"]
+    assert test_message_from_channel["messages"][1]["date"] == 1606963296
+    assert test_message_from_channel["messages"][1]["is_pinned"] == False
+
+    other.clear()
 
 
 # Unsuccessful
 def test_message_unpin_invalid_message_id():
     """
-	Testing that Input Error is raised when the message_id is invalid
+    Testing that Input Error is raised when the message_id is invalid
     """
     user1 = auth.auth_register("lucyjang@gmail.com", "lucyjang", "Lucy", "Jang")
     new_channel = channels.channels_create(user1["token"], "Star Wars", True)
 
     with pytest.raises(InputError):
-		message.message_unpin(user1["token"], 123415)
+        message.message_unpin(user1["token"], 123415)
 
-	other.clear()
+    other.clear()
 
 
-def test_message_unpin_already_unpinned
+def test_message_unpin_already_unpinned():
     """
 	Testing that Input Error is raised when user attempts to unpin a message
 	which is already unpinned
@@ -971,7 +971,7 @@ def test_message_unpin_already_unpinned
         
     other.clear()
     
-def test_message_unpin_never_pinned:
+def test_message_unpin_never_pinned():
     """
     Testing that Input Error is raised when user attempts to unpin a message 
     which was never pinned
@@ -1008,24 +1008,24 @@ def test_message_unpin_not_member():
     
 
 def test_message_unpin_after_leaving():
-	"""
-	Testing that Access Error is raised when owner of channel leaves and attempts to
-	unpin a message in that channel
-	"""
-	user1 = auth.auth_register("johnsmith@gmail.com", "password", "John", "Smith")
+    """
+    Testing that Access Error is raised when owner of channel leaves and attempts to
+    unpin a message in that channel
+    """
+    user1 = auth.auth_register("johnsmith@gmail.com", "password", "John", "Smith")
     user2 = auth.auth_register("lukeskywalker@gmail.com", "starwars", "Luke", "Skywalker")
     new_channel = channels.channels_create(user1["token"], "General", True)
     channel.channel_join(user2["token"], new_channel["channel_id"])
-    
-	test_message1 = "Welcome!" 
+
+    test_message1 = "Welcome!" 
     message1_id = message.message_send(user1["token"], new_channel["channel_id"], test_message1)    
     message.message_pin(user1["token"], message1_id)
     channel.channel_leave(user1["token"], new_channel["channel_id"])
-    
+
     with pytest.raises(AccessError):
-		message.message_unpin(user1["token"], message1_id)
-		
-	other.clear()	   
+        message.message_unpin(user1["token"], message1_id)
+        
+    other.clear()	   
 	
 
 def test_message_unpin_not_owner():
