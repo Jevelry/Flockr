@@ -48,7 +48,7 @@ def start_hangman(word):
     user2 = auth.auth_register('guesser@gmail.com', 'guesser', 'Guess', 'Man')
     chan1_id = channels.channels_create(user1['token'], 'manhang', True)['channel_id']
     channel.channel_join(user2['token'], chan1_id)
-    msg = '/hangman ' + word
+    msg = '/hangman start ' + word
     message.message_send(user1['token'], chan1_id, msg)
     return (user1, user2, chan1_id)
 
@@ -67,9 +67,9 @@ def assert_hangman_is_over(user, channel_id):
     """
     # Would not raise an InputError if hangman was still going
     with pytest.raises(InputError):
-        assert message.message_send(user['token'], channel_id, '/guess z')['message_id']
+        assert message.message_send(user['token'], channel_id, '/guess z')
     # Would raise an InputError if hangman was still going
-    message.message_send(user['token'], channel_id, '/hangman start')
+    message.message_send(user['token'], channel_id, '/hangman start frederick')
     message.message_send(user['token'], channel_id, '/hangman stop')
 
 def send_hangman_guesses(user, channel_id, guesses):
@@ -88,48 +88,70 @@ def send_hangman_guesses(user, channel_id, guesses):
         msg = '/guess ' + letter
         message.message_send(user['token'], channel_id, msg)
 
+def send_regular_messages(user, channel_id, messages):
+    """
+    Sends a list of normal messages one at a time
+
+    Parameters:
+        user(dict): A dictionary containing the user token and u_id
+        channel_id(int): An authorisation id used to identify channels
+        message(list): A list made up of individual messages
+
+    Returns:
+        Nothing (None)
+    """
+    for item in messages:
+        message.message_send(user['token'], channel_id, item)
+    
 # SUCCESSFUL
 def test_successful_hangman():
     """
     Tests successful a successful game of hangman
     """
-    user1, user2, chan1_id = start_hangman('banana')
+    _user1, user2, chan1_id = start_hangman('banana')
     send_hangman_guesses(user2, chan1_id, 'anb')
-    assert_hangman_is_over(user1, chan1_id)
+    assert_hangman_is_over(user2, chan1_id)
     other.clear()
 
-    
+
 def test_successful_weird_words_hangman():
     """
     Tests a successful game of hangman (using a non-English word)
     """
-    user1, user2, chan_id = start_hangman('aaaaaaaaaaaa')
+    _user1, user2, chan_id = start_hangman('aaaaaaaaaaaa')
     send_hangman_guesses(user2, chan_id, 'a')
-    assert_hangman_is_over(user1, chan_id)
+    assert_hangman_is_over(user2, chan_id)
+    other.clear()
+
+def test_send_normal_message_during_hangman():
+    _user1, user2, chan_id = start_hangman('chilling')
+    send_hangman_guesses(user2, chan_id, 'drive')
+    msgs = ['Lets get this', 'hangman dub']
+    send_regular_messages(user2, chan_id, msgs)
     other.clear()
 
 def test_successful_loss_hangman():
     """
     Tests a successful game of hangman (ending in a loss)
     """
-    user1, user2, chan_id = start_hangman('elmo')
+    _user1, user2, chan_id = start_hangman('elmo')
     send_hangman_guesses(user2, chan_id, 'nbvcxzasd')
-    assert_hangman_is_over(user1, chan_id)
+    assert_hangman_is_over(user2, chan_id)
     other.clear()
 
 def test_stop_hangman():
     """
     Tests successful hangman cancellations
-    """"
+    """
     # Stopped by admin
     user1, user2, chan_id = start_hangman('xylophone')
     message.message_send(user1['token'], chan_id, '/hangman stop')
-    assert_hangman_is_over(user1, chan_id)
+    assert_hangman_is_over(user2, chan_id)
 
     # Stopped by creator
-    message.message_send(user2['token'], chan_id, '/hangman grouchy')['message_id']
+    message.message_send(user2['token'], chan_id, '/hangman start grouchy')
     message.message_send(user2['token'], chan_id, '/hangman stop')
-    assert_hangman_is_over(user2, chan_id)
+    assert_hangman_is_over(user1, chan_id)
     other.clear()
 
 # UNSUCCESSFUL
@@ -140,7 +162,7 @@ def test_unsuccessful_creator_guessing():
     """
     creator, _guesser, chan_id = start_hangman('hangman')
     with pytest.raises(InputError):
-        assert message.message_send(creator['u_id'], chan_id, '/guess a')
+        assert message.message_send(creator['token'], chan_id, '/guess a')
     other.clear()
     
 
@@ -169,12 +191,12 @@ def test_invalid_guess():
     _creator, guesser, chan_id = start_hangman('froot loops')
     message.message_send(guesser['token'], chan_id, 'f')
     with pytest.raises(InputError):
-        assert message.message_send(guesser['token'], chan_id, 'froot')
-        assert message.message_send(guesser['token'], chan_id, '')
-        assert message.message_send(guesser['token'], chan_id, 'oo')
-        assert message.message_send(guesser['token'], chan_id, 'f') # f is already correct
-        assert message.message_send(guesser['token'], chan_id, ' ')
-        assert message.message_send(guesser['token'], chan_id, '?')
+        assert message.message_send(guesser['token'], chan_id, '/guess froot')
+        assert message.message_send(guesser['token'], chan_id, '/guess')
+        assert message.message_send(guesser['token'], chan_id, '/guess oo')
+        assert message.message_send(guesser['token'], chan_id, '/guess f') # f is already correct
+        assert message.message_send(guesser['token'], chan_id, '/guess ')
+        assert message.message_send(guesser['token'], chan_id, '/guess ?')
     other.clear()
 
 def test_invalid_number_of_people():
@@ -185,7 +207,7 @@ def test_invalid_number_of_people():
     user1 = auth.auth_register('gday@gnight.com', 'morning', 'Bright', 'Early')
     chan1 = channels.channels_create(user1['token'], 'alone', True)['channel_id']
     with pytest.raises(InputError):
-        assert message.message_send(user1['token'], chan1, '/hangman zaphod')
+        assert message.message_send(user1['token'], chan1, '/hangman start zaphod')
     other.clear()
 
 def test_invalid_hangman_stop():
@@ -204,8 +226,6 @@ def test_invalid_hangman_stop():
 # def test_pin_message_while_hangman():
 #     pass
 
-# def test_hangman_during_standup():
-    # pass
 
 def test_guess_not_during_hangman():
     """
@@ -217,3 +237,4 @@ def test_guess_not_during_hangman():
     with pytest.raises(InputError):
         assert message.message_send(user1['token'], chan1, '/guess s')
     other.clear()
+    

@@ -67,18 +67,18 @@ def message_send(token, channel_id, message):
 
     # Check if message will start a hangman session
     if validation.check_start_hangman(channel_id, message): # pass token if pin
-        return hangman.start(user_input_id, channel_id, mew_message, new_message_id)
-
-
-    data.add_message(new_message, channel_id)
-
-    # # Check if message will start a hangman session
-    # if validation.check_start_hangman(channel_id, message): # pass token if pin
-    #     hangman.start(user_input_id, channel_id, message, new_message_id)
-
+        return hangman.start(user_input_id, channel_id, new_message, new_message_id)
+        
     # Check if hangman is active and message is a guess
     if validation.check_if_hangman(channel_id, message):
         hangman.guess(user_input_id, channel_id, message)
+
+    # Check if hangman should stop (/hangman stop)
+    if validation.check_if_stop_message(message):
+        print("STOPPPPP")
+        return hangman.stop(user_input_id, channel_id)
+
+    data.add_message(new_message, channel_id)    
 
     return {
         "message_id": new_message_id,
@@ -135,3 +135,16 @@ def message_edit(token, message_id, message):
     channel_id = find_channel_with_message(message_id, user_input_id)
     data.edit_message(channel_id, message_id, message)
     return {}
+
+import auth
+import channels
+import channel
+if __name__ == '__main__':
+    user1 = auth.auth_register('elliot@balgara.com', 'hoowaa', 'hoo', 'waa')
+    user2 = auth.auth_register('jds@balgara.com', 'hoowaa', 'hoo', 'waa')
+    chan = channels.channels_create(user1['token'], 'hellooo', True)['channel_id']
+    channel.channel_join(user2['token'], chan)
+    message_send(user1['token'], chan, '/hangman start hhesfsfksd')
+    print(channel.channel_messages(user1['token'], chan, 0)['messages'])
+    message_send(user2['token'], chan, '/guess h')
+    print(channel.channel_messages(user1['token'], chan, 0)['messages'])
