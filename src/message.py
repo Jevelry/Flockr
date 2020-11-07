@@ -9,6 +9,7 @@ from error import AccessError, InputError
 import data
 import validation
 import hangman
+import threading
 
 
 def find_channel_with_message(message_id, u_id):
@@ -136,15 +137,43 @@ def message_edit(token, message_id, message):
     data.edit_message(channel_id, message_id, message)
     return {}
 
-import auth
-import channels
-import channel
-if __name__ == '__main__':
-    user1 = auth.auth_register('elliot@balgara.com', 'hoowaa', 'hoo', 'waa')
-    user2 = auth.auth_register('jds@balgara.com', 'hoowaa', 'hoo', 'waa')
-    chan = channels.channels_create(user1['token'], 'hellooo', True)['channel_id']
-    channel.channel_join(user2['token'], chan)
-    message_send(user1['token'], chan, '/hangman start hhesfsfksd')
-    print(channel.channel_messages(user1['token'], chan, 0)['messages'])
-    message_send(user2['token'], chan, '/guess h')
-    print(channel.channel_messages(user1['token'], chan, 0)['messages'])
+def message_sendlater(token, channel_id, message, time_sent):
+    """
+    Adds a new message to the messages in a channel at a set date
+
+    Parameters:
+        token(string): An authorisation hash
+        channel_id(int): The channel_id of the channel the message is being added too
+        message(string): The message of the message being added
+        time_sent(int): The Unix timestamp of the date the message is to be sent
+
+    Returns:
+        message_id(int): An identifier for the new message
+    """
+
+    # Check that the token is valid
+    user_input_id = validation.check_valid_token(token)
+
+    # Check that the message is valid.
+    validation.valid_message(message)
+
+    # Check that the channel_id is valid
+    validation.check_valid_channel_id(channel_id)
+    
+    # Check that user is in channel
+    validation.check_user_in_channel(user_input_id, channel_id)
+    
+    current_timestamp = round(datetime.datetime.now().timestamp())
+    set_timestamp = time_sent
+    set_timer = set_timestamp - current_timestamp
+
+    if set_timer < 0:
+        raise InputError
+    # set_timer used to be time
+    t = threading.Timer(set_timer, message_send(token, channel_id, message))
+    t.start()
+
+    new_message_id = data.get_message_num()
+    return {
+        "message_id": new_message_id,
+    }
