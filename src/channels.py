@@ -5,6 +5,7 @@ error(error.py): Gives access to error classes
 import data
 from error import InputError, AccessError
 import validation
+import hangman
 
 def channels_list(token):
     """
@@ -65,6 +66,7 @@ def channels_create(token, name, is_public):
         "owners" : {u_id},
         "members" : {u_id},
         "messages" : {},
+        "hangman" : hangman.init()
     }
     data.channel_create(new_channel)
 

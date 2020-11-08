@@ -13,6 +13,8 @@ from error import InputError, AccessError
 import hashlib
 import jwt
 import random
+import smtplib, ssl
+from email.mime.text import MIMEText
 
 # Used in auth_register
 # Generates a unique handle (username) for each user
@@ -34,6 +36,45 @@ def generate_handle(first, last):
         length = str(data.get_num_users())
         handle = handle[:len(length) * -1] + length
     return handle
+
+def generate_reset_code(user):
+    """
+    Generates a reset code to email to a user
+
+    Parameters:
+        user(dict): Dictionary containing information about the user
+
+    Returns
+        A hashed code that will allow the user to reset their password
+    """
+    number = random.randrange(100000, 1000000)
+    code = user['name_first'][0] + str(number) + user['name_first'][-1]
+    hashed_code = hashlib.sha256(code.encode()).hexdigest()
+    data.update_user(user, {'reset_code' : hashed_code})
+    return hashed_code
+
+def send_email(email, reset_code):
+    """
+    Sends email to user containing password reset code
+
+    Parameters:
+        email(str): Email specified by user
+        reset_code(str): A hashed code that will allow the user to reset their password
+    
+    Returns:
+        Nothing
+    """
+    sender_email = "flockr1531@gmail.com"
+    password = 'YUut6H8V'
+    msg = MIMEText('Enter code to reset email')
+    msg['Subject'] = reset_code
+    msg['From'] = sender_email
+    msg['To'] = email
+
+    s = smtplib.SMTP_SSL('smtp.gmail.com', 465)
+    s.login(sender_email, password)
+    s.send_message(msg)
+    s.quit()
 
 # Logs user in (must be an existing account)
 def auth_login(email, password):
@@ -68,7 +109,8 @@ def auth_login(email, password):
     data.login_user(user["u_id"])
     # Gives user a new random number for token validation.
     data.update_user(data.get_user_info(user["u_id"]), 
-        {"session_secret" : random.randrange(100000)})
+        {"session_secret" : random.randrange(100000),
+        "reset_code" : None})
     payload = {
         "u_id" : user["u_id"],
         "session_secret" : user["session_secret"]
@@ -149,6 +191,7 @@ def auth_register(email, password, name_first, name_last):
     new["handle_str"] = generate_handle(name_first, name_last)
     new["profile_img_url"] = ""
     new["session_secret"] = random.randrange(100000) # Just needs to be a big number
+    new["reset_code"] = None
     if new["u_id"] == 1:
         new["permission_id"] = 1
     else:
@@ -165,3 +208,64 @@ def auth_register(email, password, name_first, name_last):
         "u_id" : new["u_id"],
         "token": jwt.encode(payload, data.get_jwt_secret(), algorithm = "HS256")
     }
+
+def auth_passwordreset_request(email):
+    """
+    Sends an email to specified email adress with code 
+    to reset password if email is valid
+
+    Parameters:
+        email(str): A user's email
+    
+    Returns:
+        An empty dictionary
+    """
+    # Check email is valid
+    validation.check_correct_email(email)
+
+    user = data.get_user_with({'email' : email})
+
+    # Check user is logged out
+    validation.check_logged_out(user['u_id'])
+
+    code = generate_reset_code(user)
+    
+    send_email(email, code)
+
+    return {}
+
+def auth_passwordreset_reset(reset_code, new_password):
+    """
+    Given the correct code, will reset user's password
+
+    Parameters:
+        reset_code(str): A hash used for resetting a user's password
+        new_password(str): User's new password
+
+    Returns:
+        An empty dictionary
+    """
+    # Check reset_code is valid (belongs to a user)
+    user = validation.check_valid_reset_code(reset_code)
+
+    # Check new password is valid
+    validation.check_valid_password(new_password)
+
+    data.update_user(user, {
+        'reset_code' : None,
+        'password' : hashlib.sha256(new_password.encode()).hexdigest()
+    })
+
+    return {}
+
+import other
+if __name__ == '__main__':
+    user1 = auth_register('flockr1531@gmail.com', 'password', 'name', 'name')
+    auth_logout(user1['token'])
+    info = data.get_user_info(user1['u_id'])
+    print (info['password'])
+    auth_passwordreset_request('flockr1531@gmail.com')
+    code = input('Type code: ')
+    auth_passwordreset_reset(code, 'new_password')
+    print (info['password'])
+    other.clear()

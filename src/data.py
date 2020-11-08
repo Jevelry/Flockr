@@ -37,13 +37,13 @@ logged_in = set()
 # Channels is a dictionary that contains information of every channel
 # and uses channel_id as the key.
 channels = {
-    # channel_id {
         # channel_id = {
         #     "name" : "",
         #     "is_public" : "", # public or private (True or False)
         #     "channel_id" : ""
         #     "owners" = set(),
         #     "members" : set(),
+        #     "pinned" : ""
         #     "standup" = {
         #           running : "", # currently running (True or False)
         #           u_id : "",
@@ -61,6 +61,15 @@ channels = {
             #             "date" : ""
             #         }
             #    }
+            #}
+            # "hangman" : {
+            #     is_active : False,
+            #     u_id : '',
+            #     word : None,
+            #     guesses : set(),
+            #     failures : 0,
+            #     status_message : ''
+            # }
         #      
     #}
 }
@@ -162,6 +171,18 @@ def get_channel_info(channel_id):
     except:
         return None
     
+def get_hangman_info(channel_id):
+    """
+    Given a channel_id(int), returns infomation on channel's hangman session(dict).
+    Assumes channel_id exists.
+    """
+    channel = get_channel_info(channel_id)
+    return channel['hangman']
+
+def get_hangman_status_message(channel_id):
+    message_id = list(channels)[-1]
+    return get_message(channel_id, message_id)
+
 def channel_add_member(channel_id, u_id):
     """
     Given a channel_id(int) and u_id(int), add the u_id to channel
@@ -290,12 +311,12 @@ def find_channel(message_id):
             return channel
     raise InputError(description = "Message not in any channel")
 
-def get_message(channel, message_id):
+def get_message(channel_id, message_id):
     """
     Given channel containing message and message_id,
     returns dictionary containing message info
     """
-    return channels[channel]["messages"][message_id]
+    return channels[channel_id]['messages'][message_id]
 
 def add_message(message, channel_id):
     """
@@ -390,3 +411,25 @@ def update_user_img(host_url,token):
     u_id = validation.check_valid_token(token)
     user = get_user_info(u_id)
     user["profile_img_url"] = host_url + f"static/{u_id}.jpg"
+
+def get_channel_from_message(message_id):
+    """
+    Returns channel_id of channel that contains message_id
+    """
+    for channel in channels:
+        if message_id in channels[channel]['messages']:
+            return channel
+
+def pin_message(message_id, channel_id):
+    """
+    Pins message in channel
+    """
+    message = get_message(channel_id, message_id)
+    message['is_pinned'] = True
+
+def unpin_message(message_id, channel_id):
+    """
+    Unpins message in channel
+    """
+    message = get_message(channel_id, message_id)
+    message['is_pinned'] = False
