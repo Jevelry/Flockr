@@ -103,6 +103,9 @@ def message_remove(token, message_id):
     # Check valid message id
     validation.valid_message_id(message_id)
 
+    # Check message is not the hangman status message
+    validation.check_not_status_message(message_id)
+
     channel_id = find_channel_with_message(message_id, user_input_id)
     data.remove_message(message_id, channel_id)
 
@@ -127,6 +130,9 @@ def message_edit(token, message_id, message):
 
     # Check valid message id
     validation.valid_message_id(message_id)
+
+    # Check message is not the hangman status message
+    validation.check_not_status_message(message_id)
 
     # Editing a message to an empty string will delete the message.
     if message == "":
@@ -153,7 +159,7 @@ def message_sendlater(token, channel_id, message, time_sent):
 
     # Check that the token is valid
     user_input_id = validation.check_valid_token(token)
-
+ 
     # Check that the message is valid.
     validation.valid_message(message)
 
@@ -166,10 +172,9 @@ def message_sendlater(token, channel_id, message, time_sent):
     current_timestamp = round(datetime.datetime.now().timestamp())
     set_timestamp = time_sent
     set_timer = set_timestamp - current_timestamp
+    if set_timer <= 0:
+        raise InputError(description="Can't send to the past")
 
-    if set_timer < 0:
-        raise InputError
-    # set_timer used to be time
     t = threading.Timer(set_timer, message_send(token, channel_id, message))
     t.start()
 

@@ -25,7 +25,8 @@ def init():
         'word' : None,
         'guesses' : 0,
         'revealed_word' : None,
-        'letters' : []
+        'letters' : [],
+        'status_message' : None
     }
 
 def print_start(info):
@@ -60,15 +61,6 @@ def start(u_id, channel_id, message, message_id):
 
     info = data.get_hangman_info(channel_id)
     update_info(info, u_id, message_id, word)
-    # info['is_active'] = True
-    # info['word'] = word
-    # info['status_message'] = message_id
-    # reveal = re.sub(r'[^ \-\']', '_', word)
-    # info['revealed_word'] = []
-    # info['revealed_word'][:] = reveal
-    # info['u_id'] = u_id
-    # info['failures'] = 0
-    # info['guesses'] = 0
     message['message'] = print_start(info)
     data.add_message(message, channel_id)
     return {'message_id' : message_id}
@@ -113,19 +105,19 @@ def execute_victory(info):
     info['is_active'] = False
     channel_id = data.find_channel(message_id)
     data.edit_message(channel_id, message_id, victory_message(info))
+    info['status_message'] = None
 
 def execute_loss(info):
     info['is_active'] = False
     message_id = info['status_message']
     channel_id = data.find_channel(message_id)
     data.edit_message(channel_id, message_id, loss_message(info))
+    info['status_message'] = None
 
 def execute_correct_guess(info, letter):
     for i,c in enumerate(info['word']):
         if c == letter:
             info['revealed_word'][i] = letter
-    if check_hangman_won(info['word'], info['revealed_word']):
-        execute_victory(info)
         
 def generate_picture(info):
     return hangman_draw.draw(info['failures'])

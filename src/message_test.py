@@ -13,7 +13,14 @@ import channel
 import auth
 import channels
 import other
+import datetime
+import time
 from error import InputError, AccessError
+
+def time_from_now(seconds):
+    now = datetime.datetime.now()
+    future = now + datetime.timedelta(seconds=seconds)
+    return future.timestamp()
 
 #Successful
 def test_send_valid():
@@ -1017,9 +1024,9 @@ def test_message_unpin_not_owner():
 def test_message_sendlater_success():
     user = auth.auth_register('apple1@gmail.com', 'paswword' , 'first_name', 'last_name')
     chan = channels.channels_create(user['token'], 'test_channel', True)['channel_id']
-    
+    time = time_from_now(60)
     msg = 'Test message from the past!'
-    mess = message.message_sendlater(user['token'], chan, msg, 1604707000)['message_id']
+    mess = message.message_sendlater(user['token'], chan, msg, time)['message_id']
 
     message_list = channel.channel_messages(user['token'], chan, 0)
     assert message_list['messages'][0]['message'] == msg
@@ -1040,28 +1047,31 @@ def test_message_sendlater_success_multiple():
     msg2 = 'Test 2 1 0 1 1'
     msg3 = 'Test 3 FLip Flop Slop'
     msg4 = 'Test 4 Gling glong glip'
-
-    mess1 = message.message_sendlater(user1['token'], chan, msg1, 1604707000)['message_id']
-    mess2 = message.message_sendlater(user2['token'], chan, msg2, 1604707001)['message_id']
-    mess3 = message.message_sendlater(user3['token'], chan, msg3, 1604707002)['message_id']
-    mess4 = message.message_sendlater(user1['token'], chan, msg4, 1604707003)['message_id']
-
+    time1 = time_from_now(5)
+    time2 = time_from_now(2)
+    time3 = time_from_now(10)
+    time4 = time_from_now(5)
+    mess1 = message.message_sendlater(user1['token'], chan, msg1, time1)['message_id']
+    mess2 = message.message_sendlater(user2['token'], chan, msg2, time2)['message_id']
+    mess3 = message.message_sendlater(user3['token'], chan, msg3, time3)['message_id']
+    mess4 = message.message_sendlater(user1['token'], chan, msg4, time4)['message_id']
+    
     message_list = channel.channel_messages(user1['token'], chan,  0)
-    assert message_list['messages'][0]['message'] == msg1
-    assert message_list['messages'][0]['message_id'] == mess1
-    assert message_list['messages'][0]['u_id'] == user1['u_id']
-
-    assert message_list['messages'][1]['message'] == msg2
-    assert message_list['messages'][1]['message_id'] == mess2
-    assert message_list['messages'][1]['u_id'] == user2['u_id']
-
-    assert message_list['messages'][2]['message'] == msg3
-    assert message_list['messages'][2]['message_id'] == mess3
-    assert message_list['messages'][2]['u_id'] == user3['u_id']
-
-    assert message_list['messages'][3]['message'] == msg4
-    assert message_list['messages'][3]['message_id'] == mess4
+    assert message_list['messages'][3]['message'] == msg1
+    assert message_list['messages'][3]['message_id'] == mess1
     assert message_list['messages'][3]['u_id'] == user1['u_id']
+
+    assert message_list['messages'][2]['message'] == msg2
+    assert message_list['messages'][2]['message_id'] == mess2
+    assert message_list['messages'][2]['u_id'] == user2['u_id']
+
+    assert message_list['messages'][1]['message'] == msg3
+    assert message_list['messages'][1]['message_id'] == mess3
+    assert message_list['messages'][1]['u_id'] == user3['u_id']
+
+    assert message_list['messages'][0]['message'] == msg4
+    assert message_list['messages'][0]['message_id'] == mess4
+    assert message_list['messages'][0]['u_id'] == user1['u_id']
 
     other.clear()
     
@@ -1083,21 +1093,6 @@ def test_message_sendlater_invalid_message():
 
 
     msg = 'A' * 1001
-    # test_message = (
-    #     'Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula '
-    #     'eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient '
-    #     'montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, '
-    #     'pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, '
-    #     'aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis '
-    #     'vitae, justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt. Cras '
-    #     'dapibus. Vivamus elementum semper nisi. Aenean vulputate eleifend tellus. Aenean leo '
-    #     'ligula, porttitor eu, consequat vitae, eleifend ac, enim. Aliquam lorem ante, dapibus '
-    #     'in, viverra quis, feugiat a, tellus. Phasellus viverra nulla ut metus varius laoreet. '
-    #     'Quisque rutrum. Aenean imperdiet. Etiam ultricies nisi vel augue. Curabitur ullamcorper '
-    #     'ultricies nisi. Nam eget dui. Etiam rhoncus. Maecenas tempus, tellus eget condimentum '
-    #     'rhoncus, sem quam semper libero, sit amet adipiscing sem neque sed ipsum...too long'
-    # )
-
     with pytest.raises(InputError):
         assert message.message_sendlater(user1['token'], chan, msg, 1606963294)
 
@@ -1125,3 +1120,5 @@ def test_message_sendlater_not_in_channel():
         assert message.message_sendlater(user2['token'], chan, msg, 1606963294)
   
     other.clear()
+
+# def test_sendlater_before_now():

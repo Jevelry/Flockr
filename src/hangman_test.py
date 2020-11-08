@@ -13,9 +13,7 @@ Errors for hangman:
 * Can't start with only one person in channel
 * Can only guess one letter
 * Can't start hangman if already playing
-* Can't delete hangman status message
 * Can't guess successful letter again
-* Can't pin another message while hangman is active
 * Can't stop hangman if not admin
 * Word must be made of letters
 * Can only guess letters
@@ -154,6 +152,15 @@ def test_stop_hangman():
     assert_hangman_is_over(user1, chan_id)
     other.clear()
 
+def test_changing_status_message():
+    user1, _user2, _chan_id = start_hangman('cameraman')
+    find_message = other.search(user1['token'], 'hangman')
+    message_id = find_message['messages'][0]['message_id']
+    with pytest.raises(InputError):
+        assert message.message_edit(user1['token'], message_id, 'No more hangman')
+        assert message.message_remove(user1['token'], message_id)
+    other.clear()
+
 # UNSUCCESSFUL
 def test_unsuccessful_creator_guessing():
     """
@@ -238,3 +245,19 @@ def test_guess_not_during_hangman():
         assert message.message_send(user1['token'], chan1, '/guess s')
     other.clear()
     
+def test_remove_status_message():
+    user1, _user2, _chan = start_hangman('baboon')
+    find_message = other.search(user1['token'], 'hangman')
+    message_id = find_message['messages'][0]['message_id']
+    with pytest.raises(InputError):
+        assert message.message_remove(user1['token'], message_id)
+    other.clear()
+
+def test_edit_status_message():
+    user1, _user2, _chan = start_hangman('dogsandcats')
+    find_message = other.search(user1['token'], 'hangman')
+    message_id = find_message['messages'][0]['message_id']
+    msg = "Pacman > Hangman"
+    with pytest.raises(InputError):
+        assert message.message_edit(user1['token'], message_id, msg)
+    other.clear()

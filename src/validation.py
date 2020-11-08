@@ -26,7 +26,7 @@ def check_valid_token(token):
     try:
         # If parent function was called using http, token is in ASCII.
         # If parent function was called via command line, token is a byte string.
-        # I don"t understand why.
+        # I don't understand why.
         if isinstance(token, bytes):
             token = token.decode("ASCII")
         payload = jwt.decode(token, data.get_jwt_secret(), algorithms = ["HS256"])
@@ -442,6 +442,7 @@ def check_dimensions(image,x_start, y_start, x_end, y_end):
         raise InputError(description = "Invalid dimensions")
     if x_start > width or x_end > width or y_start > height or y_end > height:
         raise InputError(description = "Invalid dimensions")
+
 def check_can_start_hangman(channel_id):
     channel = data.get_channel_info(channel_id)
     info = data.get_hangman_info(channel_id)
@@ -449,6 +450,16 @@ def check_can_start_hangman(channel_id):
         raise InputError(description="Not enough people to start hangman")
     if info['is_active']:
         raise InputError(description="Hangman is already active")
+
+def check_not_status_message(message_id):
+    channel_id = data.get_channel_from_message(message_id)
+    # Message does not exist
+    if not channel_id:
+        return None
+    hang_info = data.get_hangman_info(channel_id)
+    print(hang_info)
+    if hang_info['status_message'] == message_id:
+        raise InputError(description="Can't edit/delete hangman status message")
 
 def check_valid_word(word):
     new_word = re.sub(r'[ \-\']', '', word)
