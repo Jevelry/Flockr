@@ -43,6 +43,7 @@ channels = {
         #     "channel_id" : ""
         #     "owners" = set(),
         #     "members" : set(),
+        #     "pinned" : ""
         #     "standup" = {
         #           running : "", # currently running (True or False)
         #           u_id : "",
@@ -310,12 +311,12 @@ def find_channel(message_id):
             return channel
     raise InputError(description = "Message not in any channel")
 
-def get_message(channel, message_id):
+def get_message(channel_id, message_id):
     """
     Given channel containing message and message_id,
     returns dictionary containing message info
     """
-    return channels[channel]["messages"][message_id]
+    return channels[channel_id]['messages'][message_id]
 
 def add_message(message, channel_id):
     """
@@ -410,3 +411,25 @@ def update_user_img(host_url,token):
     u_id = validation.check_valid_token(token)
     user = get_user_info(u_id)
     user["profile_img_url"] = host_url + f"static/{u_id}.jpg"
+
+def get_channel_from_message(message_id):
+    """
+    Returns channel_id of channel that contains message_id
+    """
+    for channel in channels:
+        if message_id in channels[channel]['messages']:
+            return channel
+
+def pin_message(message_id, channel_id):
+    """
+    Pins message in channel
+    """
+    message = get_message(channel_id, message_id)
+    message['is_pinned'] = True
+
+def unpin_message(message_id, channel_id):
+    """
+    Unpins message in channel
+    """
+    message = get_message(channel_id, message_id)
+    message['is_pinned'] = False

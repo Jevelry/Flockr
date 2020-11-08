@@ -231,7 +231,7 @@ def test_check_is_channel_owner():
     channel1 = channels.channels_create(user1["token"], "oriwillbemad", True)
     channel.channel_join(user2["token"], channel1["channel_id"])
     assert validation.check_is_channel_owner(user1["u_id"], channel1["channel_id"]) == None
-    with pytest.raises(InputError):
+    with pytest.raises(AccessError):
         assert validation.check_is_channel_owner(user2["u_id"], channel1["channel_id"])
     other.clear()
 
@@ -245,7 +245,7 @@ def test_check_isnot_channel_owner():
     channel1 = channels.channels_create(user1["token"], "bellyflop", True)
     channel.channel_join(user2["token"], channel1["channel_id"])
     assert validation.check_isnot_channel_owner(user2["u_id"], channel1["channel_id"]) == None
-    with pytest.raises(InputError):
+    with pytest.raises(AccessError):
         assert validation.check_isnot_channel_owner(user1["u_id"], channel1["channel_id"])
     other.clear()
 

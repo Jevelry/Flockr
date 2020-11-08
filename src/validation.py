@@ -302,7 +302,7 @@ def check_is_channel_owner(user_id, channel_id):
         Returns nothing if user is an owner of channel
     """
     if not data.check_channel_owner(channel_id, user_id):
-        raise InputError(description="User is not owner of channel")
+        raise AccessError(description="User is not owner of channel")
 
 
 def check_isnot_channel_owner(user_id, channel_id):
@@ -318,7 +318,7 @@ def check_isnot_channel_owner(user_id, channel_id):
         Returns nothign is user is not an owner of channel
     """
     if data.check_channel_owner(channel_id, user_id):
-        raise InputError(description = "User is owner of channel")
+        raise AccessError(description = "User is owner of channel")
 
 def valid_message(message):
     """
@@ -343,7 +343,24 @@ def valid_message_id(message_id):
     if int(message_id) > data.get_message_num():
         raise InputError(description="Invalid message_id")
 
- 
+def check_message_exists(message_id):
+    chan = data.get_channel_from_message(message_id)
+    if chan == None:
+        raise InputError(description="Message does not exist")
+    return chan
+
+def check_not_pinned(message_id):
+    chan = data.get_channel_from_message(message_id)
+    message = data.get_message(chan, message_id)
+    if message['is_pinned']:
+        raise InputError(description="Message is already pinned")
+
+def check_is_pinned(message_id):
+    chan = data.get_channel_from_message(message_id)
+    message = data.get_message(chan, message_id)
+    if not message['is_pinned']:
+        raise InputError(description="Message is not currently pinned")
+
 def check_channel_is_public(channel_id):
     """
     Check if channel is public or private

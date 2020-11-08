@@ -65,6 +65,7 @@ def message_send(token, channel_id, message):
     new_message["u_id"] = user_input_id
     new_message["time_created"] = datetime.datetime.now().replace().timestamp()
     new_message["message_id"] = new_message_id
+    new_message["is_pinned"] = False
 
     # Check if message will start a hangman session
     if validation.check_start_hangman(channel_id, message): # pass token if pin
@@ -76,7 +77,6 @@ def message_send(token, channel_id, message):
 
     # Check if hangman should stop (/hangman stop)
     if validation.check_if_stop_message(message):
-        print("STOPPPPP")
         return hangman.stop(user_input_id, channel_id)
 
     data.add_message(new_message, channel_id)    
@@ -177,3 +177,37 @@ def message_sendlater(token, channel_id, message, time_sent):
     return {
         "message_id": new_message_id,
     }
+
+def message_pin(token, message_id):
+    # Check that the token is valid
+    u_id = validation.check_valid_token(token)
+
+    # Check that the message exists
+    channel_id = validation.check_message_exists(message_id)
+
+    # Check that message is not already pinned
+    validation.check_not_pinned(message_id)
+
+    # Check that the user has permission
+    validation.check_is_channel_owner(u_id, channel_id) # CHANGE TO ACCESSERROR
+
+    data.pin_message(message_id, channel_id)
+
+    return {}
+
+def message_unpin(token, message_id):
+    # Check that the token is valid
+    u_id = validation.check_valid_token(token)
+
+    # Check that the message exists
+    channel_id = validation.check_message_exists(message_id)
+
+    # Check that message is already pinned
+    validation.check_is_pinned(message_id)
+
+    # Check that the user has permission
+    validation.check_is_channel_owner(u_id, channel_id) # CHANGE TO ACCESSERROR
+
+    data.unpin_message(message_id, channel_id)
+
+    return {}
