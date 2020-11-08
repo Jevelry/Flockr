@@ -563,60 +563,17 @@ def check_valid_guess(message):
     if len(message) != 8 or not message[7].isalpha():
         raise InputError(description='Guess is not valid')
 
-# def check_standup_running(channel_id):
-#     """
-#     Checks if there is a standup running in the given channel
+def check_valid_react()
+    """
+    Determines if react_id is valid
 
-#     Parameters:
-#         channel_id(int): The id of channel
-#     Returns:
-#         Raises error if the channel doesn't have a standup running
-#         If it is running it returns nothing
-#     """
-#     if not data.check_standup_running(channel_id):
-#         raise InputError(description="There is no standup running on this channel")
+    Parameters:
+        react_id(int)
 
-# def check_standup_not_running(channel_id):
-#     """
-#     Checks if there is a standup running in the given channel
+    Returns:
+        Nothing if valid react
+        InputError react not found
+    """
+    if data.check_valid_react(react_id) is False
+        raise InputError(description="invalid react_id")
 
-#     Parameters:
-#         channel_id(int): The id of channel
-#     Returns:
-#         Raises error if the channel does have a standup running
-#         If it is not running it returns nothing
-#     """
-#     if data.check_standup_running(channel_id):
-#         raise InputError(description="There is a standup running on this channel")
-
-# def check_length_valid(length):
-#     """
-#     Checks if the length is valid
-
-#     Parameters:
-#         length(int): The length of a standup
-#     Returns:
-#         Raises error if the length is invalid
-#         If it is valid it returns nothing
-#     """
-#     if length <= 0:
-#         raise InputError(description="The length is invalid")
-
-# def check_valid_url(url):
-#     request = requests.get(url)
-#     if request.status_code != 200:
-#         raise InputError(description = "Invalid url")
-
-# def check_jpg_in_url(url):
-#     request = requests.get(url)
-#     if request.headers['content-type'] != "image/jpeg":
-#         raise InputError(description = "Url is not a jpg")
-
-# def check_dimensions(image,x_start, y_start, x_end, y_end):
-#     width, height = image.size
-#     if x_start < 0 or x_end < 0 or y_start< 0 or y_end < 0:
-#         raise InputError(description = "Invalid dimensions")
-#     if x_start > x_end or y_start > y_end:
-#         raise InputError(description = "Invalid dimensions")
-#     if x_start > width or x_end > width or y_start > height or y_end > height:
-#         raise InputError(description = "Invalid dimensions")

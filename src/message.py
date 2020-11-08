@@ -216,3 +216,33 @@ def message_unpin(token, message_id):
     data.unpin_message(message_id, channel_id)
 
     return {}
+
+def message_react(token, message_id, react_id):
+    # Check that the token is valid
+    u_id = validation.check_valid_token(token)
+
+    # Check that the message exists
+    channel_id = validation.check_message_exists(message_id)
+
+    # Check react id is valid
+    validation.check_valid_react(react_id)
+
+    # Check that message has already been reacted
+    # validation.check_is_reacted(message_id)
+
+    #data.react_message(message_id, channel_id)
+
+def message_unreact(token, message_id, react_id):
+    # Check that the token is valid
+    u_id = validation.check_valid_token(token)
+
+    # Check that the message exists
+    channel_id = validation.check_message_exists(message_id)
+    
+    # Check react id is valid
+    validation.check_valid_react(react_id)
+
+    # Check that message has already been reacted
+    # validation.check_isnot_reacted(message_id)
+
+    # data.unreact_message(message_id, channel_id)
