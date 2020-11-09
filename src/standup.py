@@ -42,6 +42,12 @@ def send_standup(*args):
     new_message["u_id"] = args[0]
     new_message["time_created"] = datetime.datetime.now().replace().timestamp()
     new_message["message_id"] = new_message_id
+    new_message["reacts"] = [
+            {
+        "react_id": 1,
+        "u_ids": []
+            }  
+    ]
     data.add_message(new_message, args[1])
 
 def standup_start(token, channel_id, length):

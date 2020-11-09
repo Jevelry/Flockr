@@ -445,6 +445,7 @@ def test_edit_not_owner_or_creator(users):
 ###################################################################################################
 # Tests for message_react
 # Successful    
+
 def test_message_react_valid(user1):
     """
     Testing if messages can be reacted
@@ -454,20 +455,13 @@ def test_message_react_valid(user1):
     message_id1 = message.message_send(user1["token"], new_channel['channel_id'], test_message1)
     message.message_react(user1["token"], message_id1["message_id"], 1)    
     message_from_channel = channel.channel_messages(user1["token"], new_channel['channel_id'], 0)
-    
-    assert message_from_channel["messages"][0]["reacts"]["react_id"] == 1
-    assert message_from_channel["messages"][0]["reacts"]["u_id"] == user1["u_id"]
+
+    reacts = message_from_channel["messages"][0]["reacts"]
+    assert reacts[0]['react_id'] == 1
+    assert message_from_channel["messages"][0]["reacts"][0] == 1
+    assert message_from_channel["messages"][0]["reacts"][0] == user1["u_id"]
     assert message_from_channel["messages"][0]["reacts"]["is_this_user_reacted"] == True
-    
-    assert message_from_channel["messages"][1]["message"] == test_message1
-    assert message_from_channel['messages'][1]['u_id'] == user1['u_id']
-    assert message_from_channel['messages'][1]['message_id'] == message_id['message_id']
-    assert message_from_channel["messages"][1]["time_created"] == 1606963294
-    assert message_from_channel["messages"][1]["is_pinned"] == False
-    assert message_from_channel["messages"][1]["reacts"]["react_id"] == 1
-    assert message_from_channel["messages"][1]["reacts"]["u_id"] == user2["u_id"]
-    assert message_from_channel["messages"][1]["reacts"]["is_this_user_reacted"] == True
-    
+
     other.clear()
     
 
@@ -970,4 +964,3 @@ def test_message_sendlater_not_in_channel():
     other.clear()
 
 # def test_sendlater_before_now():
-'''
