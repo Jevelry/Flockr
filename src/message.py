@@ -253,6 +253,6 @@ def message_unreact(token, message_id, react_id):
     # Check that message has already been reacted
     validation.check_has_not_reacted(channel_id, message_id, react_id, u_id)
 
-    data.unreact_message(message_id, channel_id)
+    data.unreact_message(message_id, channel_id, react_id, u_id)
 
     return {}
