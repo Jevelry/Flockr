@@ -444,18 +444,17 @@ def unpin_message(message_id, channel_id):
     message['is_pinned'] = False
 
 def check_valid_react(react_id):
+    """
+    Checks if react id is valid (exists)
+    """
     if react_id in react_ids:
         return True
     return False
         
 def check_user_already_reacted(channel_id, message_id, react_id, u_id):
-    messages = channels[channel_id]["messages"]
-    for react_id in messages[message_id]["reacts"]:
-        if u_id in react_id["u_ids"]:
-            return False
-        return True
-
-def check_user_not_reacted(channel_id, message_id, react_id, u_id):
+    """
+    Check if user has existing react to message, if so return False
+    """
     messages = channels[channel_id]["messages"]
     for react_id in messages[message_id]["reacts"]:
         if u_id in react_id["u_ids"]:
@@ -463,6 +462,9 @@ def check_user_not_reacted(channel_id, message_id, react_id, u_id):
         return False
 
 def react_message(message_id, channel_id, react_id, u_id):
+    """
+    Adds user to list of users who have reacted to message
+    """
     messages = channels[channel_id]["messages"]
     for react in messages[message_id]['reacts']:
         if react['react_id'] == react_id:
@@ -470,6 +472,9 @@ def react_message(message_id, channel_id, react_id, u_id):
 
    
 def unreact_message(message_id, channel_id, react_id, u_id):
+    """
+    Removes user from list of users who have reacted to message
+    """
     messages = channels[channel_id]["messages"]
     for react in messages[message_id]['reacts']:
         if react['react_id'] == react_id:

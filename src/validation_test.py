@@ -436,3 +436,42 @@ def test_check_valid_guess():
         assert validation.check_valid_guess('/guess')
         assert validation.check_valid_guess('/guess ab')
         assert validation.check_valid_guess('/guess ?')
+
+def test_check_valid_react(user1):
+    """
+    checks if given react_id is valid
+    """
+    assert validation.check_valid_react(1) == None
+    with pytest.raises(InputError):
+        assert validation.check_valid_react(900)
+    other.clear()
+
+def test_check_is_reacted_already():
+    """
+    checks if user has already reacted to message
+    """
+    user1 = auth.auth_register("Test@subject.com", "Testing123", "Hello", "There")
+    chan = channels.channels_create(user1["token"], "test_channel", True)
+    test_message1 = "Hello Luke!"
+    message_id1 = message.message_send(user1["token"], chan['channel_id'], test_message1)
+    assert validation.check_is_reacted_already(chan['channel_id'], message_id1["message_id"], 1, user1['u_id']) == None
+
+    message.message_react(user1["token"], message_id1["message_id"], 1)   
+    with pytest.raises(InputError):
+        assert validation.check_is_reacted_already(chan['channel_id'], message_id1["message_id"], 1, user1['u_id']) 
+    other.clear()
+
+def test_check_has_not_reacted():
+    """
+    checks if user doesn't have existing react on message
+    """
+    user1 = auth.auth_register("Test@subject.com", "Testing123", "Hello", "There")
+    chan = channels.channels_create(user1["token"], "test_channel", True)
+    test_message1 = "Hello Luke!"
+    message_id1 = message.message_send(user1["token"], chan['channel_id'], test_message1)
+
+    with pytest.raises(InputError):
+        assert validation.check_has_not_reacted(chan['channel_id'], message_id1["message_id"], 1, user1['u_id'])
+    message.message_react(user1["token"], message_id1["message_id"], 1)   
+    assert validation.check_has_not_reacted(chan['channel_id'], message_id1["message_id"], 1, user1['u_id']) == None
+    other.clear()

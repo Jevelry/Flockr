@@ -43,7 +43,6 @@ def check_valid_token(token):
         raise AccessError(description = "Token is invalid")
     raise AccessError(description = "User is not logged in")
 
-
 def check_valid_handle(handle_str):
     """
     Determine whether supplied handle is valid (invalid when handle is less than 3 characters or more than 20 characters)
@@ -58,8 +57,6 @@ def check_valid_handle(handle_str):
     if len(handle_str) < 3 or len(handle_str) > 20:
         raise InputError(description = "Handle is invalid")
     return
-
-
 
 def check_valid_email(email):
     """
@@ -163,7 +160,6 @@ def check_correct_password(email, password):
     if original["password"] != password_hash:
         raise InputError(description = "Password is incorrect")
 
-
 def check_correct_email(email):
     """
     Determine whether email exists when logging in
@@ -229,7 +225,6 @@ def check_user_in_channel(u_id, channel_id):
     if not data.check_user_in_channel(channel_id, u_id):
         raise AccessError(description = "User is not in channel")
 
-
 def check_valid_channel_id(channel_id):
     """
     Determines whether given channel_id matches an existing channel
@@ -287,7 +282,6 @@ def check_is_not_existing_channel_member(u_id, channel_id):
     """
     if data.check_user_in_channel(channel_id, u_id):
         raise InputError(description = "User is already part of channel")
-    
 
 def check_is_channel_owner(user_id, channel_id):
     """
@@ -303,7 +297,6 @@ def check_is_channel_owner(user_id, channel_id):
     """
     if not data.check_channel_owner(channel_id, user_id):
         raise AccessError(description="User is not owner of channel")
-
 
 def check_isnot_channel_owner(user_id, channel_id):
     """
@@ -425,6 +418,16 @@ def check_length_valid(length):
         raise InputError(description="The length is invalid")
 
 def check_dimensions(image,x_start, y_start, x_end, y_end):
+    """
+    Checks if dimensions are valid
+
+    Parameters:
+        image(jpg), image
+        x/y start,end(int): boundaries to crop image
+    Returns:
+        Raises error if dimensions invalid
+        If it is valid it returns nothing
+    """
     width, height = image.size
     if x_start < 0 or x_end < 0 or y_start< 0 or y_end < 0:
         raise InputError(description = "Invalid dimensions")
@@ -502,7 +505,6 @@ def check_start_hangman(channel_id, message):
         return True
     return False
 
-
 def check_if_stop_message(message):
     """
     Checks if message is intended to stop active hangman session
@@ -570,10 +572,34 @@ def check_valid_react(react_id):
         raise InputError(description="invalid react_id")
 
 def check_is_reacted_already(channel_id, message_id, react_id, u_id):
-    if data.check_user_already_reacted(channel_id, message_id, react_id, u_id) is False:
+    """
+    Checks if user has already reacted to message
+
+    Parameters:
+        channel_id(int): id of channel
+        message_id(int):id of message
+        react_id(int): id of react
+        u_id(int): id of user
+    Returns:
+        Raises error if user has already reacted to message
+        If it is valid it returns nothing
+    """
+    if data.check_user_already_reacted(channel_id, message_id, react_id, u_id) is True:
         raise InputError(description='User has already reacted to this message')
 
 def check_has_not_reacted(channel_id, message_id, react_id, u_id):
-    if data.check_user_not_reacted(channel_id, message_id, react_id, u_id) is False:
+    """
+    Checks if user has not yet reacted to message
+
+    Parameters:
+        channel_id(int): id of channel
+        message_id(int):id of message
+        react_id(int): id of react
+        u_id(int): id of user
+    Returns:
+        Raises error if message has not been reacted to by user
+        If it is valid it returns nothing
+    """
+    if data.check_user_already_reacted(channel_id, message_id, react_id, u_id) is False:
         raise InputError(description='User has already reacted to this message')
 
