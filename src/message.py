@@ -172,16 +172,16 @@ def message_sendlater(token, channel_id, message, time_sent):
 
     # Check that the token is valid
     user_input_id = validation.check_valid_token(token)
- 
+
     # Check that the message is valid.
     validation.valid_message(message)
 
     # Check that the channel_id is valid
     validation.check_valid_channel_id(channel_id)
-    
+
     # Check that user is in channel
     validation.check_user_in_channel(user_input_id, channel_id)
-    
+
     current_timestamp = round(datetime.datetime.now().timestamp())
     set_timestamp = time_sent
     set_timer = set_timestamp - current_timestamp
@@ -193,6 +193,7 @@ def message_sendlater(token, channel_id, message, time_sent):
     t = threading.Timer(set_timer, message_send(token, channel_id, message))
     t.start()
 
+    data.add_sendlater(t, time_sent)
     new_message_id = data.get_message_num()
     return {
         "message_id": new_message_id,
@@ -255,7 +256,7 @@ def message_unreact(token, message_id, react_id):
 
     # Check that the message exists
     channel_id = validation.check_message_exists(message_id)
-    
+
     # Check react id is valid
     validation.check_valid_react(react_id)
 

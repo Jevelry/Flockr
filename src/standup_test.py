@@ -141,7 +141,7 @@ def test_send_valid():
     creater_profile = user.user_profile(channel_creater["token"], channel_creater["u_id"])
     new_message = "Know the new message"
     standup.standup_send(channel_creater["token"], test_channel_id1["channel_id"], new_message)
-    inserted_message = creater_profile["user"]["handle_str"] + ": " + new_message + " "
+    inserted_message = creater_profile["user"]["handle_str"] + ": " + new_message + "\n"
     time.sleep(2)
     message_from_channel = channel.channel_messages(channel_creater["token"],
                                                     test_channel_id1["channel_id"], 0)
@@ -164,8 +164,8 @@ def test_send_multiple():
     new_message2 = "Second message"
     standup.standup_send(channel_creater["token"], test_channel_id1["channel_id"], new_message)
     standup.standup_send(test_user1["token"], test_channel_id1["channel_id"], new_message2)
-    inserted_message = creater_profile["user"]["handle_str"] + ": " + new_message + " "
-    inserted_message += test_user_profile["user"]["handle_str"] + ": " + new_message2 + " "
+    inserted_message = creater_profile["user"]["handle_str"] + ": " + new_message + "\n"
+    inserted_message += test_user_profile["user"]["handle_str"] + ": " + new_message2 + "\n"
     time.sleep(2)
     message_from_channel = channel.channel_messages(channel_creater["token"],
                                                     test_channel_id1["channel_id"], 0)

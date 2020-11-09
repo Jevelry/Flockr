@@ -526,7 +526,7 @@ def check_stop_permission(u_id, channel_id):
     Parameters:
         u_id(int): Identifier used for users
         channel_id(int): Identifier used for channels
-    
+
     Returns:
         Nothing if user has permission
         Raises InputError if user does not have permission

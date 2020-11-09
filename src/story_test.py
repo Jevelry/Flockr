@@ -258,7 +258,7 @@ def unpin_message(token, message_id, url):
         "token" : token,
         "message_id" : message_id
     }
-    resp = requests.post(url + "/message/unpin", json = unspin_info)
+    resp = requests.post(url + "/message/unpin", json = unpin_info)
     return resp.json()
 
 def check_profile(token, u_id, url):
@@ -657,11 +657,11 @@ def test_admin_permission_change(url):
     """
     Tests whether an owner of Flockr is an owner of all channels they've joined
     """
-    
+
     # Jack and Jill register
     Jack = register_user("Jack", "Smith", "jsmith@gmail.com", "jackjack123", url)
     Jill = register_user("Jill", "Smith", "jillsmith12@gmail.com", "jilljill123", url)
-    
+
     assert_different_people(Jack, Jill)
 
     # Jack makes Jill an owner/admin of Flockr
@@ -688,7 +688,7 @@ def test_admin_permission_change_invalid(url):
     """
     Tests invalid inputs of changing owner/admin permissions
     """
-    
+
     # Jack and Jill register
     Jack = register_user("Jack", "Smith", "jsmith@gmail.com", "jackjack123", url)
     Jill = register_user("Jill", "Smith", "jillsmith12@gmail.com", "jilljill123", url)
