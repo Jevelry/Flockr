@@ -799,14 +799,14 @@ def test_message_sendlater_success_multiple():
     msg2 = 'Test 2 1 0 1 1'
     msg3 = 'Test 3 FLip Flop Slop'
     msg4 = 'Test 4 Gling glong glip'
-    # time1 = time_from_now(5)
-    # time2 = time_from_now(2)
-    # time3 = time_from_now(10)
-    # time4 = time_from_now(5)
-    mess1 = message.message_sendlater(user1['token'], chan, msg1, 5)['message_id']
-    mess2 = message.message_sendlater(user2['token'], chan, msg2, 2)['message_id']
-    mess3 = message.message_sendlater(user3['token'], chan, msg3, 10)['message_id']
-    mess4 = message.message_sendlater(user1['token'], chan, msg4, 5)['message_id']
+    time1 = time_from_now(5)
+    time2 = time_from_now(2)
+    time3 = time_from_now(10)
+    time4 = time_from_now(5)
+    mess1 = message.message_sendlater(user1['token'], chan, msg1, time1)['message_id']
+    mess2 = message.message_sendlater(user2['token'], chan, msg2, time2)['message_id']
+    mess3 = message.message_sendlater(user3['token'], chan, msg3, time3)['message_id']
+    mess4 = message.message_sendlater(user1['token'], chan, msg4, time4)['message_id']
     
     message_list = channel.channel_messages(user1['token'], chan,  0)
     assert message_list['messages'][3]['message'] == msg1
@@ -833,9 +833,8 @@ def test_message_sendlater_invalid_channel():
     channels.channels_create(user1['token'], 'test_channel', True)
     
     msg = 'Test message from the past!'
-
     with pytest.raises(InputError):
-        assert message.message_sendlater(user1['token'], 602, msg, -5)
+        assert message.message_sendlater(user1['token'], 602, msg, 15)
   
     other.clear()
 
@@ -843,10 +842,10 @@ def test_message_sendlater_invalid_message():
     user1 = auth.auth_register('mango@gmail.com', 'paswword' , 'first_name', 'last_name')
     chan = channels.channels_create(user1['token'], 'test_channel', True)['channel_id']
 
-
+    time = time_from_now(5)
     msg = 'A' * 1001
     with pytest.raises(InputError):
-        assert message.message_sendlater(user1['token'], chan, msg, 5)
+        assert message.message_sendlater(user1['token'], chan, msg, time)
 
     other.clear()
     
@@ -855,9 +854,9 @@ def test_message_sendlater_right_now():
     chan = channels.channels_create(user1['token'], 'test_channel', True)['channel_id']
     
     msg = 'Test message from the future!'
-
+    time = time_from_now(0)
     with pytest.raises(InputError):
-        assert message.message_sendlater(user1['token'], chan, msg, 0)
+        assert message.message_sendlater(user1['token'], chan, msg, time)
   
     other.clear()
 
@@ -867,9 +866,9 @@ def test_message_sendlater_not_in_channel():
     chan = channels.channels_create(user1['token'], 'test_channel', True)['channel_id']
     
     msg = 'Test message from the past!'
-
+    time = time_from_now(5)
     with pytest.raises(AccessError):
-        assert message.message_sendlater(user2['token'], chan, msg, 5)
+        assert message.message_sendlater(user2['token'], chan, msg, time)
   
     other.clear()
 

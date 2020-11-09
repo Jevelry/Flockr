@@ -46,6 +46,7 @@ def update_info(info, u_id, message_id, word):
     info['u_id'] = u_id
     info['failures'] = 0
     info['guesses'] = 0
+    info['letters'] = []
 
 def start(u_id, channel_id, message, message_id):
     # Check can start
@@ -61,6 +62,7 @@ def start(u_id, channel_id, message, message_id):
 
     info = data.get_hangman_info(channel_id)
     update_info(info, u_id, message_id, word)
+    
     message['message'] = print_start(info)
     data.add_message(message, channel_id)
 

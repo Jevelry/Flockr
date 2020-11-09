@@ -237,6 +237,7 @@ def check_valid_channel_id(channel_id):
         Returns nothing if channel exists
     """
     if data.get_channel_info(channel_id) is None:
+        print(type(channel_id))
         raise InputError(description = "Channel does not exist")
 
 def check_valid_u_id(u_id):
@@ -603,3 +604,6 @@ def check_has_not_reacted(channel_id, message_id, react_id, u_id):
     if data.check_user_already_reacted(channel_id, message_id, react_id, u_id) is False:
         raise InputError(description='User has already reacted to this message')
 
+def check_time_in_future(time):
+    if time <= 0:
+        raise InputError(description="Can't send message to the past")

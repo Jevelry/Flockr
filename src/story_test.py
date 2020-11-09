@@ -216,6 +216,51 @@ def edit_message(token, message_id, message, url):
     resp = requests.put(url + "/message/edit", json = edit_info)
     return resp.json()
 
+def sendlater(token, channel_id, message, time, url):
+    later_info = {
+        "token" : token,
+        "channel_id" : channel_id,
+        "message" : message,
+        "time" : time
+    }
+    resp = requests.post(url + "/message/sendlater", json = later_info)
+    later_dict = resp.json()
+    return later_dict['message_id']
+
+def react_message(token, message_id, react_id, url):
+    react_info = {
+        "token" : token,
+        "message_id" : message_id,
+        "react_id" : react_id
+    }
+    resp = requests.post(url + '/message/react', json = react_info)
+    return resp.json()
+
+def unreact_message(token, message_id, react_id, url):
+    unreact_info = {
+        "token" : token,
+        "message_id" : message_id,
+        "react_id" : react_id
+    }
+    resp = requests.post(url + '/message/unreact', json = unreact_info)
+    return resp.json()
+
+def pin_message(token, message_id, url):
+    pin_info = {
+        "token" : token,
+        "message_id" : message_id
+    }
+    resp = requests.post(url + "/message/pin", json = pin_info)
+    return resp.json()
+
+def unpin_message(token, message_id, url):
+    unpin_info = {
+        "token" : token,
+        "message_id" : message_id
+    }
+    resp = requests.post(url + "/message/unpin", json = unspin_info)
+    return resp.json()
+
 def check_profile(token, u_id, url):
     profile_info = {
         "token" : token,
@@ -817,13 +862,53 @@ def test_message_interactions(url):
     """
     Tests every different thing you can do to a message
     """
-    user = register_user("Jeffrey", "Hoits", "jeffsemail@gmail.com", "gambling", url)
-    assert user == 1
+    # Testing with owner permissinos
+    user1 = register_user("Jeffrey", "Hoits", "jeffsemail@gmail.com", "gambling", url)
+    assert user1['u_id'] == 1
 
-    chan1 = create_channel(user['token'], "Testing testing 123", False, url)
+    chan1 = create_channel(user1['token'], "Testing testing 123", False, url)
     assert chan1 == 1
 
-    mess1 = send_message(user['token'], chan1, "RADIOACTIVE -- DO NOT TOUCh", url)
+    mess1 = send_message(user1['token'], chan1, "RADIOACTIVE -- DO NOT TOUCh", url)
     assert mess1 == 1
-    
-     
+
+    pin1 = pin_message(user1['token'], mess1, url)
+    assert pin1 == {}
+
+    react1 = react_message(user1['token'], mess1, 1, url)
+    assert react1 == {}
+
+    edit1 = edit_message(user1['token'], mess1, 'pls stay pinned', url)
+    assert edit1 == {}
+
+    messages = check_messages(user1['token'], chan1, 0, url)
+    assert messages['messages'][0]['is_pinned']
+
+    unpin1 = unpin_message(user1['token'], mess1, url)
+    assert unpin1 == {}
+
+    unreact1 = unreact_message(user1['token'], mess2, 1, url)
+    assert unreact1 == {}
+
+    # Testing with member permissions
+    user2 = register_user("Member", "ofGroup", "member@liamg", "member", url)
+    assert_different_people(user1, user2)
+
+    pin2 = pin_message(user1['token'], mess1, url)
+    assert pin2['message'] == "<p> User is not owner of channel</p>"
+    assert pin2['code'] == 400
+
+    react2 = react_message(user1['token'], mess1, 1, url)
+    assert react2 == {}
+
+    edit2 = edit_message(user1['token'], mess1, 'pls stay pinned', url)
+    assert edit1 == {}
+
+    messages = check_messages(user1['token'], chan1, 0, url)
+    assert messages['messages'][0]['is_pinned']
+
+    unpin1 = unpin_message(user1['token'], mess1, url)
+    assert unpin1 == {}
+
+    unreact1 = unreact_message(user1['token'], mess2, 1, url)
+    assert unreact1 == {}

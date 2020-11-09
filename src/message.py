@@ -182,14 +182,15 @@ def message_sendlater(token, channel_id, message, time_sent):
     # Check that user is in channel
     validation.check_user_in_channel(user_input_id, channel_id)
     
-    # current_timestamp = round(datetime.datetime.now().timestamp())
-    # set_timestamp = time_sent
-    # set_timer = set_timestamp - current_timestamp
-    # if set_timer <= 0:
-    #     raise InputError(description="Can't send to the past")
+    current_timestamp = round(datetime.datetime.now().timestamp())
+    set_timestamp = time_sent
+    set_timer = set_timestamp - current_timestamp
+    print(set_timer)
+    if round(set_timer) <= 0:
+        raise InputError(description="Can't send to the past")
 
-    # time_sent was set_timer
-    t = threading.Timer(time_sent, message_send(token, channel_id, message))
+
+    t = threading.Timer(set_timer, message_send(token, channel_id, message))
     t.start()
 
     new_message_id = data.get_message_num()

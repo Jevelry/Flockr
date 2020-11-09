@@ -165,7 +165,7 @@ def join():
     """
     data = request.get_json()
     token = data["token"]
-    channel_id = int(data["channel_id"])
+    channel_id = convert_to_int(data["channel_id"])
     return channel.channel_join(token, channel_id)
 
 @APP.route("/channel/addowner", methods = ["POST"])
@@ -255,8 +255,8 @@ def start_standup():
     """
     data = request.get_json()
     token = data['token']
-    channel_id = data['channel_id']
-    length = data['length']
+    channel_id = convert_to_int(data['channel_id'])
+    length = convert_to_int(data['length'])
     return standup.standup_start(token, channel_id, length)
 
 @APP.route("/standup/active", methods = ["GET"])
@@ -265,7 +265,8 @@ def active():
     Checks whether standup is active using http
     """
     token = request.args.get("token")
-    channel_id = request.args.get("channel_id")
+    channel_id = convert_to_int(request.args.get("channel_id"))
+    print(channel_id)
     return standup.standup_active(token, channel_id)
 
 @APP.route("/standup/send", methods = ["POST"])
@@ -275,7 +276,7 @@ def standup_send():
     """
     data = request.get_json()
     token = data['token']
-    channel_id = data['channel_id']
+    channel_id = convert_to_int(data['channel_id'])
     message = data['message']
     return standup.standup_send(token, channel_id, message)
 
@@ -305,7 +306,7 @@ def search_query():
     """
     token = request.args.get("token")
     query_str = request.args.get("query_str")
-    return dumps(other.search(token, query_str))
+    return other.search(token, query_str)
 
 @APP.route("/user/profile", methods = ["GET"])
 def profile():
@@ -355,10 +356,10 @@ def upload_photo():
     data = request.get_json()
     token = data["token"]
     img_url = data["img_url"]
-    x_start = int(data["x_start"])
-    x_end = int(data["x_end"])
-    y_start = int(data["y_start"])
-    y_end = int(data["y_end"])
+    x_start = convert_to_int(data["x_start"])
+    x_end = convert_to_int(data["x_end"])
+    y_start = convert_to_int(data["y_start"])
+    y_end = convert_to_int(data["y_end"])
     host_url = request.url_root
     return user.user_profile_uploadphoto(token, img_url, x_start, y_start, x_end, y_end, host_url)
 
@@ -373,7 +374,7 @@ def pin():
     """
     data = request.get_json()
     token = data['token']
-    message_id = data['message_id']
+    message_id = convert_to_int(data['message_id'])
     return message.message_pin(token, message_id)
 
 @APP.route('/message/unpin', methods = ["POST"])
@@ -383,7 +384,7 @@ def unpin():
     """
     data = request.get_json()
     token = data['token']
-    message_id = data['message_id']
+    message_id = convert_to_int(data['message_id'])
     return message.message_unpin(token, message_id)
 
 @APP.route('/message/sendlater', methods = ["POST"])
@@ -393,9 +394,9 @@ def sendlater():
     """
     data = request.get_json()
     token = data['token']
-    channel_id = data['channel_id']
+    channel_id = convert_to_int(data['channel_id'])
     message = data['message']
-    time_sent = data['time_sent']
+    time_sent = convert_to_int(data['time_sent'])
     return message.message_unpin(token, channel_id, message, time_sent)
 
 @APP.route("/message/react", methods = ["POST"])
@@ -405,8 +406,8 @@ def react():
     """
     data = request.get_json()
     token = data['token']
-    message_id = data['message_id']
-    react_id = data['react_id']
+    message_id = convert_to_int(data['message_id'])
+    react_id = convert_to_int(data['react_id'])
     return message.message_react(token, message_id, react_id)
 
 @APP.route("/message/unreact", methods = ["POST"])
@@ -416,8 +417,8 @@ def unreact():
     """
     data = request.get_json()
     token = data['token']
-    message_id = data['message_id']
-    react_id = data['react_id']
+    message_id = convert_to_int(data['message_id'])
+    react_id = convert_to_int(data['react_id'])
     return message.message_unreact(token, message_id, react_id)
 
 
