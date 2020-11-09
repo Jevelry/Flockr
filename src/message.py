@@ -66,6 +66,12 @@ def message_send(token, channel_id, message):
     new_message["time_created"] = datetime.datetime.now().replace().timestamp()
     new_message["message_id"] = new_message_id
     new_message["is_pinned"] = False
+    new_message["reacts"] = [
+            {
+        "react_id": 1,
+        "u_ids": []
+            }  
+    ]
 
     # Check if message will start a hangman session
     if validation.check_start_hangman(channel_id, message): # pass token if pin
@@ -228,9 +234,11 @@ def message_react(token, message_id, react_id):
     validation.check_valid_react(react_id)
 
     # Check that message has already been reacted
-    # validation.check_is_reacted(message_id)
+    validation.check_is_reacted_already(channel_id, message_id, react_id, u_id)
 
-    #data.react_message(message_id, channel_id)
+    data.react_message(message_id, channel_id, react_id, u_id)
+
+    return {}
 
 def message_unreact(token, message_id, react_id):
     # Check that the token is valid
@@ -243,6 +251,8 @@ def message_unreact(token, message_id, react_id):
     validation.check_valid_react(react_id)
 
     # Check that message has already been reacted
-    # validation.check_isnot_reacted(message_id)
+    validation.check_has_not_reacted(channel_id, message_id, react_id, u_id)
 
-    # data.unreact_message(message_id, channel_id)
+    data.unreact_message(message_id, channel_id)
+
+    return {}

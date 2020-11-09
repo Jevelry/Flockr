@@ -132,7 +132,13 @@ def channel_messages(token, channel_id, start):
     # and if so, raise Input Error
     if len(channel["messages"]) < start:
         raise InputError(description = "Start value is too high")
-    for message in reversed(list(channel["messages"].keys())[start:start + 50]):
+    for message in reversed(list(channel["messages"].keys())[start:start + 50]):    
+        for react in channel["messages"][message]["reacts"]:
+            if u_id in react['u_ids']:
+                react['is_this_user_reacted'] = True
+            else:
+                react['is_this_user_reacted'] = False
+
         messages_list["messages"].append(channel["messages"][message])
     # Returns -1 when "end" is less than start + 50 and no more messages
     # to load

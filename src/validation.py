@@ -563,7 +563,7 @@ def check_valid_guess(message):
     if len(message) != 8 or not message[7].isalpha():
         raise InputError(description='Guess is not valid')
 
-def check_valid_react()
+def check_valid_react(react_id):
     """
     Determines if react_id is valid
 
@@ -574,6 +574,14 @@ def check_valid_react()
         Nothing if valid react
         InputError react not found
     """
-    if data.check_valid_react(react_id) is False
+    if data.check_valid_react(react_id) is False:
         raise InputError(description="invalid react_id")
+
+def check_is_reacted_already(channel_id, message_id, react_id, u_id):
+    if data.check_user_already_reacted(channel_id, message_id, react_id, u_id) is False:
+        raise InputError(description='User has already reacted to this message')
+
+def check_has_not_reacted(channel_id, message_id, react_id, u_id):
+    if data.check_user_not_reacted(channel_id, message_id, react_id, u_id) is False:
+        raise InputError(description='User has already reacted to this message')
 
