@@ -286,16 +286,7 @@ def user_list(token, url):
 # ========================================
 def test_edit_profile_and_messages(url):
     """
-    Tests lots of functions
-    * auth_register
-    * channels_create
-    * message_send
-    * channel_join
-    * message_remove
-    * user_setname (successful and unsuccessful)
-    * user_sethandle
-    * message_edit
-    * channel_messages
+    Tests editing everything that can be edited
     """
 
     # Fred and Alan register
@@ -421,21 +412,8 @@ def test_registering_login_and_logout(url):
     
 def hostile_takeover(url):
     """
-    Tests a hostile takeover of a channel including:
-    * auth_register
-    * channels_create (private)
-    * channel_invite
-    * message_send 
-    * channel_removeowner
-    * channel_addowner
-    * channel_leave
-    * auth_logout
-    * user_profile_setname
-    * user_profile_sethandle
-    * user_profile_setemail
-    * user_profile_sethandle
-    * auth_login (successful and unsuccessful)
-    * user_profile
+    Tests using commands with different channel permissions
+    and changing profile attributes
     """
     # Joe and Henry register accounts
     Joe = register_user("Joe", "Gostt", "ttsogoej@liamg.moc", "sdrawkcab", url)
@@ -834,3 +812,18 @@ def test_list_users_and_channels(url):
     ]
     # assert listin1 == {"channels" : channels_list_result}
     assert listin1 == channels_list_result
+
+def test_message_interactions(url):
+    """
+    Tests every different thing you can do to a message
+    """
+    user = register_user("Jeffrey", "Hoits", "jeffsemail@gmail.com", "gambling", url)
+    assert user == 1
+
+    chan1 = create_channel(user['token'], "Testing testing 123", False, url)
+    assert chan1 == 1
+
+    mess1 = send_message(user['token'], chan1, "RADIOACTIVE -- DO NOT TOUCh", url)
+    assert mess1 == 1
+    
+     
