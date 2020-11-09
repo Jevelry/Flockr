@@ -441,32 +441,20 @@ def test_edit_not_owner_or_creator(users):
         message.message_edit(test_user2['token'], message_id['message_id'], new_message)
     other.clear()
 
-'''
+
 ###################################################################################################
 # Tests for message_react
 # Successful    
-def test_message_react_valid():
+def test_message_react_valid(user1):
     """
-    Testing if multiple messages can be reacted
+    Testing if messages can be reacted
     """
-    user1 = auth.auth_register("johnsmith@gmail.com", "password", "John", "Smith")
-    user2 = auth.auth_register("lukeskywalker@gmail.com", "starwars", "Luke", "Skywalker")
-    new_channel = channels.channels_create(user1["token"], "First Channel", True)
-    channel.channel_join(user2["token"], new_channel['channel_id'])
-    
+    user1, chan = user1
     test_message1 = "Hello Luke!"
-    test_message2 = "Hi John!"
     message_id1 = message.message_send(user1["token"], new_channel['channel_id'], test_message1)
-    message_id2 = message.message_send(user2["token"], new_channel['channel_id'], test_message2)
-    message.message_react(user1["token"], message_id1["message_id"], 1)   
-    message.message_react(user2["token"], message_id2["message_id"], 1)   
+    message.message_react(user1["token"], message_id1["message_id"], 1)    
     message_from_channel = channel.channel_messages(user1["token"], new_channel['channel_id'], 0)
-      
-    assert message_from_channel["messages"][0]["message"] == test_message1
-    assert message_from_channel['messages'][0]['u_id'] == user1['u_id']
-    assert message_from_channel['messages'][0]['message_id'] == message_id['message_id']
-    assert message_from_channel["messages"][0]["time_created"] == 1606963294
-    assert message_from_channel["messages"][0]["is_pinned"] == False
+    
     assert message_from_channel["messages"][0]["reacts"]["react_id"] == 1
     assert message_from_channel["messages"][0]["reacts"]["u_id"] == user1["u_id"]
     assert message_from_channel["messages"][0]["reacts"]["is_this_user_reacted"] == True
