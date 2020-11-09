@@ -188,8 +188,8 @@ def get_hangman_info(channel_id):
     return channel['hangman']
 
 def get_hangman_status_message(channel_id):
-    message_id = list(channels)[-1]
-    return get_message(channel_id, message_id)
+    info = get_hangman_info(channel_id)
+    return get_message(channel_id, info['status_message'])
 
 def channel_add_member(channel_id, u_id):
     """
@@ -324,6 +324,7 @@ def get_message(channel_id, message_id):
     Given channel containing message and message_id,
     returns dictionary containing message info
     """
+    print(channels[channel_id]['messages'][message_id])
     return channels[channel_id]['messages'][message_id]
 
 def add_message(message, channel_id):

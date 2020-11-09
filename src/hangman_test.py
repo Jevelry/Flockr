@@ -154,8 +154,9 @@ def test_stop_hangman():
 
 def test_changing_status_message():
     user1, _user2, _chan_id = start_hangman('cameraman')
-    find_message = other.search(user1['token'], 'hangman')
-    message_id = find_message['messages'][0]['message_id']
+    find_message = other.search(user1['token'], 'hangman')['messages']
+    for found_message in find_message.values():
+        message_id = found_message['message_id']
     with pytest.raises(InputError):
         assert message.message_edit(user1['token'], message_id, 'No more hangman')
         assert message.message_remove(user1['token'], message_id)
@@ -247,16 +248,18 @@ def test_guess_not_during_hangman():
     
 def test_remove_status_message():
     user1, _user2, _chan = start_hangman('baboon')
-    find_message = other.search(user1['token'], 'hangman')
-    message_id = find_message['messages'][0]['message_id']
+    find_message = other.search(user1['token'], 'hangman')['messages']
+    for found_message in find_message.values():
+        message_id = found_message['message_id']
     with pytest.raises(InputError):
         assert message.message_remove(user1['token'], message_id)
     other.clear()
 
 def test_edit_status_message():
     user1, _user2, _chan = start_hangman('dogsandcats')
-    find_message = other.search(user1['token'], 'hangman')
-    message_id = find_message['messages'][0]['message_id']
+    find_message = other.search(user1['token'], 'hangman')['messages']
+    for found_message in find_message.values():
+        message_id = found_message['message_id']
     msg = "Pacman > Hangman"
     with pytest.raises(InputError):
         assert message.message_edit(user1['token'], message_id, msg)

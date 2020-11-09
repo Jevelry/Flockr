@@ -63,6 +63,9 @@ def start(u_id, channel_id, message, message_id):
     update_info(info, u_id, message_id, word)
     message['message'] = print_start(info)
     data.add_message(message, channel_id)
+
+    message_info = data.get_message(channel_id, message_id)
+    message_info['is_pinned'] = True
     return {'message_id' : message_id}
     # message.message_pin(data.get_hangman_status_message['message_id])
 
@@ -106,6 +109,7 @@ def execute_victory(info):
     channel_id = data.find_channel(message_id)
     data.edit_message(channel_id, message_id, victory_message(info))
     info['status_message'] = None
+    info['letters'] = []
 
 def execute_loss(info):
     info['is_active'] = False
@@ -113,6 +117,7 @@ def execute_loss(info):
     channel_id = data.find_channel(message_id)
     data.edit_message(channel_id, message_id, loss_message(info))
     info['status_message'] = None
+    info['letters'] = []
 
 def execute_correct_guess(info, letter):
     for i,c in enumerate(info['word']):

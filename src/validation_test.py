@@ -23,6 +23,7 @@ import channel
 import message
 import other
 import standup
+import hangman
 
 @pytest.fixture
 def user1():
@@ -33,6 +34,24 @@ def user1():
     """
     user = auth.auth_register("Test@subject.com", "Testing123", "Hello", "There")
     return data.get_user_info(user["u_id"])
+
+def start_hangman(word):
+    """
+    Registers 2 users, creates a channel and starts a hangman game using the given word
+
+    Parameters:
+        word(str): Word to be used in hangman
+
+    Returns:
+        Tuple containing information about 2 users and the channel_id
+    """
+    user1 = auth.auth_register('creator@gmail.com', 'creator', 'Word', 'Man')
+    user2 = auth.auth_register('guesser@gmail.com', 'guesser', 'Guess', 'Man')
+    chan1_id = channels.channels_create(user1['token'], 'manhang', True)['channel_id']
+    channel.channel_join(user2['token'], chan1_id)
+    msg = '/hangman start ' + word
+    message.message_send(user1['token'], chan1_id, msg)
+    return (user1, user2, chan1_id)
 
 def test_check_valid_handle(user1):
     """
@@ -316,3 +335,104 @@ def test_check_length_valid():
     """
     with pytest.raises(InputError):
         validation.check_length_valid(-1)
+
+def test_check_message_exists():
+    pass
+
+def test_check_not_pinned():
+    pass
+
+def test_check_is_pinned():
+    pass
+
+def test_check_valid_url():
+    pass
+
+def test_check_jpg_in_url():
+    pass
+
+def test_check_standup_not_running():
+    pass
+
+def test_check_length_valid_standup():
+    """
+    Raises an InputError if standup has no message
+    """
+    pass
+
+def test_check_dimensions():
+    """
+    Raises InputError if image corner coordinates
+    are off the image or if the 'right' coordinates
+    are to the left of the 'left' coordinates
+    """
+    pass
+
+def test_check_can_start_hangman():
+    """
+    Raises an InputError if hangman is already active or
+    if there is only 1 user in the channel
+    """
+    pass
+
+def test_check_not_status_message():
+    """
+    Raises InputError if message contains the hangman state
+    Returns None otherwise
+    """
+    pass
+
+def test_check_valid_word():
+    """
+    Returns None if word is valid (between 3-15 letters and word.isalpha())
+    Raises InputError if word is not valid 
+    """
+    pass
+
+def test_check_active_hangman():
+    """
+    Returns True if message is a guess and hangman is currently active
+    Returns False if message is not a guess
+    Raises InputError if message is a guess but hangman is not currently active
+    """
+    pass
+
+def test_check_if_hangman():
+    """
+    Returns True if hangman is not active and message will start it.
+    Returns False if message is not '/hangman start <word>'
+    Raises InputError if message will start hangman but hangman is already active
+    """
+    pass
+
+def test_check_start_hangman():
+    """
+    Returns True if message is '/hangman start <word>'
+    Returns False if message is anything else
+    """
+    pass
+
+def test_check_if_stop_message():
+    """
+    Returns None if user has permission to use /hangman stop
+    Raises an InputError if user is neither channel owner or hangman starter
+    """
+    pass
+
+def test_check_guesser_not_creator():
+    """
+    Returns None if the guesser didn't start the hangman session
+    Raises InputError if the guesser started the hangman session
+    """
+    pass
+
+def test_check_valid_guess():
+    """
+    Returns None if guess is valid
+    Raises InputError if not guessing 1 letter
+    """
+    assert validation.check_valid_guess('/guess a') == None
+    with pytest.raises(InputError):
+        assert validation.check_valid_guess('/guess')
+        assert validation.check_valid_guess('/guess ab')
+        assert validation.check_valid_guess('/guess ?')

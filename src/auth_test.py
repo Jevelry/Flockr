@@ -55,7 +55,7 @@ def get_code_from_email():
     if code is None:
         raise InputError(description='Email has no subject')
     return code
-'''
+
 
 # AUTH_LOGIN tests
 # Successful
@@ -332,7 +332,7 @@ def test_invalid_last_name_auth_register():
         )
 
     other.clear()
-'''
+
 def test_successful_passwordreset_request():
     """
     Tests successful uses of password_reset_request

@@ -424,16 +424,6 @@ def check_length_valid(length):
     if length <= 0:
         raise InputError(description="The length is invalid")
 
-# def check_valid_url(url):
-#     request = requests.get(url)
-#     if request.status_code != 200:
-#         raise InputError(description = "Invalid url")
-
-# def check_jpg_in_url(url):
-#     request = requests.get(url)
-#     if request.headers['content-type'] != "image/jpeg":
-#         raise InputError(description = "Url is not a jpg")
-
 def check_dimensions(image,x_start, y_start, x_end, y_end):
     width, height = image.size
     if x_start < 0 or x_end < 0 or y_start< 0 or y_end < 0:
@@ -457,7 +447,6 @@ def check_not_status_message(message_id):
     if not channel_id:
         return None
     hang_info = data.get_hangman_info(channel_id)
-    print(hang_info)
     if hang_info['status_message'] == message_id:
         raise InputError(description="Can't edit/delete hangman status message")
 
@@ -484,6 +473,8 @@ def check_if_hangman(channel_id, message):
 
     Returns:
         True if guess is valid
+        False if message does not start with /guess
+        InputError if message is a guess, but hangamn is not active
     """
     hang_info = data.get_hangman_info(channel_id)
     if not hang_info['is_active'] and message.startswith('/guess '):
@@ -555,11 +546,12 @@ def check_guesser_not_creator(u_id, channel_id):
         Nothing if the guesser and starter are different users
     """
     status_message = data.get_hangman_status_message(channel_id)
+    print(u_id)
+    print(status_message['u_id'])
     if status_message['u_id'] == u_id:
         raise InputError(description='Users can not guess their own word')
 
 def check_valid_guess(message):
-    print(message[7])
     if len(message) != 8 or not message[7].isalpha():
         raise InputError(description='Guess is not valid')
 

@@ -92,19 +92,25 @@ def search(token, query_str):
                   with the corresponding query string
     """
     # Check that token is valid
-    u_id = validation.check_valid_token(token)
+    validation.check_valid_token(token)
 
     # Initialises messages to return to user
-    messages = {
-        "messages": [],
-    }
+    messages = {}
 
     # Finds all messages that the user has sent containing the query string
 
+
+
+
     user_channels = channels.channels_list(token)["channels"]
+    print(user_channels)
     for channel in user_channels:
         channel_info = data.get_channel_info(channel["channel_id"])
         for message in channel_info["messages"].values():
-            if query_str in message["message"] and message["u_id"] == u_id:
-                messages["messages"].append(message)
-    return messages
+            print(message['message'])
+            if query_str in message["message"]:# and message["u_id"] == u_id:
+                print(f'{query_str} is in {message["message"]}')
+                #message_list["messages"].append(message)
+                messages[message['message_id']] = message
+    print(messages)
+    return {'messages' : messages}

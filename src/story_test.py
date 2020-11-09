@@ -68,6 +68,222 @@ def register_user(name_first, name_second, email, password, url):
     resp = requests.post(url + "/auth/register", json = user_reg)
     return resp.json()
 
+def logout_user(token, url):
+    """
+    Takes information about a user and logs them out
+    """
+    logout_info = {
+        "token" : token
+    }
+    resp = requests.post(url + "/auth/logout", json = logout_info)
+    return resp.json()
+
+def login_user(email, password, url):
+    """
+    Takes information about a user and logs them in
+    """
+    login_info = {
+        "email" : email,
+        "password" : password
+    }
+    resp = requests.post(url + "/auth/login", json = login_info)
+    return resp.json()
+
+def create_channel(token, name, is_public, url):
+    """
+    Takes information about a channel and creates it
+    """
+    channel_info = {
+        "token" : token,
+        "name" : name,
+        "is_public" : is_public
+    }
+    resp = requests.post(url + "/channels/create", json = channel_info)
+    chan_dict = resp.json()
+    return chan_dict['channel_id']
+
+def channel_list(token, url):
+    list_info = {
+        'token' : token
+    }
+    resp = requests.get(url + "/channels/list", params = list_info)
+    list_dict = resp.json()
+    return list_dict['channels']
+
+def channel_listall(token, url):
+    list_info = {
+        'token' : token
+    }
+    resp = requests.get(url + "/channels/listall", params = list_info)
+    listall_dict = resp.json()
+    return listall_dict['channels']
+
+def join_channel(token, channel_id, url):
+    """
+    Takes information about user and channel and adds them
+    """
+    join_info = {
+        "token" : token,
+        "channel_id" : channel_id,
+    }
+    resp = requests.post(url + "/channel/join", json = join_info)
+    return resp.json()
+
+def invite_channel(token, channel_id, u_id, url):
+    invite_info = {
+        "token" : token,
+        "channel_id" : channel_id,
+        "u_id" : u_id
+    }
+    resp = requests.post(url + "/channel/invite", json = invite_info)
+    return resp.json()
+
+def leave_channel(token, channel_id, url):
+    leave_info = {
+        'token' : token,
+        'channel_id' : channel_id
+    }
+    resp = requests.post(url + "/channel/leave", json = leave_info)
+    return resp.json()
+
+def check_messages(token, channel_id, start, url):
+    """
+    Takes information about channel and returns a list of messages
+    """
+    chan_info = {
+        "token" : token,
+        "channel_id" : channel_id,
+        "start" : start
+    }
+    resp = requests.get(url + "/channel/messages", params = chan_info)
+    return resp.json()
+
+def channel_info(token, channel_id, url):
+    chan_info = {
+        "token" : token,
+        "channel_id" : channel_id
+    }
+    resp = requests.get(url + "/channel/details", params = chan_info)
+    return resp.json()
+
+def add_owner(token, channel_id, u_id, url):
+    add_info = {
+        "token" : token,
+        "channel_id" : channel_id,
+        "u_id" : u_id
+    }
+    resp = requests.post(url + "/channel/addowner", json = add_info)
+    return resp.json()
+
+def remove_owner(token, channel_id, u_id, url):
+    remove_info = {
+        "token" : token,
+        "channel_id" : channel_id,
+        "u_id" : u_id
+    }
+    resp = requests.post(url + "/channel/removeowner", json = remove_info)
+    return resp.json()
+
+def send_message(token, channel_id, message, url):
+    """
+    Takes information about a messag and sends it to the channel
+    """
+    mess_info = {
+        "token" : token,
+        "channel_id" : channel_id,
+        "message" : message
+    }
+    resp = requests.post(url + "/message/send", json = mess_info)
+    message_dict = resp.json()
+    if len(message_dict) == 1:
+        return message_dict['message_id']
+    return message_dict
+
+def remove_message(token, message_id, url):
+    remove_info = {
+        "token" : token,
+        "message_id" : message_id
+    }
+    resp = requests.delete(url + "/message/remove", json = remove_info)
+    return resp.json()
+
+def edit_message(token, message_id, message, url):
+    edit_info = {
+        "token" : token,
+        "message_id" : message_id,
+        "message" : message
+    }
+    resp = requests.put(url + "/message/edit", json = edit_info)
+    return resp.json()
+
+def check_profile(token, u_id, url):
+    profile_info = {
+        "token" : token,
+        "u_id" : u_id
+    }
+    resp = requests.get(url + "/user/profile", params = profile_info)
+    profile_dict = resp.json()
+    return profile_dict['user']
+
+def change_name(token, first, last, url):
+    name_info = {
+        "token" : token,
+        "name_first" : first,
+        "name_last" : last
+    }
+    resp = requests.put(url + "/user/profile/setname", json = name_info)
+    return resp.json()
+
+def change_handle(token, handle, url):
+    handle_info = {
+        "token" : token,
+        "handle_str" : handle
+    }
+    resp = requests.put(url + "/user/profile/sethandle", json = handle_info)
+    return resp.json()
+
+def change_email(token, email, url):
+    email_info = {
+        "token" : token, 
+        "email" : email
+    }
+    resp = requests.put(url + "/user/profile/setemail", json = email_info)
+    return resp.json()
+def change_password(token, password, url):
+    password_info = {
+        "token" : token, 
+        "password" : password
+    }
+    resp = requests.put(url + "/user/profile/setpassword", json = password_info)
+    return resp.json()
+
+def search_message(token, query, url):
+    search_info = {
+        "token" : token, 
+        "query_str" : query
+    }
+    resp = requests.get(url + "/search", params = search_info)
+    search_dict = resp.json()
+    return search_dict['messages']
+
+def change_permission(token, u_id, perm_id, url):
+    perm_info = {
+        "token" : token,
+        "u_id" : u_id,
+        "permission_id" : perm_id
+    }
+    resp = requests.post(url + "/admin/userpermission/change", json = perm_info)
+    return resp.json()
+
+def user_list(token, url):
+    list_info = {
+        "token" : token
+    }
+    resp = requests.get(url + "/users/all", params = list_info)
+    user_dict = resp.json()
+    return user_dict['users']
+
+# ========================================
 def test_edit_profile_and_messages(url):
     """
     Tests lots of functions
@@ -88,114 +304,72 @@ def test_edit_profile_and_messages(url):
 
     assert_different_people(Fred, Alan)
 
-    chan1_info = {
-        "token" : Fred["token"],
-        "name" : "Welcome",
-        "is_public" : True
-    }
-    
-    # Fred creates and joins channel "Welcome"
-    resp3 = requests.post(url + "/channels/create", json = chan1_info)
-    chan1 = resp3.json()
-    assert len(chan1) == 1
-    assert chan1["channel_id"] is not None
+    # Fred creates channel 'welcome'
+    chan1 = create_channel(Fred['token'], "Welcome", True, url)
+    assert chan1 == 1
 
-    message1 = {
-        "token" : Fred["token"],
-        "channel_id" : chan1["channel_id"],
-        "message" : "Hello nobody"
-    }
-    
     # Fred sends message to empty channel
-    resp4 = requests.post(url + "/message/send", json = message1)
-    mess1 = resp4.json()
-    assert len(mess1) == 1
-    assert mess1["message_id"] is not None
+    mess1 = send_message(Fred["token"], chan1, "Hello nobody :(", url)
+    assert mess1 == 1
 
-    chan_join_info = {
-        "token" : Alan["token"],
-        "channel_id" : chan1["channel_id"]
-    }
-    
-    # Alan joins channel
-    resp5 = requests.post(url + "/channel/join", json = chan_join_info)
-    assert resp5.json() == {}
+    # Alan join channel
+    join1 = join_channel(Alan['token'], chan1, url)
+    assert join1 == {}
 
-    message_remove1 = {
-        "token" : Fred["token"],
-        "message_id" : mess1["message_id"]
-    }
-    
     # Fred deletes message
-    resp6 = requests.delete(url+"/message/remove", json = message_remove1)
-    assert resp6.json() == {}
+    rem1 = remove_message(Fred['token'], mess1, url)
+    assert rem1 == {}
 
-    message2 = {
-        "token" : Alan["token"],
-        "channel_id" : chan1["channel_id"],
-        "message" : "Good morning Fred!"
-    }
-    
     # Alan sends a message
-    resp5 = requests.post(url + "/message/send", json = message2)
-    mess2 = resp5.json()
-    assert len(mess2) == 1
-    assert mess2["message_id"] is not None
-    assert mess1["message_id"] != mess2["message_id"]
-
-    change_name1 = {
-        "token" : Fred["token"],
-        "name_first" : "I wonder how long my name should be. Is there a limit or nah",
-        "name_last" : "Wazco"
-    }
+    mess2 = send_message(Alan['token'], chan1, "Good morning Fred!", url)
+    assert mess2 == 2
 
     # Fred changes his name unsuccessfully
-    resp6 = requests.put(url + "/user/profile/setname", json = change_name1)
-    resp6_payload = resp6.json()
-    assert resp6_payload["message"] == "<p>First name is invalid</p>"
-    assert resp6_payload["code"] == 400
+    name_change1 = change_name(Fred['token'], 
+        "I wonder how long my name should be. Is there a limit or nah",
+        "Wazco", url)
+    assert name_change1['message'] == "<p>First name is invalid</p>"
+    assert name_change1['code'] == 400
 
-    change_name2 = {
-        "token" : Fred["token"],
-        "name_first" : "George",
-        "name_last" : "Wazco"
-    }
-    
-    # Fred changes his name successfully
-    resp7 = requests.put(url + "/user/profile/setname", json=change_name2)
-    assert resp7.json() == {}
+    # Fred changes his last name successfully
+    name_change2 = change_name(Fred['token'], "Howard", "Wazco", url)
+    assert name_change2 == {}
 
-    change_handle = {
-        "token" : Fred["token"],
-        "handle_str" : "GeorgeTheWizard"
-    }
+    # Fred changes his handle unsuccessfully
+    handle_change1 = change_handle(Fred['token'], "AlanBorm", url)
+    assert handle_change1['message'] == "<p>Handle already in use</p>"
+    assert handle_change1['code'] == 400 
 
-    # Ex-Fred changes his handle
-    resp8 = requests.put(url + "/user/profile/sethandle", json = change_handle)
-    assert resp8.json() == {}
+    # Fred tries again
+    handle_change2 = change_handle(Fred['token'], "HW", url)
+    assert handle_change2['message'] == "<p>Handle is invalid</p>"
+    assert handle_change2['code'] == 400 
 
-    message_edit1 = {
-        "token" : Alan["token"],
-        "message_id" : mess2["message_id"],
-        "message" : "Good morning George!"
-    }
-    
+    # Fred successfully changes his handle
+    handle_change3 = change_handle(Fred['token'], "WazcoWizard", url)
+    assert handle_change3 == {}
+
     # Alan edits his original message
-    resp9 = requests.put(url + "/message/edit", json = message_edit1)
-    assert resp9.json() == {}
+    edit1 = edit_message(Alan['token'], mess2, "Good morning Howard!", url)
+    assert edit1 == {}
 
-    chan1_messages = {
-        "token" : Alan["token"],
-        "channel_id" : chan1["channel_id"],
-        "start" : 0
-    }
-    
-    # Alan checks only his message using channel_messages
-    resp10 = requests.get(url + "/channel/messages", params = chan1_messages)
-    payload10 = resp10.json()
-    assert payload10["messages"][0]["message"] == message_edit1["message"]
-    assert payload10["start"] == 0
-    assert payload10["end"] == -1
+    # Ex-Fred (now Howard) gets annoyed (sends attempted message)
+    msg = "A" * 1001
+    mess3 = send_message(Fred['token'], chan1, msg, url)
+    assert mess3["message"] ==  "<p>Invalid message</p>"
+    assert mess3['code'] == 400
+
+    # Howard is now angry (sends messages)
+    msg2 = ">:( " * 200
+    mess4 = send_message(Fred['token'], chan1, msg2, url)
+    assert mess4 == 3
+
+    # Alan checks the message history using channel_messages
+    history1 = check_messages(Alan['token'], chan1, 0, url)
+    assert history1["messages"][0]["message"] == ">:( " * 200
+    assert history1["messages"][1]["message"] == "Good morning Howard!"
+    assert history1["start"] == 0
+    assert history1["end"] == -1
 
 def test_registering_login_and_logout(url):
     """
@@ -205,53 +379,44 @@ def test_registering_login_and_logout(url):
     * channel_create
     
     """
-    #Fred trying to register with password that is too short
-    resp1_payload = register_user("Fred", "Smith", "fred@gmail.com", "123", url)
-    assert resp1_payload["message"] == "<p>Password is invalid</p>"
-    assert resp1_payload["code"] == 400
+    #Yanik trying to register with password that is too short
+    reg1 = register_user("Yanik", "Gulm", "bbq@gmail.com", "123", url)
+    assert reg1["message"] == "<p>Password is invalid</p>"
+    assert reg1["code"] == 400
     
     
-    #Fred trying to register with invalid email
-    resp2_payload = register_user("Fred", "Smith", "fred1@gmailcom", "123Ters", url)
-    assert resp2_payload["message"] == "<p>Email is invalid</p>"
-    assert resp2_payload["code"] == 400
+    #Yanik trying to register with invalid email
+    reg2 = register_user("Yanik", "Gulm", "yanik1@gmailcom", "123Ters", url)
+    assert reg2["message"] == "<p>Email is invalid</p>"
+    assert reg2["code"] == 400
     
-    #Fred trying to register with email which already exists
-    register_user("NewFred", "NewSmith", "newfred@gmail.com", "DWNIW9q", url)
-    resp3_payload = register_user("Fred", "Smith", "newfred@gmail.com", "123Ters", url)
-    assert resp3_payload["message"] == "<p>Email already in use</p>"
-    assert resp3_payload["code"] == 400
+    #Yanik tries to register with invalid first name
+    name1 = "Yanik" * 20
+    reg3 = register_user(name1, "Gulm", "bbq@gmail.com", "123Ters", url)
+    assert reg3["message"] == "<p>First name is invalid</p>"
+    assert reg3["code"] == 400
     
-    #Trying to register with invalid first name
-    resp4_payload = register_user("FredFredFredFredFredFredFredFredFredFredFredFredFredFredFred", "Smith", "fred2@gmail.com", "123Ters", url)
-    assert resp4_payload["message"] == "<p>First name is invalid</p>"
-    assert resp4_payload["code"] == 400
+    #Yanik tries to register with invalid last name 
+    name2 = "Gulm" * 20
+    reg4 = register_user("Yanik", name2, "bbq@gmail.com", "123Ters", url)
+    assert reg4["message"] == "<p>Last name is invalid</p>"
+    assert reg4["code"] == 400
     
-    #Trying to register with invalid last name 
-    resp5_payload = register_user("Fred", "SmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmith", "fred3@gmail.com", "123Ters", url)
-    assert resp5_payload["message"] == "<p>Last name is invalid</p>"
-    assert resp5_payload["code"] == 400
+    #Yanik successfully registers
+    Yanik = register_user("Yanik", "Gulm", "bbq@gmail.com", "123Ters", url)
+
+    #Arthur trying to register with Yanik's email
+    reg5 = register_user("Arthur", "Holmes", "bbq@gmail.com", "HMMMMM", url)
+    assert reg5["message"] == "<p>Email already in use</p>"
+    assert reg5["code"] == 400
+
+    #Yanik creates a new channel called "My First Channel" and joins
+    chan1 = create_channel(Yanik['token'], "My First Channel", True, url)
+    assert chan1 == 1
     
-    #Fred successfully registers
-    Fred = register_user("Fred", "Silt", "silt@gmail.com", "123Ters", url)
-    
-    #Fred creates a new channel called "My First Channel" and joins
-    chan1_info = {
-        "token" : Fred["token"],
-        "name" : "My First Channel",
-        "is_public" : True
-    }
-    resp7 = requests.post(url + "/channels/create", json = chan1_info)
-    chan1 = resp7.json()
-    assert len(chan1) == 1
-    assert chan1["channel_id"] is not None
-    
-    #Fred successfully logs out
-    logout = {
-        "token" : Fred["token"]
-    }
-    resp8 = requests.post(url + "/auth/logout", json = logout)
-    assert resp8.json() == { "is_success" : True }
+    #Yanik successfully logs out
+    logout1 = logout_user(Yanik['token'], url)
+    assert logout1['is_success'] == True
 
     
 def hostile_takeover(url):
@@ -279,186 +444,80 @@ def hostile_takeover(url):
     assert_different_people(Joe, Henry)
 
     # Henry makes a new channel (General)
-    chan1_info = {
-        "token" : Henry["token"],
-        "name" : "General",
-        "is_public" : False
-    }
-
-    resp3 = requests.post(url + "/channels/create", json = chan1_info)
-    chan1 = resp3.json()
-    assert len(chan1) == 1
-    assert chan1["channel_id"] is not None
+    chan1 = create_channel(Henry['token'], "General", False, url)
+    assert chan1 == 1
 
     # Henry invites Joe
-    chan_invite = {
-        "token" : Henry["token"],
-        "channel_id" : chan1["channel_id"],
-        "u_id" : Joe["u_id"]
-    }
-
-    resp4 = requests.post(url + "/channel/invite", json = chan_invite)
-    assert resp4.json() == {}
+    invite1 = invite_channel(Henry['token'], chan1, Joe['u_id'], url)
+    assert invite1 == {}
 
     # Joe says "goodbye"
-    message1 = {
-        "token" : Joe["token"],
-        "channel_id" : chan1["channel_id"],
-        "message" : "Goodbye :)"
-    }
-    
-    resp5 = requests.post(url + "/message/send", json = message1)
-    mess1 = resp5.json()
-    assert len(mess1) == 1
-    assert mess1["message_id"] is not None
+    mess1 = send_message(Joe['token'], chan1, "Goodbye >:)", url)
+    assert mess1 == 1
 
     # Joe (owner of Flockr) removes Henry's owner privileges
-    remove_owner_info = {
-        "token" : Joe["token"],
-        "channel_id" : chan1["channel_id"],
-        "u_id" : Henry["u_id"]
-    }
-
-    resp6 = requests.post(url + "/channnel/removeowner", json = remove_owner_info)
-    assert resp6.json() == {}
+    remowner1 = remove_owner(Joe['token'], chan1, Henry['u_id'], url)
+    assert remowner1 == {}
 
     # Henry tries to get owner privileges back
-    add_owner_info = {
-        "token" : Henry["token"],
-        "channel_id" : chan1["channel_id"],
-        "u_id" : Henry["u_id"]
-    }
-    
-    resp7 = requests.post(url + "/channel/addowner", json = add_owner_info)
-    resp7_payload = resp7.json()
-    assert resp7_payload["message"] == "<p>User is not owner of channel<p>"
-    assert resp7_payload["code"] == 400
+    addowner1 = add_owner(Henry['token'], chan1, Henry['u_id'], url)
+    assert addowner1['message'] == "<p>User is not owner of channel</p>"
+    assert addowner1['code'] == 400
 
     # Henry leaves channel
-    leave_channel1 = {
-        "token" : Henry["token"],
-        "channel_id" : chan1["channel_id"]
-    }
-
-    resp8 = requests.post(url + "/channel/leave", json = leave_channel1)
-    assert resp8.json() == {}
+    leave1 = leave_channel(Henry['token'], chan1, url)
+    assert leave1.json() == {}
 
     # Henry logs out
-    logout1 = {
-        "token" : Henry["token"]
-    }
-
-    resp9 = requests.post(url + "/auth/logout", json = logout1)
-    assert resp9.json() == { "is_success" : True }
+    logout1 = logout_user(Henry['token'], url)
+    assert logout1 == { "is_success" : True }
 
     # Joe edits message
-    message_edit = {
-        "token" : Joe["token"],
-        "message_id" : mess1["message_id"],
-        "message" : "I win"
-    }
-
-    resp10 = requests.put(url + "/message/edit", json = message_edit)
-    assert resp10.json() == {}
+    edit1 = edit_message(Joe['token'], mess1, "I win.", url)
+    assert edit1 == {}
 
     # Joe leaves channel
-    leave_channel2 = {
-        "token" : Joe["token"],
-        "channel_id" : chan1["channel_id"]
-    }
-
-    resp11= requests.post(url + "/channel/leave", json=leave_channel2)
-    assert resp11.json() == {}
+    leave2 = leave_channel(Joe['token'], chan1, url)
+    assert leave2 == {}
 
     # Joe creates new channel (General)
-    chan2_info = {
-        "token" : Joe["token"],
-        "name" : "General",
-        "is_public" : False
-    }
-
-    resp12 = requests.post(url + "/channels/create", json = chan2_info)
-    chan2 = resp12.json()
-    assert len(chan1) == 2
-    assert chan2["channel_id"] is not None
-    assert chan2["channel_id"] != chan1["channel_id"]
+    chan2 = create_channel(Joe['token'], "General", False, url)
+    assert chan2 == 2
 
     # Joe changes his name
-    change_name1 = {
-        "token" : Joe["token"],
-        "name_first" : "The",
-        "name_last" : "KING"
-    }
-
-    resp13 = requests.put(url + "/user/profile/setname", json = change_name1)
-    assert resp13.json() == {}
+    name1 = change_name(Joe['token'], "The", "KING", url)
+    assert name1 == {}
 
     # Joe changes his email
-    change_email = {
-        "token" : Joe["token"],
-        "email" : "theKING@gmail.com"
-    }
-    
-    resp14 = requests.put(url + "/user/profile/setemail", json = change_email)
-    assert resp14.json() == {}
+    email1 = change_email(Joe['token'], 'theKING@gmail.com', url)
+    assert email1 == {}
 
     # Joe changes his handle
-    change_handle = {
-        "token" : Joe["token"],
-        "handle_str" : "WeAreNumberOne"
-    }
-    
-    resp15 = requests.put(url + "/user/profile/sethandle", json = change_handle)
-    assert resp15.json() == {}
+    handle1 = change_handle(Joe['token'], "WeAreNumberOne", url)
+    assert handle1 == {}
 
     # Joe changes his password
-    change_password = {
-        "token" : Joe["token"],
-        "password" : "The Winner Takes It All"
-    }
-
-    resp16 = requests.put(url + "/user/profile/changepassword", data = change_password)
-    assert resp16.json() == {}
+    password1 = change_password(Joe['token'], 'The Winner Takes It All', url)
+    assert password1 == {}
 
     # Joe logs off
-    logout2 = {
-        "token" : Joe["token"]
-    }
-    
-    resp17 = requests.post(url + "/auth/logout", json = logout2)
-    assert resp17 == { "is_success" : True }
+    logout2 = logout_user(Joe['token'], url)
+    assert logout2 == { "is_success" : True }
 
     # Joe logs in unsuccessfully (Forgot about password change)
-    login1 = {
-        "email" : "theKING@gmail.com",
-        "password" : "sdrawkcab"
-    }
-
-    resp18 = requests.post(url + "/auth/login", json = login1)
-    resp18_payload = resp18.json()
-    assert resp18_payload["message"] == "<p>Password is incorrect<p>"
-    assert resp18_payload["code"] == 400
+    login1 = login_user("theKING@gmail.com", "sdrawkcab", url)
+    assert login1["message"] == "<p>Password is incorrect<p>"
+    assert login1["code"] == 400
 
     # Joe logs in successfully
-    login2 = {
-        "email" : "theKING@gmail.com",
-        "password" : "The Winner Takes It All"
-    }
-
-    resp19 = requests.post(url + "/auth/login", json = login2)
-    new_Joe = resp19.json()
+    new_Joe = login_user("theKING@gmail.com", "The Winner Takes It All", url)
     assert len(new_Joe) == 2
     assert new_Joe["token"] is not None
-    assert new_Joe["u_id"] is not None
+    assert new_Joe["token"] != Joe["token"] # Could potentially fail 1 in 100,000 times
     assert new_Joe["u_id"] == Joe["u_id"]
 
     # Joe admired his new profile
-    profile_check = {
-        "token" : new_Joe["token"],
-        "u_id" : new_Joe["u_id"]
-    }
-
-    resp20 = requests.get(url + "/user/profile", params = profile_check)
+    profile1 = check_profile(new_Joe['token'], new_Joe['u_id'], url)
     expected_user = {
         "name_first" : "The",
         "name_last" : "KING",
@@ -468,15 +527,11 @@ def hostile_takeover(url):
     }
     
     expected_profile = { "user" : expected_user }
-    assert resp20.json() == expected_profile
+    assert profile1 == expected_profile
 
     # Joe logs out
-    logout3 = {
-        "token" : new_Joe["token"]
-    }
-    
-    resp21 = requests.post(url + "/auth/logout", json = logout3)
-    assert resp21 == { "is_success" : True }
+    logout3 = logout_user(new_Joe['token'], url)
+    assert logout3 == { "is_success" : True }
 
 def test_editing_removing_messages(url):
     """
@@ -498,155 +553,82 @@ def test_editing_removing_messages(url):
     assert_different_people(Paul, Seal)
     
     # Paul creates a channel "General"
-    chan1_info = {
-        "token" : Paul["token"],
-        "name" : "General",
-        "is_public" : True,
-    }
-
-    resp3 = requests.post(url + "/channels/create", json = chan1_info)
-    chan1 = resp3.json()
+    chan1 = create_channel(Paul['token'], "Misc", True, url)
+    assert chan1 == 1
     
-    # Seal joins the channel "General"
-    chan1_join = {
-        "token" : Seal["token"],
-        "channel_id" : chan1["channel_id"],
-    }
+    # Seal joins the channel "Misc"
+    join1 = join_channel(Seal['token'], chan1, url)
+    assert join1 == {}
 
-    resp4 = requests.post(url + "/channel/join", json = chan1_join)
-    assert resp4.json() == {}
-
-    # Paul and Seal send messages to each other in "General"
-    message1_1_info = {
-        "token" : Paul["token"],
-        "channel_id": chan1["channel_id"],
-        "message" : "First rule in general channel do not talkaboutgeneralchannel"
-    }
+    # Paul and Seal send messages to each other in "Misc"
+    msg1 = "First rule in general channel do not talkaboutgeneralchannel"
+    mess1 = send_message(Seal['token'], chan1, msg1, url)
+    assert mess1 == 1
     
-    resp5 = requests.post(url + "message/send", json = message1_1_info)
-    resp5_return = resp5.json()
-    assert len(resp5_return) == 1
+    msg2 = "Second Rule ... First rule again"
+    mess2 = send_message(Paul['token'], chan1, msg2, url)
+    assert mess2 == 2
     
-    message1_2_info = {
-        "token" : Paul["token"],
-        "channel_id" : chan1["channel_id"],
-        "message" : "Second Rule ... First rule again",
-    }
-    
-    requests.post(url + "message/send", json = message1_2_info)
+    msg3 = "You seem bad at this"
+    mess3 = send_message(Seal['token'], chan1, msg3, url)
+    assert mess3 == 3
 
-    message1_3_info = {
-        "token" : Seal["token"],
-        "channel_id" : chan1["channel_id"],
-        "message" : "You seem bad at this"
-    }
-    
-    requests.post(url + "message/send", json = message1_3_info)
+    # Paul addes Seal as an owner of "Misc"
+    addowner1 = add_owner(Paul['token'], chan1, Seal['u_id'], url)
+    assert addowner1 == {}
 
-    # Paul addes Seal as an owner of "General"
-    addowner_info = {
-        "token" : Paul["token"],
-        "channel_id" : chan1["channel_id"],
-        "u_id" : Seal["u_id"],
-    }
-
-    resp8 = requests.post(url + "channel/addowner", json = addowner_info)
-    assert resp8.json() == {}
-
-    # Seal calls for a list of all messages in "General"
-    get_messages_info = {
-        "token" : Seal["token"],
-        "channel_id" : chan1["channel_id"],
-        "start" : 0
-    }
-
-    resp9 = requests.get(url + "/channel/messages",params = get_messages_info)
-    channel_message1 = resp9.json()
-    assert channel_message1["end"] == -1 
+    # Seal calls for a list of all messages in "Misc"
+    messages1 = check_messages(Seal['token'], chan1, 0, url)
+    assert len(messages1['messages']) == 3
+    assert messages1["end"] == -1 
 
     # Seal edits a message
-    for sent_message in channel_message1["messages"]:
-        edit_message_info = {
-            "token" : Seal["token"],
-            "message_id" : sent_message["message_id"],
-            "message" : "New message YaYaYaYa" 
-        }
-        resp10 = requests.put(url + "message/edit", json = edit_message_info)
-        assert resp10.json() == {}
+    msg4 = "New message YaYaYaYa" 
+    for sent_message in messages1['messages']:
+        edit = edit_message(Seal['token'], sent_message['message_id'], msg4, url)
+        assert edit == {}
 
-    resp11 = requests.get(url + "channel/messages",params = get_messages_info)
-    channel_message2 = resp11.json()
-    assert channel_message2["end"] == -1
+    messages2 = check_messages(Seal['token'], chan1, 0, url)
+    assert len(messages2['messages']) == 3
+    assert messages2["end"] == -1
 
     # Check message_edit worked
-    for sent_message in channel_message2["messages"]:
-        assert sent_message["message"] == "New message YaYaYaYa"
+    for sent_message in messages2["messages"]:
+        assert sent_message["message"] == msg4
 
-    # Slam registers and joins the channel "General"
+    # Slam registers and joins the channel "Misc"
     Slam = register_user("Slam","Bam","nam@bigpond.net", "rightEOUS!ath", url)
 
-    chan1_join2 = {
-        "token" : Slam["token"],
-        "channel_id" : chan1["channel_id"],
-    }
-    
-    resp13 = requests.post(url + "channel/join", json = chan1_join2)
-    assert resp13.json() == {}
+    join2 = join_channel(Slam['token'], chan1, url)
+    assert join2 == {}
 
-    # Slam sends a message to "General"
-    message1_4_info = {
-        "token" : Slam["token"],
-        "channel_id": chan1["channel_id"],
-        "message" : "I love your channel"
-    }
-    
-    requests.post(url + "message/send", json = message1_4_info)
+    # Slam sends a message to "Misc"
+    msg5 = "I love your channel"
+    mess4 = send_message(Slam['token'], chan1, msg5, url)
+    assert mess4 == 4
 
-    # Slam calls for a list of messages
-    get_messages_info2 = {
-        "token" : Slam["token"],
-        "channel_id" : chan1["channel_id"],
-        "start" : 0
-    }
-    
-    resp15 = requests.get(url + "channel/messages", params = get_messages_info2)
-    channel_message3 = resp15.json()
+    # Slam deletes their message
 
     """Mimics how a person would find and delete a message"""
-    for message in channel_message3["messages"]:
-        if message["message"] == "I love your channel":
-            message_remove_info = {
-                "token" : Slam["token"],
-                "message_id" : message["message_id"],
-            }
-            resp16 = requests.delete(url + "message/remove", json = message_remove_info)
-            assert resp16.json() == {}
+    search1 = search_message(Slam['token'], "love", url)
+    assert len(search1) == 1
 
-    # Slam sends a new message to "General"
-    message1_5_info = {
-        "token" : Slam["token"],
-        "channel_id" : chan1["channel_id"],
-        "message" : "I REALLY love your channel",
-    }
-    
-    resp17 = requests.post(url + "message/send", json = message1_5_info)
-    message1_5 = resp17.json()
+    for message in search1.values():
+        found_message = message['message_id']
+    rem1 = remove_message(Slam['token'], found_message, url)
+    assert rem1 == {}
 
-    # Slam removes a message
-    message_remove_info = {
-        "token" : Seal["token"],
-        "message_id" : message1_5["message_id"],
-    }
-    
-    resp18 = requests.delete(url + "message/remove",json = message_remove_info)
-    assert resp18.json() == {}
+    # Slam sends a new message to "Misc"
+    msg6 = "I REALLY love your channel"
+    mess5 = send_message(Slam['token'], chan1, msg6, url)
+    assert mess5 == 5
 
-    resp19 = requests.get(url + "channel/messages",params = get_messages_info2)
-    channel_message4 = resp19.json()
+    # Seal removes the message
+    rem2 = remove_message(Seal['token'], mess5, url)
+    assert rem2 == {}
 
-    # Check message1_5 was deleted
-    for message_dict in channel_message4["messages"]:
-        assert message_dict["message"] != message1_5_info["message"]
+    messages3 = check_messages(Seal['token'], chan1, 0, url)
+    assert len(messages3['messages']) == 3
 
 def test_admin_permission_change(url):
     """
@@ -660,41 +642,20 @@ def test_admin_permission_change(url):
     assert_different_people(Jack, Jill)
 
     # Jack makes Jill an owner/admin of Flockr
-    admin_change_params =  {
-        "token" : Jack["token"],
-        "u_id" : Jill["u_id"],
-        "permission_id" : 1,
-    }
-    
-    resp1 = requests.post(url + "/admin/userpermission/change",json = admin_change_params)
-    assert resp1.json() == {}
+    change_perm1 = change_permission(Jack['token'], Jill['u_id'], 1, url)
+    assert change_perm1 == {}
 
     # Jack creates and joins a channel "Jack"s channel"
-    channel_create_info = {
-        "token" : Jack["token"],
-        "name" : "Jack's Channel",
-        "is_public" : True,
-    }
-    
-    resp2 = requests.post(url + "/channels/create", json = channel_create_info)
-    channel = resp2.json()
+    chan1 = create_channel(Jack['token'], "Jack's Channel", True, url)
+    assert chan1 == 1
 
     # Jill joins the channel
-    channel_join_info = {
-        "token" : Jill["token"],
-        "channel_id" : channel["channel_id"],
-    }
-    
-    requests.post(url + "/channel/join",json = channel_join_info)
+    join1 = join_channel(Jill['token'], chan1, url)
+    assert join1 == {}
 
     # Jack checks for the owners of "Jack's Channel"
-    channel_detail_request = {
-        "token" : Jack["token"],
-        "channel_id" : channel["channel_id"]
-    }
-    
-    resp3 = requests.get(url + "/channel/details",params = channel_detail_request)
-    channel_details = resp3.json()
+    channel_details = channel_info(Jack['token'], chan1, url)
+
     assert channel_details["name"] == "Jack's Channel"
     assert channel_details["owner_members"][0]["u_id"] == Jack["u_id"]
     assert channel_details["all_members"][0]["u_id"] == Jack["u_id"] 
@@ -711,244 +672,118 @@ def test_admin_permission_change_invalid(url):
     assert_different_people(Jack, Jill)
 
     # Jack attempts change Jill's permissions with nvalid permission_id value
-    admin_change_params1 =  {
-        "token" : Jack["token"],
-        "u_id" : Jill["u_id"],
-        "permission_id" : 3,
-    }
-    
-    resp1 = requests.post(url + "/admin/userpermission/change",json = admin_change_params1)
-    payload1 = resp1.json()
-    assert payload1["message"] == "<p>Permission id is not a valid value</p>"
-    assert payload1["code"] == 400
+    change_perm1 = change_permission(Jack['token'], Jill['u_id'], 3, url)
+    assert change_perm1["message"] == "<p>Permission id is not a valid value</p>"
+    assert change_perm1["code"] == 400
 
     # Jack attempts to make a non-existent member an owner/admin
-    admin_change_params2 =  {
-        "token" : Jack["token"],
-        "u_id" : "invalid_uid",
-        "permission_id" : 1,
-    }
-    
-    resp2 = requests.post(url + "/admin/userpermission/change",json = admin_change_params2)
-    payload2 = resp2.json()
-    assert payload2["message"] == "<p>Target user does not exist</p>"
-    assert payload2["code"] == 400
+    change_perm2 = change_permission(Jack['token'], "invalid_uid", 1, url)
+    assert change_perm2["message"] == "<p>Target user does not exist</p>"
+    assert change_perm2["code"] == 400
 
     # Jill attempts to change Jack"s permissions
-    admin_change_params3 =  {
-        "token" : Jill["token"],
-        "u_id" : Jack["u_id"],
-        "permission_id" : 2,
-    }
-    
-    resp3 = requests.post(url + "/admin/userpermission/change",json = admin_change_params3)
-    payload3 = resp3.json()
-    assert payload3["message"] == "<p>User is not owner of Flockr</p>"
-    assert payload3["code"] == 400
+    change_perm3 = change_permission(Jill['token'], Jack['u_id'], 2, url)
+    assert change_perm3["message"] == "<p>User is not owner of Flockr</p>"
+    assert change_perm3["code"] == 400
 
 
 def test_invalid_user_inputs(url):
     """
     Tests realistic invalid inputs from a user.
     e.g Entering an incorrect password is realistic
-    but passing an incorrect token is not because the 
-    user has no control over that
+    but passing an incorrect token is not very realistic
+    because the user has little control over that
     """
     # Jack registers
     Jack = register_user("Jack", "Smith", "jsmith@gmail.com", "jackjack123", url)
 
     # Jack attempts to change his first name to a short name
-    change_name_short = {
-        "token" : Jack["token"],
-        "name_first" : "",
-        "name_last" : "Smith"
-    }
-
-    resp1 = requests.put(url + "/user/profile/setname",json = change_name_short)
-    resp1_payload = resp1.json()
-    assert resp1_payload["message"] == "<p>First name is invalid</p>"
-    assert resp1_payload["code"] == 400
+    name1 = change_name(Jack['token'], '', 'Smith', url)
+    assert name1["message"] == "<p>First name is invalid</p>"
+    assert name1["code"] == 400
 
     # Jack attempts to change his first name to a longer name
-    change_name_long = {
-        "token" : Jack["token"],
-        "name_first" : "JacksJacksJacksJacksJacksJacksJacksJacksJacksJacksJacks",
-        "name_last" : "Smith"
-    }
-
-    resp2 = requests.put(url + "/user/profile/setname",json = change_name_long)
-    resp2_payload = resp2.json()
-    assert resp2_payload["message"] == "<p>First name is invalid</p>"
-    assert resp2_payload["code"] == 400
+    msg1 = "JacksJacksJacksJacksJacksJacksJacksJacksJacksJacksJacks"
+    name2 = change_name(Jack['token'], msg1, "Smith", url)
+    assert name2["message"] == "<p>First name is invalid</p>"
+    assert name2["code"] == 400
 
     # Jack attempts to change his last name to a shorter name
-    change_name_last_short = {
-        "token" : Jack["token"],
-        "name_first" : "Jack",
-        "name_last" : ""
-    }
+    name3 = change_name(Jack['token'], 'Jack', '', url)
+    assert name3["message"] == "<p>Last name is invalid</p>"
+    assert name3["code"] == 400
 
-    resp3 = requests.put(url + "/user/profile/setname",json = change_name_last_short)
-    resp3_payload = resp3.json()
-    assert resp3_payload["message"] == "<p>Last name is invalid</p>"
-    assert resp3_payload["code"] == 400
-
-    # Jack attempts to change his last name to a shorter name
-    change_name_last_long = {
-        "token" : Jack["token"],
-        "name_first" : "Jack",
-        "name_last" : "SmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmith"
-    }
-
-    resp4 = requests.put(url + "/user/profile/setname",json=change_name_last_long)
-    resp4_payload = resp4.json()
-    assert resp4_payload["message"] == "<p>Last name is invalid</p>"
-    assert resp4_payload["code"] == 400
+    # Jack attempts to change his last name to a longer name
+    msg2 = "SmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmithSmith"
+    name4 = change_name(Jack['token'], 'Jack', msg2, url)
+    assert name4["message"] == "<p>Last name is invalid</p>"
+    assert name4["code"] == 400
 
     # Jack attempts to change his email
-    change_email_invalid = {
-        "token" : Jack["token"],
-        "email" : "jsmithgmail.com"
-    }
+    email1 = change_email(Jack['token'], 'jsmithgmail.com', url)
+    assert email1["message"] == "<p>Email is invalid</p>"
+    assert email1["code"] == 400
 
-    resp5 = requests.put(url + "/user/profile/setemail",json = change_email_invalid)
-    resp5_payload = resp5.json()
-    assert resp5_payload["message"] == "<p>Email is invalid</p>"
-    assert resp5_payload["code"] == 400
-
-    # Jim registers and attempts to sign up with the same email as Jack
+    # Jim registers
     Jim = register_user("Jim","Smath", "js@gmail.com", "pasffef2U", url)
 
-    change_email_existing = {
-        "token" : Jack["token"],
-        "email" : "js@gmail.com",
-    }
-
-    resp6 = requests.put(url + "/user/profile/setemail",json = change_email_existing)
-    resp6_payload = resp6.json()
-    assert resp6_payload["message"] == "<p>Email already in use</p>"
-    assert resp6_payload["code"] == 400
+    # Jack attempts to change his email to Jim's
+    email2 = change_email(Jack['token'], 'js@gmail.com', url)
+    assert email2["message"] == "<p>Email already in use</p>"
+    assert email2["code"] == 400
 
     # Jack attempts to change his handle shorter
-    change_handle_short = {
-        "token" : Jack["token"],
-        "handle_str" : "si"
-    }
+    handle1 = change_handle(Jack['token'], 'si', url)
+    assert handle1["message"] == "<p>Handle is invalid</p>"
+    assert handle1["code"] == 400
 
-    resp7 = requests.put(url + "/user/profile/sethandle",json = change_handle_short)
-    resp7_payload = resp7.json()
-    assert resp7_payload["message"] == "<p>Handle is invalid</p>"
-    assert resp7_payload["code"] == 400
-
-    # Jack attempts to change his handle longer
-    change_handle_long = {
-        "token" : Jack["token"],
-        "handle_str" : "SisinSisinSisinSisinSisin"
-    }
-
-    resp8 = requests.put(url + "/user/profile/sethandle",json = change_handle_long)
-    resp8_payload = resp8.json()
-    assert resp8_payload["message"] == "<p>Handle is invalid</p>"
-    assert resp8_payload["code"] == 400
+    # Jack attempts to make his handle longer
+    msg3 = 'SisinSisinSisinSisinSisin'
+    handle2 = change_handle(Jack['token'], msg3, url)
+    assert handle2["message"] == "<p>Handle is invalid</p>"
+    assert handle2["code"] == 400
 
     # Jim and Jack change their handles to be the same
-    change_handle_Jim = {
-        "token" : Jim["token"],
-        "handle_str" : "jsjsjsjs"
-    }
+    msg4 = "jsjsjsjs"
+    handle3 = change_handle(Jack['token'], msg4, url)
+    assert handle3 == {}
 
-    resp9 = requests.put(url + "/user/profile/sethandle",json = change_handle_Jim)
-    assert resp9.json() == {}
-
-    change_handle_used = {
-        "token" : Jack["token"],
-        "handle_str" : "jsjsjsjs"
-    }
-
-    resp10 = requests.put(url + "/user/profile/sethandle", json = change_handle_used)
-    resp10_payload = resp10.json()
-    assert resp10_payload["message"] == "<p>Handle already in use</p>"
-    assert resp10_payload["code"] == 400
+    handle4 = change_handle(Jim['token'], msg4, url)
+    assert handle4["message"] == "<p>Handle already in use</p>"
+    assert handle4["code"] == 400
 
     # Jack creates a channel "jackattacka"
-    channel_create_info = {
-        "token" : Jack["token"],
-        "name" : "jackattacka",
-        "is_public" : True,
-    }
-
-    resp11 = requests.post(url + "/channels/create", json = channel_create_info)
-    jack_channel = resp11.json()
+    chan1 = create_channel(Jack['token'], "jackattacka", True, url)
+    assert chan1 == 1
 
     # Jack sends some messages to "jackattacka"
-    long_string = "edka"
+    long_string = "602" * 1000
+    mess1 = send_message(Jack['token'], chan1, long_string, url)
+    assert mess1["message"] == "<p>Invalid message</p>" 
+    assert mess1["code"] == 400
 
-    for _i in range(1001):
-        long_string += "a"
-
-    send_message_long = {
-        "token" : Jack["token"],
-        "channel_id" : jack_channel["channel_id"],
-        "message" : long_string
-    }
-
-    resp12 = requests.post(url + "/message/send", json = send_message_long)
-    resp12_payload = resp12.json()
-    assert resp12_payload["message"] == "<p>Invalid message</p>" 
-    assert resp12_payload["code"] == 400
-
-    send_valid_message = {
-        "token" : Jack["token"],
-        "channel_id" : jack_channel["channel_id"],
-        "message" : "fefebfoebfnijfcnshoffjZDfnJH"
-    }
-
-    resp13 = requests.post(url + "/message/send",json = send_valid_message)
-    resp13_payload = resp13.json()
+    msg5 = "fefebfoebfnijfcnshoffjZDfnJH"
+    mess2 = send_message(Jack['token'], chan1, msg5, url)
+    assert mess2 == 1
 
     # Jim joins "jackattacka"
-    channel_join_info = {
-        "token" : Jim["token"],
-        "channel_id" : jack_channel["channel_id"],
-    }
-    
-    resp14 = requests.post(url + "/channel/join",json = channel_join_info)
-    assert resp14.json() == {}
+    join1 = join_channel(Jim['token'], chan1, url)
+    assert join1 == {}
 
     # Jim attempts to remove a message
-    remove_message_no_access = {
-        "token" : Jim["token"],
-        "message_id": resp13_payload["message_id"]
-    }
-    
-    resp15 = requests.delete(url + "/message/remove", json = remove_message_no_access)
-    resp15_payload = resp15.json()
-    assert resp15_payload["message"] == "<p>User is not creator or owner</p>"
-    assert resp15_payload["code"] == 400
+    rem1 = remove_message(Jim['token'], mess2, url)
+    assert rem1["message"] == "<p>User is not creator or owner</p>"
+    assert rem1["code"] == 400
 
     # Jim attempts to edit a message
-    edit_message_no_access = {
-        "token" : Jim["token"],
-        "message_id" : resp13_payload["message_id"],
-        "message" : "wneifoji   wijweioewni"
-    }
-
-    resp16 = requests.put(url + "/message/edit", json = edit_message_no_access)
-    resp16_payload = resp16.json()
-    assert resp16_payload["message"] == "<p>User is not creator or owner</p>"
-    assert resp16_payload["code"] == 400
+    edit1 = edit_message(Jim['token'], mess2, "We win these", url)
+    assert edit1["message"] == "<p>User is not creator or owner</p>"
+    assert edit1["code"] == 400
 
     # Jack attempts to edit a message
-    edit_message_long = {
-        "token" : Jack["token"],
-        "message_id" : resp13_payload["message_id"],
-        "message" : long_string
-    }
-
-    resp17 = requests.put(url + "/message/edit", json = edit_message_long)
-    resp17_payload = resp17.json()
-    assert resp17_payload["message"] == "<p>Invalid message</p>"
-    assert resp17_payload["code"] == 400
+    edit2 = edit_message(Jack['token'], mess2, long_string, url)
+    assert edit2["message"] == "<p>Invalid message</p>"
+    assert edit2["code"] == 400
 
 def test_list_users_and_channels(url):
     """
@@ -959,64 +794,43 @@ def test_list_users_and_channels(url):
     Jill = register_user("Jill", "Smith", "jillsmith12@gmail.com", "jilljill123", url)
     assert_different_people(Jack, Jill)
 
-    user_all_info = {
-        "token" : Jack["token"],
-    }
-    # Jack calls for a list of all users in Flockr
-    resp1 = requests.get(url + "/users/all", params = user_all_info)
-    user_list = resp1.json()["users"]
-    
-    assert user_list[0]["u_id"] == Jack["u_id"]
-    assert user_list[1]["u_id"] == Jill["u_id"]
+    # Jack gets a list of all users
+    users = user_list(Jack['token'], url)
+    assert users[0]["u_id"] == Jack["u_id"]
+    assert users[1]["u_id"] == Jill["u_id"]
 
-    # Jack creates and joins the channels "First channel" and "Second Channel"
-    channel_info1 = {
-        "token" : Jack["token"],
-        "name" : "First Channel",
-        "is_public" : True,
-    }
-
-    channel_info2 = {
-        "token" : Jack["token"],
-        "name" : "Second Channel",
-        "is_public" : True,
-    }
-
-    requests.post(url + "/channels/create", json = channel_info1)
-    resp2 = requests.post(url + "/channels/create", json = channel_info2)
-    channel2 = resp2.json()
+    # Jack creates and joins the channels "First" and "Second"
+    chan1 = create_channel(Jack['token'], "First", True, url)
+    chan2 = create_channel(Jack['token'], "Second", True, url)
+    assert chan1 == 1
+    assert chan2 == 2
 
     # Jack calls for a list of all channels in Flockr
+    listall1 = channel_listall(Jack['token'], url)
     channels_listall_result = [
         {
             "channel_id" : 1,
-            "name" : "First Channel",
+            "name" : "First",
         },
         {
             "channel_id": 2,
-            "name" : "Second Channel"
+            "name" : "Second"
         }
     ]
 
-    resp3 = requests.get(url + "/channels/listall", params = {"token" : Jack["token"]})
-    assert resp3.json() == {"channels" : channels_listall_result}
+    assert listall1 == channels_listall_result
 
     # Jill joins "Second Channel"
-    channel_join_info = {
-        "token" : Jill["token"],
-        "channel_id" : channel2["channel_id"],
-    }
-
-    requests.post(url + "/channel/join", json = channel_join_info)
+    join1 = join_channel(Jill['token'], chan2, url)
+    assert join1 == {}
 
     # Jill calls for a list of all channels she has joined
+    listin1 = channel_list(Jill['token'], url)
     channels_list_result = [
         {
             "channel_id": 2,
-            "name" : "Second Channel"
+            "name" : "Second"
         }
     ]
-
-    resp4 = requests.get(url + "/channels/list", params = {"token" : Jill["token"]})
-    assert resp4.json() == {"channels" : channels_list_result}
-
+    # assert listin1 == {"channels" : channels_list_result}
+    assert listin1 == channels_list_result
