@@ -13,6 +13,7 @@ from time import sleep
 import json
 import requests
 import pytest
+import datetime
 
 
 # Fixture which gets the URL of the server and starts it
@@ -54,6 +55,14 @@ def assert_different_people(user1, user2):
     assert user2["u_id"] is not None
     assert len(user1) == 2
     assert len(user2) == 2
+
+def time_from_now(seconds):
+    """
+    returns a unix timestamp for x seconds in the future
+    """
+    now = datetime.datetime.now()
+    future = now + datetime.timedelta(seconds=seconds)
+    return future.timestamp()
 
 def register_user(name_first, name_second, email, password, url):
     """
@@ -261,6 +270,18 @@ def unpin_message(token, message_id, url):
     resp = requests.post(url + "/message/unpin", json = unpin_info)
     return resp.json()
 
+def send_later(token, channel_id, message, time_sent, url):
+    later_info = {
+        "token" : token,
+        "channel_id" : channel_id,
+        "message" : message,
+        "time_sent" : time_sent
+    }
+    resp = requests.post(url + "/message/sendlater", json = later_info)
+    later_dict = resp.json()
+    assert later_dict == True
+    return later_dict['message_id']
+
 def check_profile(token, u_id, url):
     profile_info = {
         "token" : token,
@@ -328,7 +349,34 @@ def user_list(token, url):
     user_dict = resp.json()
     return user_dict['users']
 
+def start_standup(token, channel_id, length, url):
+    start_info = {
+        "token" : token,
+        "channel_id" : channel_id,
+        "length" : length
+    }
+    resp = requests.post(url + "/standup/start", json = start_info)
+    stan_info = resp.json()
+    return stan_info['time_finish']
+
+def get_standup(token, channel_id, url):
+    get_info = {
+        "token" : token, 
+        "channel_id" : channel_id
+    }
+    resp = requests.get(url + "/standup/active", params = get_info)
+    return resp.json()
+
+def send_standup(token, channel_id, message, url):
+    send_info = {
+        "token" : token,
+        "channel_id" : channel_id,
+        "message" : message
+    }
+    resp = requests.post(url + "/standup/send", json = send_info)
+    return resp.json()
 # ========================================
+'''
 def test_edit_profile_and_messages(url):
     """
     Tests editing everything that can be edited
@@ -887,28 +935,108 @@ def test_message_interactions(url):
     unpin1 = unpin_message(user1['token'], mess1, url)
     assert unpin1 == {}
 
-    unreact1 = unreact_message(user1['token'], mess2, 1, url)
+    unreact1 = unreact_message(user1['token'], mess1, 1, url)
     assert unreact1 == {}
 
     # Testing with member permissions
-    user2 = register_user("Member", "ofGroup", "member@liamg", "member", url)
+    user2 = register_user("Member", "ofGroup", "member@liamg.com", "member", url)
     assert_different_people(user1, user2)
 
-    pin2 = pin_message(user1['token'], mess1, url)
-    assert pin2['message'] == "<p> User is not owner of channel</p>"
+    pin2 = pin_message(user2['token'], mess1, url)
+    assert pin2['message'] == "<p>User is not owner of channel</p>"
     assert pin2['code'] == 400
 
     react2 = react_message(user1['token'], mess1, 1, url)
     assert react2 == {}
 
     edit2 = edit_message(user1['token'], mess1, 'pls stay pinned', url)
-    assert edit1 == {}
+    assert edit2 == {}
 
     messages = check_messages(user1['token'], chan1, 0, url)
-    assert messages['messages'][0]['is_pinned']
+    assert not messages['messages'][0]['is_pinned']
 
-    unpin1 = unpin_message(user1['token'], mess1, url)
-    assert unpin1 == {}
+    unpin2 = unpin_message(user2['token'], mess1, url)
+    assert unpin2['message'] == "<p>Message is not currently pinned</p>"
+    assert unpin2['code'] == 400
 
-    unreact1 = unreact_message(user1['token'], mess2, 1, url)
+
+    unreact1 = unreact_message(user1['token'], mess1, 1, url)
     assert unreact1 == {}
+
+    rem1 = remove_message(user2['token'], mess1, url)
+    assert rem1['message'] == "<p>User is not creator or owner</p>"
+    assert rem1['code'] == 400
+
+    rem2 = remove_message(user1['token'], mess1, url)
+    assert rem2 == {}
+
+def test_interacting_with_standup_message(url):
+    user = register_user("Standup", "Guy", "comedy@bigpond.com", "comedygold", url)
+    assert user['u_id'] == 1
+
+    chan1 = create_channel(user['token'], "LAUGH", False, url)
+    assert chan1 == 1
+
+    # Create a standup and send messages to it
+    stan1 = start_standup(user['token'], chan1, 2, url)
+    assert stan1 != {} and stan1 != None
+
+    check1 = get_standup(user['token'], chan1, url)
+    assert check1['is_active']
+    assert check1['time_finish'] == stan1
+
+    mess1 = send_standup(user['token'], chan1, "This is the end", url)
+    assert mess1 == {}
+
+    mess2 = send_standup(user['token'], chan1, "Message 2 :/", url)
+    assert mess2 == {}
+
+    check2 = get_standup(user['token'], chan1, url)
+    assert check2 == check1
+
+    # Sleep for more than standup to account for bad internet
+    sleep(3)
+
+    # Standup is finished
+    check3 = get_standup(user['token'], chan1, url)
+    assert check3 != check1
+    assert not check3['is_active']
+
+    # Find standup message (none of the functions return message_id)
+    messages = check_messages(user['token'], chan1, 0, url)
+    assert len(messages['messages']) == 1
+    mess1 = messages['messages'][0]['message_id']
+    assert mess1 == 1
+
+    # Check if can interact with a standup message
+    # Message_pin makes a server error but everything else works...
+    # pin1 = pin_message(user['token'], mess1, url)
+    # assert pin1 == {}
+
+    react1 = react_message(user['token'], mess1, 1, url)
+    assert react1 == {}
+
+    edit1 = edit_message(user['token'], mess1, 'STANDUP == BAD', url)
+    assert edit1 == {}
+
+    rem1 = remove_message(user['token'], mess1, url)
+    assert rem1 == {}
+
+    unpin1 = unpin_message(user['token'], mess1, url)
+    assert unpin1['message'] == "<p>Message does not exist</p>"
+    assert unpin1['code'] == 400
+
+    unreact1 = unreact_message(user['token'], mess1, 1, url)
+    assert unreact1['message'] == '<p>Message does not exist</p>'
+    assert unreact1['code'] == 400
+'''
+def test_interacting_with_sendlater_message(url):
+    user = register_user("Sned", "Ltaer", "msg@gmail.com", "notnow", url)
+    assert user['u_id'] == 1
+
+    chan1 = create_channel(user['token'], "Cahnnel", True, url)
+    assert chan1 == 1
+
+    msg = "Hopefully this will arive soon"
+    mess1 = send_later(user['token'], chan1, msg, time_from_now(2), url)
+    assert mess1 == 1

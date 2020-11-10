@@ -42,6 +42,7 @@ def send_standup(*args):
     new_message["u_id"] = args[0]
     new_message["time_created"] = datetime.datetime.now().replace().timestamp()
     new_message["message_id"] = new_message_id
+    new_message["is_pinned"] = False
     new_message["reacts"] = [
             {
         "react_id": 1,

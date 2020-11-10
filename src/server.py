@@ -65,7 +65,6 @@ def echo():
         "data": data
     })
 
-message.message_send
 @APP.route("/auth/register", methods = ["POST"])
 def register():
     """
