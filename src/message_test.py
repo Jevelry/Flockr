@@ -485,7 +485,7 @@ def test_message_react_invalid_message_id(user1):
     Testing that Input Error is raised when the message_id is an invalid message 
     that authorised use is member of
     """
-    user1, chan = user1
+    user1, _chan = user1
     with pytest.raises(InputError):
         assert message.message_react(user1["token"], 123415, 1)
 
@@ -530,7 +530,6 @@ def test_message_unreact_valid(users):
     """
     user1, user2, chan = users
     test_message1 = "Hello Luke!"
-    test_message2 = "im amazing"
     message_id1 = message.message_send(user1["token"], chan['channel_id'], test_message1)
     message.message_react(user1["token"], message_id1["message_id"], 1)
     message.message_react(user2["token"], message_id1["message_id"], 1)
@@ -548,7 +547,7 @@ def test_message_unreact_invalid_message_id(user1):
     Testing that Input Error is raised when the message_id is an invalid message 
     that authorised use is member of
     """
-    user1, chan = user1
+    user1, _chan = user1
      
     with pytest.raises(InputError):
         assert message.message_unreact(user1["token"], 123415, 1)

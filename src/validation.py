@@ -607,3 +607,6 @@ def check_has_not_reacted(channel_id, message_id, react_id, u_id):
 def check_time_in_future(time):
     if time <= 0:
         raise InputError(description="Can't send message to the past")
+
+def check_weather_call(message):
+    return message.startswith("/weather ")

@@ -139,11 +139,11 @@ def test_search_results_single(user1):
     test_message = "This is a test message."
     message.message_send(user1["token"], test_channel["channel_id"], test_message)
     find_message = other.search(user1["token"], "is a test")['messages']
-    message_key = list(find_message.keys())[0]
+    message_key = list(find_message)[0]
 
-    assert find_message[message_key]["message_id"] == 1
-    assert find_message[message_key]["u_id"] == 1
-    assert find_message[message_key]["message"] == "This is a test message."
+    assert message_key["message_id"] == 1
+    assert message_key["u_id"] == 1
+    assert message_key["message"] == "This is a test message."
 
     other.clear()
 
@@ -163,15 +163,15 @@ def test_search_results_multiple(user1):
     message.message_send(user2["token"], test_channel["channel_id"], test_message2)
     find_message = other.search(user1["token"], "is a test")['messages']
 
-    message_key = list(find_message.keys())[0]
-    assert find_message[message_key]["message_id"] == 1
-    assert find_message[message_key]["u_id"] == 1
-    assert find_message[message_key]["message"] == "This is a test message."
+    message_key = list(find_message)[0]
+    assert message_key["message_id"] == 1
+    assert message_key["u_id"] == 1
+    assert message_key["message"] == "This is a test message."
 
-    message_key = list(find_message.keys())[1]
-    assert find_message[message_key]["message_id"] == 2
-    assert find_message[message_key]["u_id"] == 3
-    assert find_message[message_key]["message"] == "This message is a test right?"
+    message_key = list(find_message)[1]
+    assert message_key["message_id"] == 2
+    assert message_key["u_id"] == 3
+    assert message_key["message"] == "This message is a test right?"
 
     other.clear()
 
@@ -183,7 +183,7 @@ def test_search_no_results(user1):
     channels.channels_create(user1["token"], "test_name", True)
 
     find_message = other.search(user1["token"], "is a test")
-    assert find_message["messages"] == {}
+    assert find_message["messages"] == []
 
     other.clear()
 

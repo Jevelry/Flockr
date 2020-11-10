@@ -9,6 +9,7 @@ from error import AccessError, InputError
 import data
 import validation
 import hangman
+import weather
 import threading
 
 def time_from_now(seconds):
@@ -79,6 +80,10 @@ def message_send(token, channel_id, message):
         "u_ids": []
             }  
     ]
+    
+    # Check if message is calling weather API
+    if validation.check_weather_call(message):
+        new_message['message'] = weather.get_weather(message)
 
     # Check if message will start a hangman session
     if validation.check_start_hangman(channel_id, message): # pass token if pin
@@ -183,14 +188,12 @@ def message_sendlater(token, channel_id, message, time_sent):
     validation.check_user_in_channel(user_input_id, channel_id)
 
     current_timestamp = round(datetime.datetime.now().timestamp())
-    set_timestamp = time_sent
-    set_timer = set_timestamp - current_timestamp
-    print(set_timer)
-    if round(set_timer) <= 0:
+    delta = time_sent - current_timestamp
+    if round(delta) <= 0:
         raise InputError(description="Can't send to the past")
 
 
-    t = threading.Timer(set_timer, message_send(token, channel_id, message))
+    t = threading.Timer(delta, message_send(token, channel_id, message))
     t.start()
 
     data.add_sendlater(t, time_sent)

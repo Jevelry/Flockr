@@ -305,6 +305,8 @@ def search_query():
     """
     token = request.args.get("token")
     query_str = request.args.get("query_str")
+    #a = channel.channel_messages(token, 1, 0)['messages']
+    #return {'messages' : [channel.channel_messages(token, 1, 0)['messages']]}
     return other.search(token, query_str)
 
 @APP.route("/user/profile", methods = ["GET"])
@@ -385,7 +387,7 @@ def unpin():
     token = data['token']
     message_id = convert_to_int(data['message_id'])
     return message.message_unpin(token, message_id)
-
+import datetime
 @APP.route('/message/sendlater', methods = ["POST"])
 def sendlater():
     """
@@ -394,9 +396,15 @@ def sendlater():
     data = request.get_json()
     token = data['token']
     channel_id = convert_to_int(data['channel_id'])
-    message = data['message']
-    time_sent = convert_to_int(data['time_sent'])
-    return message.message_unpin(token, channel_id, message, time_sent)
+    msg = data['message']
+    time_sent = float(data['time_sent'])
+    # time_sent = data['time_sent']
+    # now = datetime.datetime.now().replace().timestamp()
+    # print(now, type(now))
+    # print("time_sent",time_sent, type(time_sent))
+
+    #print(time_sent - datetime.datetime.now())
+    return message.message_sendlater(token, channel_id, msg, time_sent)
 
 @APP.route("/message/react", methods = ["POST"])
 def react():

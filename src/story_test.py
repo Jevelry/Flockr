@@ -279,7 +279,6 @@ def send_later(token, channel_id, message, time_sent, url):
     }
     resp = requests.post(url + "/message/sendlater", json = later_info)
     later_dict = resp.json()
-    assert later_dict == True
     return later_dict['message_id']
 
 def check_profile(token, u_id, url):
@@ -376,7 +375,7 @@ def send_standup(token, channel_id, message, url):
     resp = requests.post(url + "/standup/send", json = send_info)
     return resp.json()
 # ========================================
-'''
+
 def test_edit_profile_and_messages(url):
     """
     Tests editing everything that can be edited
@@ -684,7 +683,7 @@ def test_editing_removing_messages(url):
     search1 = search_message(Slam['token'], "love", url)
     assert len(search1) == 1
 
-    for message in search1.values():
+    for message in search1:
         found_message = message['message_id']
     rem1 = remove_message(Slam['token'], found_message, url)
     assert rem1 == {}
@@ -1029,7 +1028,7 @@ def test_interacting_with_standup_message(url):
     unreact1 = unreact_message(user['token'], mess1, 1, url)
     assert unreact1['message'] == '<p>Message does not exist</p>'
     assert unreact1['code'] == 400
-'''
+
 def test_interacting_with_sendlater_message(url):
     user = register_user("Sned", "Ltaer", "msg@gmail.com", "notnow", url)
     assert user['u_id'] == 1
