@@ -257,15 +257,3 @@ def auth_passwordreset_reset(reset_code, new_password):
     })
 
     return {}
-
-import other
-if __name__ == '__main__':
-    user1 = auth_register('flockr1531@gmail.com', 'password', 'name', 'name')
-    auth_logout(user1['token'])
-    info = data.get_user_info(user1['u_id'])
-    print (info['password'])
-    auth_passwordreset_request('flockr1531@gmail.com')
-    code = input('Type code: ')
-    auth_passwordreset_reset(code, 'new_password')
-    print (info['password'])
-    other.clear()

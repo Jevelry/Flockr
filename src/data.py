@@ -470,7 +470,7 @@ def check_user_already_reacted(channel_id, message_id, react_id, u_id):
     for react_id in messages[message_id]["reacts"]:
         if u_id in react_id["u_ids"]:
             return True
-        return False
+    return False
 
 def react_message(message_id, channel_id, react_id, u_id):
     """

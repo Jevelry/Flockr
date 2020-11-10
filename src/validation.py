@@ -439,16 +439,13 @@ def check_dimensions(image,x_start, y_start, x_end, y_end):
 
 def check_can_start_hangman(channel_id):
     channel = data.get_channel_info(channel_id)
-    info = data.get_hangman_info(channel_id)
     if len(channel['members']) < 2:
         raise InputError(description="Not enough people to start hangman")
-    if info['is_active']:
-        raise InputError(description="Hangman is already active")
 
 def check_not_status_message(message_id):
     channel_id = data.get_channel_from_message(message_id)
     # Message does not exist
-    if not channel_id:
+    if channel_id is None:
         return None
     hang_info = data.get_hangman_info(channel_id)
     if hang_info['status_message'] == message_id:
@@ -499,7 +496,6 @@ def check_start_hangman(channel_id, message):
         Raise InputError if message will start hangman, but hangman is already active
     """
     if message.startswith('/hangman start'):
-        #channel = data.get_channel_info(channel_id)
         hangman_info = data.get_hangman_info(channel_id)
         if hangman_info['is_active']:
             raise InputError(description='A hangman session is already active')

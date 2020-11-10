@@ -12,14 +12,6 @@ import hangman
 import weather
 import threading
 
-def time_from_now(seconds):
-    """
-    returns a unix timestamp for x seconds in the future
-    """
-    now = datetime.datetime.now()
-    future = now + datetime.timedelta(seconds=seconds)
-    return future.timestamp()
-
 def find_channel_with_message(message_id, u_id):
     """
     Will go through every channel and if message_in_channel returns a channel it
@@ -86,7 +78,7 @@ def message_send(token, channel_id, message):
         new_message['message'] = weather.get_weather(message)
 
     # Check if message will start a hangman session
-    if validation.check_start_hangman(channel_id, message): # pass token if pin
+    if validation.check_start_hangman(channel_id, message):
         return hangman.start(user_input_id, channel_id, new_message, new_message_id)
         
     # Check if hangman is active and message is a guess

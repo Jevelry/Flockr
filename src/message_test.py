@@ -68,7 +68,7 @@ def test_send_valid_multiple(users):
     """
     user1, user2, chan = users
     message_exp1 = "Test 1 bleep blop bloop"
-    message_exp2 = "Test 2 1 0 1 1"
+    message_exp2 = "/weather Sydney"
     message_exp3 = "Test 3 FLip Flop Slop"
     message_exp4 = "Test 4 Gling glong glip"
     message_id1 = message.message_send(user1["token"], chan['channel_id'], message_exp1)
@@ -80,7 +80,6 @@ def test_send_valid_multiple(users):
     assert message_exp1 == message_from_channel["messages"][3]["message"]
     assert user1["u_id"] == message_from_channel["messages"][3]["u_id"]
     assert message_id1["message_id"] == message_from_channel["messages"][3]["message_id"]
-    assert message_exp2 == message_from_channel["messages"][2]["message"]
     assert user2["u_id"] == message_from_channel["messages"][2]["u_id"]
     assert message_id2["message_id"] == message_from_channel["messages"][2]["message_id"]
     assert message_exp3 == message_from_channel["messages"][1]["message"]
@@ -798,6 +797,7 @@ def test_message_sendlater_success_multiple():
     msg2 = 'Test 2 1 0 1 1'
     msg3 = 'Test 3 FLip Flop Slop'
     msg4 = 'Test 4 Gling glong glip'
+    # Testing sending messages before others
     time1 = time_from_now(5)
     time2 = time_from_now(2)
     time3 = time_from_now(10)
@@ -826,14 +826,26 @@ def test_message_sendlater_success_multiple():
 
     other.clear()
     
+
+def test_send_way_later():
+    user1 = auth.auth_register("james@gmail.com", "reddington", "James", "Spader")
+    chan1 = channels.channels_create(user1['token'], "Zooper Dooper", False)
+    time1 = time_from_now(602)
+    time2 = time_from_now(6020)
+    mess1 = message.message_sendlater(user1['token'], chan1['channel_id'], "ahoy", time1)
+    mess2 = message.message_sendlater(user1['token'], chan1['channel_id'], "yoha", time2)
+    assert mess1['message_id'] == 1
+    assert mess2['message_id'] == 2
+    other.clear()
+
 # Unsucessful
 def test_message_sendlater_invalid_channel():
     user1 = auth.auth_register('grape@gmail.com', 'paswword' , 'first_name', 'last_name')
     channels.channels_create(user1['token'], 'test_channel', True)
-    
+    time = time_from_now(15)
     msg = 'Test message from the past!'
     with pytest.raises(InputError):
-        assert message.message_sendlater(user1['token'], 602, msg, 15)
+        assert message.message_sendlater(user1['token'], 602, msg, time)
   
     other.clear()
 
@@ -870,5 +882,3 @@ def test_message_sendlater_not_in_channel():
         assert message.message_sendlater(user2['token'], chan, msg, time)
   
     other.clear()
-
-# def test_sendlater_before_now():

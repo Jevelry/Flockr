@@ -168,30 +168,28 @@ def mode_9():
 
 
 def draw(mode):
-    if mode == 0:
-        return mode_0()
-    if mode == 1:
-        return mode_1()
-    if mode == 2:
-        return mode_2()
-    if mode == 3:
-        return mode_3()
-    if mode == 4:
-        return mode_4()
-    if mode == 5:
-        return mode_5()
-    if mode == 6:
-        return mode_6()
-    if mode == 7:
-        return mode_7()
-    if mode == 8:
-        return mode_8()
-    if mode == 9:
-        return mode_9()
-
-if __name__ == '__main__':
-    for i in range(1,10):
-        print('=============')
-        print(draw(i))
-        print('=============')
-
+  """
+  Returns a different drawing for each stage of hangman
+  determined by the number of incorrect guesses.
+  I have to use if/elif/else statements for coverage reasons
+  """
+  if mode == 0:
+    return mode_0()
+  elif mode == 1:
+    return mode_1()
+  elif mode == 2:
+    return mode_2()
+  elif mode == 3:
+    return mode_3()
+  elif mode == 4:
+    return mode_4()
+  elif mode == 5:
+    return mode_5()
+  elif mode == 6:
+    return mode_6()
+  elif mode == 7:
+    return mode_7()
+  elif mode == 8:
+    return mode_8()
+  else:
+    return mode_9()

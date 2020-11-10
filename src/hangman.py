@@ -95,6 +95,7 @@ def victory_message(info):
 def loss_message(info):
     user = data.get_user_info(info['u_id'])
     name = user['name_first']
+    info['failures'] = 9
     return f"""
     =======================================
     ---------------GAME OVER---------------
@@ -115,6 +116,7 @@ def execute_victory(info):
 
 def execute_loss(info):
     info['is_active'] = False
+    info['failures'] += 1
     message_id = info['status_message']
     channel_id = data.find_channel(message_id)
     data.edit_message(channel_id, message_id, loss_message(info))

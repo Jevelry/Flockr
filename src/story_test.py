@@ -1008,9 +1008,8 @@ def test_interacting_with_standup_message(url):
     assert mess1 == 1
 
     # Check if can interact with a standup message
-    # Message_pin makes a server error but everything else works...
-    # pin1 = pin_message(user['token'], mess1, url)
-    # assert pin1 == {}
+    pin1 = pin_message(user['token'], mess1, url)
+    assert pin1 == {}
 
     react1 = react_message(user['token'], mess1, 1, url)
     assert react1 == {}
@@ -1039,3 +1038,27 @@ def test_interacting_with_sendlater_message(url):
     msg = "Hopefully this will arive soon"
     mess1 = send_later(user['token'], chan1, msg, time_from_now(2), url)
     assert mess1 == 1
+
+    sleep(2)
+
+    pin1 = pin_message(user['token'], mess1, url)
+    assert pin1 == {}
+
+    react1 = react_message(user['token'], mess1, 1, url)
+    assert react1 == {}
+
+    edit1 = edit_message(user['token'], mess1, 'SEDNLATRE != GOOD', url)
+    assert edit1 == {}
+
+    rem1 = remove_message(user['token'], mess1, url)
+    assert rem1 == {}
+
+    unpin1 = unpin_message(user['token'], mess1, url)
+    assert unpin1['message'] == "<p>Message does not exist</p>"
+    assert unpin1['code'] == 400
+
+    unreact1 = unreact_message(user['token'], mess1, 1, url)
+    assert unreact1['message'] == '<p>Message does not exist</p>'
+    assert unreact1['code'] == 400
+
+    

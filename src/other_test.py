@@ -180,8 +180,8 @@ def test_search_no_results(user1):
     Tests on successful uses of search,
     focusing on querise that don"t return any strings
     """
-    channels.channels_create(user1["token"], "test_name", True)
-
+    chan = channels.channels_create(user1["token"], "test_name", True)['channel_id']
+    message.message_send(user1['token'], chan, "Frank. Please stop that.")
     find_message = other.search(user1["token"], "is a test")
     assert find_message["messages"] == []
 

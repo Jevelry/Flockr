@@ -328,11 +328,15 @@ def test_user_uploadphoto_invalid_http_status(user1):
         assert user.user_profile_uploadphoto(user1["token"], "https://samsung-redemption.com/au/customer/redemption/details/204262", 0, 0, 10, 10, "google.com.au")
     other.clear()
     
-
 def test_user_uploadphoto_invalid_dimensions(user1):
     with pytest.raises(InputError):
         assert user.user_profile_uploadphoto(user1["token"], "https://i.redd.it/8rq2umri7cm51.jpg", 1000, 200, 5000, 6000, "google.com.au")
         assert user.user_profile_uploadphoto(user1["token"], "https://i.redd.it/8rq2umri7cm51.jpg", 1000, 200, 100, 100, "google.com.au")
+        assert user.user_profile_uploadphoto(user1["token"], "https://i.redd.it/8rq2umri7cm51.jpg", -1, 200, 100, 100, "google.com.au")
+        assert user.user_profile_uploadphoto(user1["token"], "https://i.redd.it/8rq2umri7cm51.jpg", 1000, -1, 100, 100, "google.com.au")
+        assert user.user_profile_uploadphoto(user1["token"], "https://i.redd.it/8rq2umri7cm51.jpg", 1000, 200, 100, 500, "google.com.au")
+        assert user.user_profile_uploadphoto(user1["token"], "https://i.redd.it/8rq2umri7cm51.jpg", 1000, 200, 1100, 100, "google.com.au")
+
     other.clear()
 
 def test_user_uploadphoto_not_jpg(user1):
