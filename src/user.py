@@ -84,13 +84,13 @@ def user_profile_setemail(token, email):
     u_id = validation.check_valid_token(token)
         
     #Check for valid email
-    validation.check_valid_email(email)
+    validation.check_valid_email(email.lower())
         
         
     #Everything valid, proceed with changing email
         
     user = data.get_user_info(u_id) 
-    data.update_user(user, {"email": email})
+    data.update_user(user, {"email": email.lower()})
     return {}
   
 def user_profile_sethandle(token, handle_str):

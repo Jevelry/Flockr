@@ -202,7 +202,6 @@ def test_invalid_guess():
         assert message.message_send(guesser['token'], chan_id, '/guess froot')
         assert message.message_send(guesser['token'], chan_id, '/guess')
         assert message.message_send(guesser['token'], chan_id, '/guess oo')
-        assert message.message_send(guesser['token'], chan_id, '/guess f') # f is already correct
         assert message.message_send(guesser['token'], chan_id, '/guess ')
         assert message.message_send(guesser['token'], chan_id, '/guess ?')
     other.clear()
@@ -274,7 +273,7 @@ def test_guess_successful_letters_again():
     _user1, user2, chan = start_hangman("plsfixcoverage")
     send_hangman_guesses(user2, chan, "pls")
     with pytest.raises(InputError):
-        message.message_send(user2['token'], chan, '/guess p')
-        message.message_send(user2['token'], chan, '/guess l')
-        message.message_send(user2['token'], chan, '/guess s')
+        assert message.message_send(user2['token'], chan, '/guess p')
+        assert message.message_send(user2['token'], chan, '/guess l')
+        assert message.message_send(user2['token'], chan, '/guess s')
     other.clear()
