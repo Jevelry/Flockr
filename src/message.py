@@ -10,6 +10,7 @@ import data
 import validation
 import hangman
 import weather
+import kahio
 import threading
 
 def find_channel_with_message(message_id, u_id):
@@ -101,7 +102,15 @@ def message_send(token, channel_id, message):
     if validation.check_if_stop_message(message):
         return hangman.stop(user_input_id, channel_id)
 
-    data.add_message(new_message, channel_id)    
+    if message.startswith("/KAHIO/END"):
+        kahio.kahio_end(user_input_id, channel_id)
+        new_message["message"] = "The KAHIO game has been stopped"
+    elif message.startswith("/KAHIO"):
+        new_message["message"] = kahio.start_kahio(user_input_id, channel_id, message)
+    elif data.check_kahio_running(channel_id):
+        return kahio.kahio_guess(user_input_id, channel_id, new_message)
+
+    data.add_message(new_message, channel_id)
 
     return {
         "message_id": new_message_id,

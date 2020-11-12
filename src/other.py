@@ -22,6 +22,9 @@ def clear():
         if data.check_standup_running(channel["channel_id"]):
             timer_class = data.get_timer_class(channel["channel_id"])
             timer_class.cancel()
+        if data.check_kahio_running(channel["channel_id"]):
+            timer_class = data.get_kahio_timer_class(channel["channel_id"])
+            timer_class.cancel()
     while (data.sendlater_not_empty()):
         current_time = datetime.datetime.now().replace().timestamp()
         sendlater_con = data.remove_sendlater()

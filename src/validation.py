@@ -605,3 +605,70 @@ def check_time_in_future(time):
 
 def check_weather_call(message):
     return message.startswith("/weather ")
+
+def check_kahio_message_stage(message_stage):
+    if (message_stage > 3):
+        raise InputError(description="Invalid kahio start message")
+
+def check_kahio_time(time):
+    if time[0] == " ":
+        time = time[1:]
+    if not time.isdigit():
+        raise InputError(description="Time given is invalid")
+    time = int(time)
+    if time <= 0:
+        raise InputError(description="Time given is invalid")
+    return time
+
+def check_kahio_question(question):
+    if question == "":
+        raise InputError(description="Question given is invalid")
+
+def check_kahio_answer(answer):
+    if answer == "":
+        raise InputError(description="Answer given is invalid")
+    if answer[0] == " ":
+        answer = answer[1:]
+    if answer[-1] == " ":
+        answer = answer[:-1]
+    return answer.lower()
+
+def check_kahio_not_running(channel_id):
+    """
+    Checks if there is a kahio running in the given channel
+
+    Parameters:
+        channel_id(int): The id of channel
+    Returns:
+        Raises error if the channel doesn't have a kahio running
+        If it is running it returns nothing
+    """
+    if data.check_kahio_running(channel_id):
+        raise InputError(description="There is already a kahio running on this channel")
+
+def check_kahio_running(channel_id):
+    """
+    Checks if there is a kahio running in the given channel
+
+    Parameters:
+        channel_id(int): The id of channel
+    Returns:
+        Raises error if the channel  has a kahio  game running
+        If it is running it returns nothing
+    """
+    if not data.check_kahio_running(channel_id):
+        raise InputError(description="There isn't a kahio running on this channel")
+
+def check_kahio_user_has_answer(channel_id, u_id):
+    """
+    Checks if the user has the answer of the kahio game running in the given channel
+
+    Parameters:
+        channel_id(int): The id of channel
+        u_id(int): The id of the user guessing
+    Returns:
+        Raises error if the user has already got the correct
+        answer from the kahio game
+    """
+    if data.user_already_got_answer(channel_id, u_id):
+        raise InputError(description="The user already has the answer")
