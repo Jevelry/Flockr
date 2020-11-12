@@ -44,14 +44,14 @@ channels = {
         #     "owners" = set(),
         #     "members" : set(),
         #     "pinned" : ""
-        #     "standup" = {
+        #     "standup" : {
         #           running : "", # currently running (True or False)
         #           u_id : "",
         #           message : "",
         #           time_finish : "",
         #           timer_class : ""   # the class that was returned from the timer
         #                              # which is used to cancel the timer
-        # }
+        #      }
          #    "messages" = {
         #         message_id = {
             #         {
@@ -74,8 +74,16 @@ channels = {
             #     guesses : set(),
             #     failures : 0,
             #     status_message : ''
-            # }
-        #
+            #}
+            # "kahio" : {
+            #     running : "", currently running (True or False)
+            #     u_id : "",
+            #     timer_class : "",
+            #     time_start : "",
+            #     scores : "",   a message that has users and their times
+            #     answer : "",
+            #     got_answer = []
+            #}
     #}
 }
 
@@ -318,7 +326,9 @@ def channel_create(new_channel):
     """
     channels[new_channel["channel_id"]] = new_channel
     standup = {"running" : False}
-    channels[new_channel["channel_id"]]["standup"] = standup 
+    kahio = {"running" : False}
+    channels[new_channel["channel_id"]]["standup"] = standup
+    channels[new_channel["channel_id"]]["kahio"] = kahio
 
 def find_channel(message_id):
     """
@@ -515,3 +525,84 @@ def sendlater_not_empty():
     if sendlater_messages == []:
         return False
     return True
+
+def check_kahio_running(channel_id):
+    """
+    Checks if the kahio game is running on this channel
+    """
+    return channels[channel_id]["kahio"]["running"]
+
+def create_kahio(channel_id, u_id, time_start, answer):
+    """
+    Will add a new kahio to a channel
+    """
+    channels[channel_id]["kahio"]["running"] = True
+    channels[channel_id]["kahio"]["u_id"] = u_id
+    channels[channel_id]["kahio"]["score"] = ''
+    channels[channel_id]["kahio"]["time_start"] = time_start
+    channels[channel_id]["kahio"]["answer"] = answer
+    channels[channel_id]["kahio"]["got_answer"] = [u_id]
+
+def end_kahio_game(channel_id):
+    """
+    Will end a kahio game by setting running to false
+    """
+    channels[channel_id]["kahio"]["running"] = False
+
+def kahio_update_timer_class(channel_id, timer_class):
+    """
+    Will update the timer class when a new multithreading is running
+    """
+    channels[channel_id]["kahio"]["timer_class"] = timer_class
+
+def return_kahio_num_correct_answers(channel_id):
+    """
+    Will return the number of users that have guessed the correct answers
+    in a game of kahio
+    """
+    return len(channels[channel_id]["kahio"]["got_answer"]) - 1
+
+def return_kahio_score(channel_id):
+    """
+    Will return the score message from the kahio game
+    """
+    return channels[channel_id]["kahio"]["score"]
+
+def return_kahio_answer(channel_id):
+    """
+    Will return the answer from the kahio game
+    """
+    return channels[channel_id]["kahio"]["answer"]
+
+def return_kahio_starter(channel_id):
+    """
+    Will return the user id from the user that started the kahio game
+    """
+    return channels[channel_id]["kahio"]["u_id"]
+
+def correct_kahio_guess(u_id, channel_id, current_time):
+    """
+    Will update the kahio dictionary to say that user got the question correct
+    And will return the message to be printed
+    """
+
+    handle = users[u_id]["handle_str"]
+    time_since_game_started = current_time - channels[channel_id]["kahio"]["time_start"]
+    time_since_game_started = round(time_since_game_started, 1)
+    channels[channel_id]["kahio"]["score"] += "\n" + str(len(channels[channel_id]["kahio"]["got_answer"]) -1) + ": "
+    channels[channel_id]["kahio"]["score"] += handle + " got the correct answer at "
+    channels[channel_id]["kahio"]["score"] += str(time_since_game_started) + " seconds"
+    channels[channel_id]["kahio"]["got_answer"].append(u_id)
+    return handle + " guessed the correct answer"
+
+def get_kahio_timer_class(channel_id):
+    """
+    Will return the timer class so the timer can be terminated
+    """
+    return channels[channel_id]["kahio"]["timer_class"]
+
+def user_already_got_answer(channel_id, u_id):
+    """
+    Checks if the user in the list of users that have already have the answer
+    """
+    return u_id in channels[channel_id]["kahio"]["got_answer"]

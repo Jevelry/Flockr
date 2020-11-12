@@ -887,7 +887,7 @@ def test_message_interactions(url):
     unpin1 = unpin_message(user1['token'], mess1, url)
     assert unpin1 == {}
 
-    unreact1 = unreact_message(user1['token'], mess2, 1, url)
+    unreact1 = unreact_message(user1['token'], mess1, 1, url)
     assert unreact1 == {}
 
     # Testing with member permissions
@@ -910,5 +910,5 @@ def test_message_interactions(url):
     unpin1 = unpin_message(user1['token'], mess1, url)
     assert unpin1 == {}
 
-    unreact1 = unreact_message(user1['token'], mess2, 1, url)
+    unreact1 = unreact_message(user1['token'], mess1, 1, url)
     assert unreact1 == {}
