@@ -385,6 +385,11 @@ def change_permission(u_id, permission):
     user = get_user_info(u_id)
     user["permission_id"] = permission
 
+def update_user_img(host_url,token):
+    u_id = validation.check_valid_token(token)
+    user = get_user_info(u_id)
+    user["profile_img_url"] = host_url + f"static/{u_id}.jpg"
+    
 def create_standup(channel_id, u_id, timer_class, time_finish):
     """
     Will add a new standup to a channel
@@ -426,11 +431,6 @@ def get_standup_timer_finish(channel_id):
     Will return the time the standup finishes at
     """
     return channels[channel_id]["standup"]["time_finish"]
-
-def update_user_img(host_url, token):
-    u_id = validation.check_valid_token(token)
-    user = get_user_info(u_id)
-    user["profile_img_url"] = host_url + f"static/{u_id}.jpg"
 
 def get_channel_from_message(message_id):
     """
