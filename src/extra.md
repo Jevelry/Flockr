@@ -35,6 +35,26 @@ Hangman
         * Can't guess the same successful letter multiple times
         * Can't use '/hangman stop' if not an owner or hangman starter
     * Assumptions (Not tested):
-        * Can't start hangman during a startup
-        * Can't start a startup during hangman
+        * Can't start hangman during a standup
+        * Can't start a standup during hangman
         * Can't use message_sendlater for hangman related messages
+
+Weather
+    * /weather location
+        * Returns the weather at that location
+        * Tries to guess what location you meant if slightly incorrect
+            * eg "/weather sydne" would return the weather of Sydney
+    * Errors (taken care of)
+        * Very incorrect locations will raise an InputError
+            * eg "/weather 602" would raise an InputError
+
+Reacts
+    * Added 3 new reacts (heart, star and thumbDown)
+    * Made the heart red
+    * Made the star yellow
+    * Can only react once on each message 
+    * Created a new file for each react
+        * src/components/Message/MessageReact2
+        * src/components/Message/MessageReact3
+        * src/components/Message/MessageReact4
+    * Edited src/components/Message/index.js (to add each react)

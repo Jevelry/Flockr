@@ -27,9 +27,11 @@ def check_valid_token(token):
         # If parent function was called using http, token is in ASCII.
         # If parent function was called via command line, token is a byte string.
         # I don't understand why.
+
         if isinstance(token, bytes):
             token = token.decode("ASCII")
-        payload = jwt.decode(token, data.get_jwt_secret(), algorithms = ["HS256"])
+        payload = jwt.decode(token, data.get_jwt_secret(), algorithms = ["HS256"])# this line is dead
+
         correct_token = jwt.encode(payload, data.get_jwt_secret(), algorithm = "HS256")
         correct_str = correct_token.decode("ASCII")
 
@@ -237,7 +239,6 @@ def check_valid_channel_id(channel_id):
         Returns nothing if channel exists
     """
     if data.get_channel_info(channel_id) is None:
-        print(type(channel_id))
         raise InputError(description = "Channel does not exist")
 
 def check_valid_u_id(u_id):
@@ -545,8 +546,6 @@ def check_guesser_not_creator(u_id, channel_id):
         Nothing if the guesser and starter are different users
     """
     status_message = data.get_hangman_status_message(channel_id)
-    print(u_id)
-    print(status_message['u_id'])
     if status_message['u_id'] == u_id:
         raise InputError(description='Users can not guess their own word')
 

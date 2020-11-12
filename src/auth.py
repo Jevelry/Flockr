@@ -65,7 +65,7 @@ def send_email(email, reset_code):
         Nothing
     """
     sender_email = "flockr1531@gmail.com"
-    password = 'YUut6H8V'
+    password = 'YUut6h8V'
     msg = MIMEText('Enter code to reset email')
     msg['Subject'] = reset_code
     msg['From'] = sender_email
@@ -204,9 +204,10 @@ def auth_register(email, password, name_first, name_last):
         "u_id" : new["u_id"],
         "session_secret" : new["session_secret"]
     }
+    token = str(jwt.encode(payload, data.get_jwt_secret(), algorithm = "HS256"))
     return {
         "u_id" : new["u_id"],
-        "token": jwt.encode(payload, data.get_jwt_secret(), algorithm = "HS256")
+        "token": token[2:-1]
     }
 
 def auth_passwordreset_request(email):

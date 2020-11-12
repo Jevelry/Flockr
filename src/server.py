@@ -75,7 +75,8 @@ def register():
     last = data["name_last"]
     email = data["email"]
     password = data["password"]
-    return auth.auth_register(email, password, first, last)
+    ret = auth.auth_register(email, password, first, last)
+    return ret
 
 @APP.route("/auth/logout", methods = ["POST"])
 def logout():
@@ -265,7 +266,6 @@ def active():
     """
     token = request.args.get("token")
     channel_id = convert_to_int(request.args.get("channel_id"))
-    print(channel_id)
     return standup.standup_active(token, channel_id)
 
 @APP.route("/standup/send", methods = ["POST"])

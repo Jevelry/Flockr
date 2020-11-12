@@ -61,7 +61,8 @@ channels = {
             #             "date" : ""
             #             "reacts" = [
             #               {
-                    #
+                    #           react_id : '',
+                    #            users : []
                     #       }
                     #   ]
             #         }
@@ -98,7 +99,7 @@ message_num = 0
 jwt_secret = "Mango2Team"
 
 # List of existing react_ids (currently only 1)
-react_ids = [1]
+react_ids = [1,2,3,4]
 
 
 # Clears the data variable.
@@ -334,7 +335,6 @@ def get_message(channel_id, message_id):
     Given channel containing message and message_id,
     returns dictionary containing message info
     """
-    print(channels[channel_id]['messages'][message_id])
     return channels[channel_id]['messages'][message_id]
 
 def add_message(message, channel_id):

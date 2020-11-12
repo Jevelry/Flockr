@@ -499,7 +499,7 @@ def test_message_react_invalid_react_id(user1):
     message_id1 = message.message_send(user1["token"], chan['channel_id'], test_message1)
     
     with pytest.raises(InputError):
-        assert message.message_react(user1["token"], message_id1["message_id"], 2)
+        assert message.message_react(user1["token"], message_id1["message_id"], 602)
 
     other.clear()
 	
@@ -563,7 +563,7 @@ def test_message_unreact_invalid_react_id(user1):
     message.message_react(user1["token"], message_id1["message_id"], 1)
     
     with pytest.raises(InputError):
-        assert message.message_react(user1["token"], message_id1["message_id"], 2)
+        assert message.message_react(user1["token"], message_id1["message_id"], 602)
 
     other.clear()
 

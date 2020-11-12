@@ -70,7 +70,19 @@ def message_send(token, channel_id, message):
             {
         "react_id": 1,
         "u_ids": []
-            }  
+            },
+            {
+        "react_id": 2,
+        "u_ids": []
+            },
+            {
+        "react_id": 3,
+        "u_ids": []
+            },
+            {
+        "react_id": 4,
+        "u_ids": []
+            }
     ]
     
     # Check if message is calling weather API
