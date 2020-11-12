@@ -481,7 +481,7 @@ def test_message_stage():
     Checks if an error is raised if given over 3
     """
     with pytest.raises(InputError):
-        validation.check_kahio_message_stage(3)
+        validation.check_kahio_message_stage(5)
 
 def test_check_kahio_time():
     """
@@ -516,6 +516,7 @@ def test_check_kahio_not_running():
     message.message_send(user["token"], chan['channel_id'], test_message1)
     with pytest.raises(InputError):
         validation.check_kahio_not_running(chan["channel_id"])
+    other.clear()
 
 def test_check_kahio_running():
     """
@@ -524,7 +525,8 @@ def test_check_kahio_running():
     user = auth.auth_register("Test@subject.com", "Testing123", "Hello", "There")
     chan = channels.channels_create(user["token"], "test_channel", True)
     with pytest.raises(InputError):
-        validation.check_kahio_not_running(chan["channel_id"])
+        validation.check_kahio_running(chan["channel_id"])
+    other.clear()
 
 def test_check_kahio_user_has_answer():
     """
@@ -537,3 +539,4 @@ def test_check_kahio_user_has_answer():
     message.message_send(user["token"], chan['channel_id'], test_message1)
     with pytest.raises(InputError):
         validation.check_kahio_user_has_answer(chan["channel_id"], u_id)
+    other.clear()
