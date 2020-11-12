@@ -10,6 +10,7 @@ Tests for data.py functions
     data(data.py): Gives access to global data variable
     message(message.py): Gives access to message functions (send, edit, remove)
     datetime: Gives access to the datetime functions
+    threading: Gives access to threading functions
 """
 from error import AccessError, InputError
 import data
@@ -20,7 +21,8 @@ import channel
 import message
 import user
 import datetime
-import pytest 
+import pytest
+import threading
 
 @pytest.fixture
 def user1():
@@ -353,5 +355,22 @@ def test_change_permission(user1):
     # User2 is owner so can remove owner (Would raise AccessError if 
     # change_permission didn't work as intended)
     assert other.admin_userpermission_change(user2["token"], user1["u_id"], 2) == {}
-    
+
     other.clear()
+
+def test_sendlater_functions():
+    """
+    Will test that the sendlater functions are run
+    """
+    timer_class = threading.Timer(60, timed_function)
+    time = datetime.datetime.now().replace().timestamp()
+    data.add_sendlater(timer_class, time)
+    assert data.sendlater_not_empty() is True
+    time_con = data.remove_sendlater()
+    time_con["timer_class"].cancel()
+
+def timed_function():
+    """
+    This function is run the test has failed
+    """
+    assert False is True

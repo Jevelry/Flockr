@@ -27,9 +27,11 @@ def check_valid_token(token):
         # If parent function was called using http, token is in ASCII.
         # If parent function was called via command line, token is a byte string.
         # I don't understand why.
+
         if isinstance(token, bytes):
             token = token.decode("ASCII")
-        payload = jwt.decode(token, data.get_jwt_secret(), algorithms = ["HS256"])
+        payload = jwt.decode(token, data.get_jwt_secret(), algorithms = ["HS256"])# this line is dead
+
         correct_token = jwt.encode(payload, data.get_jwt_secret(), algorithm = "HS256")
         correct_str = correct_token.decode("ASCII")
 
@@ -42,7 +44,6 @@ def check_valid_token(token):
     except:
         raise AccessError(description = "Token is invalid")
     raise AccessError(description = "User is not logged in")
-
 
 def check_valid_handle(handle_str):
     """
@@ -58,8 +59,6 @@ def check_valid_handle(handle_str):
     if len(handle_str) < 3 or len(handle_str) > 20:
         raise InputError(description = "Handle is invalid")
     return
-
-
 
 def check_valid_email(email):
     """
@@ -163,7 +162,6 @@ def check_correct_password(email, password):
     if original["password"] != password_hash:
         raise InputError(description = "Password is incorrect")
 
-
 def check_correct_email(email):
     """
     Determine whether email exists when logging in
@@ -229,7 +227,6 @@ def check_user_in_channel(u_id, channel_id):
     if not data.check_user_in_channel(channel_id, u_id):
         raise AccessError(description = "User is not in channel")
 
-
 def check_valid_channel_id(channel_id):
     """
     Determines whether given channel_id matches an existing channel
@@ -287,7 +284,6 @@ def check_is_not_existing_channel_member(u_id, channel_id):
     """
     if data.check_user_in_channel(channel_id, u_id):
         raise InputError(description = "User is already part of channel")
-    
 
 def check_is_channel_owner(user_id, channel_id):
     """
@@ -303,7 +299,6 @@ def check_is_channel_owner(user_id, channel_id):
     """
     if not data.check_channel_owner(channel_id, user_id):
         raise AccessError(description="User is not owner of channel")
-
 
 def check_isnot_channel_owner(user_id, channel_id):
     """
@@ -385,6 +380,16 @@ def check_jpg_in_url(url):
     if request.headers['content-type'] != "image/jpeg":
         raise InputError(description = "Url not a jpg")
 
+
+def check_dimensions(image,x_start, y_start, x_end, y_end):
+    width, height = image.size
+    if x_start < 0 or x_end < 0 or y_start< 0 or y_end < 0:
+        raise InputError(description = "Invalid dimensions")
+    if x_start > x_end or y_start > y_end:
+        raise InputError(description = "Invalid dimensions")
+    if x_start > width or x_end > width or y_start > height or y_end > height:
+        raise InputError(description = "Invalid dimensions")
+
 def check_standup_running(channel_id):
     """
     Checks if there is a standup running in the given channel
@@ -424,40 +429,18 @@ def check_length_valid(length):
     if length <= 0:
         raise InputError(description="The length is invalid")
 
-# def check_valid_url(url):
-#     request = requests.get(url)
-#     if request.status_code != 200:
-#         raise InputError(description = "Invalid url")
-
-# def check_jpg_in_url(url):
-#     request = requests.get(url)
-#     if request.headers['content-type'] != "image/jpeg":
-#         raise InputError(description = "Url is not a jpg")
-
-def check_dimensions(image,x_start, y_start, x_end, y_end):
-    width, height = image.size
-    if x_start < 0 or x_end < 0 or y_start< 0 or y_end < 0:
-        raise InputError(description = "Invalid dimensions")
-    if x_start > x_end or y_start > y_end:
-        raise InputError(description = "Invalid dimensions")
-    if x_start > width or x_end > width or y_start > height or y_end > height:
-        raise InputError(description = "Invalid dimensions")
 
 def check_can_start_hangman(channel_id):
     channel = data.get_channel_info(channel_id)
-    info = data.get_hangman_info(channel_id)
     if len(channel['members']) < 2:
         raise InputError(description="Not enough people to start hangman")
-    if info['is_active']:
-        raise InputError(description="Hangman is already active")
 
 def check_not_status_message(message_id):
     channel_id = data.get_channel_from_message(message_id)
     # Message does not exist
-    if not channel_id:
+    if channel_id is None:
         return None
     hang_info = data.get_hangman_info(channel_id)
-    print(hang_info)
     if hang_info['status_message'] == message_id:
         raise InputError(description="Can't edit/delete hangman status message")
 
@@ -484,6 +467,8 @@ def check_if_hangman(channel_id, message):
 
     Returns:
         True if guess is valid
+        False if message does not start with /guess
+        InputError if message is a guess, but hangamn is not active
     """
     hang_info = data.get_hangman_info(channel_id)
     if not hang_info['is_active'] and message.startswith('/guess '):
@@ -504,13 +489,11 @@ def check_start_hangman(channel_id, message):
         Raise InputError if message will start hangman, but hangman is already active
     """
     if message.startswith('/hangman start'):
-        #channel = data.get_channel_info(channel_id)
         hangman_info = data.get_hangman_info(channel_id)
         if hangman_info['is_active']:
             raise InputError(description='A hangman session is already active')
         return True
     return False
-
 
 def check_if_stop_message(message):
     """
@@ -532,7 +515,7 @@ def check_stop_permission(u_id, channel_id):
     Parameters:
         u_id(int): Identifier used for users
         channel_id(int): Identifier used for channels
-    
+
     Returns:
         Nothing if user has permission
         Raises InputError if user does not have permission
@@ -559,64 +542,58 @@ def check_guesser_not_creator(u_id, channel_id):
         raise InputError(description='Users can not guess their own word')
 
 def check_valid_guess(message):
-    print(message[7])
     if len(message) != 8 or not message[7].isalpha():
         raise InputError(description='Guess is not valid')
 
-# def check_standup_running(channel_id):
-#     """
-#     Checks if there is a standup running in the given channel
+def check_valid_react(react_id):
+    """
+    Determines if react_id is valid
 
-#     Parameters:
-#         channel_id(int): The id of channel
-#     Returns:
-#         Raises error if the channel doesn't have a standup running
-#         If it is running it returns nothing
-#     """
-#     if not data.check_standup_running(channel_id):
-#         raise InputError(description="There is no standup running on this channel")
+    Parameters:
+        react_id(int)
 
-# def check_standup_not_running(channel_id):
-#     """
-#     Checks if there is a standup running in the given channel
+    Returns:
+        Nothing if valid react
+        InputError react not found
+    """
+    if data.check_valid_react(react_id) is False:
+        raise InputError(description="invalid react_id")
 
-#     Parameters:
-#         channel_id(int): The id of channel
-#     Returns:
-#         Raises error if the channel does have a standup running
-#         If it is not running it returns nothing
-#     """
-#     if data.check_standup_running(channel_id):
-#         raise InputError(description="There is a standup running on this channel")
+def check_is_reacted_already(channel_id, message_id, react_id, u_id):
+    """
+    Checks if user has already reacted to message
 
-# def check_length_valid(length):
-#     """
-#     Checks if the length is valid
+    Parameters:
+        channel_id(int): id of channel
+        message_id(int):id of message
+        react_id(int): id of react
+        u_id(int): id of user
+    Returns:
+        Raises error if user has already reacted to message
+        If it is valid it returns nothing
+    """
+    if data.check_user_already_reacted(channel_id, message_id, react_id, u_id) is True:
+        raise InputError(description='User has already reacted to this message')
 
-#     Parameters:
-#         length(int): The length of a standup
-#     Returns:
-#         Raises error if the length is invalid
-#         If it is valid it returns nothing
-#     """
-#     if length <= 0:
-#         raise InputError(description="The length is invalid")
+def check_has_not_reacted(channel_id, message_id, react_id, u_id):
+    """
+    Checks if user has not yet reacted to message
 
-# def check_valid_url(url):
-#     request = requests.get(url)
-#     if request.status_code != 200:
-#         raise InputError(description = "Invalid url")
+    Parameters:
+        channel_id(int): id of channel
+        message_id(int):id of message
+        react_id(int): id of react
+        u_id(int): id of user
+    Returns:
+        Raises error if message has not been reacted to by user
+        If it is valid it returns nothing
+    """
+    if data.check_user_already_reacted(channel_id, message_id, react_id, u_id) is False:
+        raise InputError(description='User has already reacted to this message')
 
-# def check_jpg_in_url(url):
-#     request = requests.get(url)
-#     if request.headers['content-type'] != "image/jpeg":
-#         raise InputError(description = "Url is not a jpg")
+def check_time_in_future(time):
+    if time <= 0:
+        raise InputError(description="Can't send message to the past")
 
-# def check_dimensions(image,x_start, y_start, x_end, y_end):
-#     width, height = image.size
-#     if x_start < 0 or x_end < 0 or y_start< 0 or y_end < 0:
-#         raise InputError(description = "Invalid dimensions")
-#     if x_start > x_end or y_start > y_end:
-#         raise InputError(description = "Invalid dimensions")
-#     if x_start > width or x_end > width or y_start > height or y_end > height:
-#         raise InputError(description = "Invalid dimensions")
+def check_weather_call(message):
+    return message.startswith("/weather ")

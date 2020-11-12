@@ -329,18 +329,26 @@ def test_user_uploadphoto_invalid_http_status(user1):
     other.clear()
     
 
-def test_user_uploadphoto_negaqtive_dimensions(user1):
-    with pytest.raises(InputError):    
-        assert user.user_profile_uploadphoto(user1["token"], "https://i.redd.it/8rq2umri7cm51.jpg", -100, -200, -1000, -1000, "google.com.au")
-    other.clear()
-def test_uploadphoto_out_of_bounds(user1):
+def test_user_uploadphoto_invalid_dimensions(user1):
     with pytest.raises(InputError):
         assert user.user_profile_uploadphoto(user1["token"], "https://i.redd.it/8rq2umri7cm51.jpg", 1000, 200, 5000, 6000, "google.com.au")
-    other.clear()
-def test_uploadphoto_dimensions_backwards(user1):
-    with pytest.raises(InputError):
         assert user.user_profile_uploadphoto(user1["token"], "https://i.redd.it/8rq2umri7cm51.jpg", 1000, 200, 100, 100, "google.com.au")
+
     other.clear()
+
+def test_user_uploadphoto_negative_dimensions(user1):
+    with pytest.raises(InputError):
+        assert user.user_profile_uploadphoto(user1["token"], "https://i.redd.it/8rq2umri7cm51.jpg", -1, 200, 100, 100, "google.com.au")
+        assert user.user_profile_uploadphoto(user1["token"], "https://i.redd.it/8rq2umri7cm51.jpg", 1000, -1, 100, 100, "google.com.au")
+    other.clear()
+
+def test_user_uploadphoto_flipped_dimensions(user1):
+    with pytest.raises(InputError):
+        assert user.user_profile_uploadphoto(user1["token"], "https://i.redd.it/8rq2umri7cm51.jpg", 1000, 200, 100, 500, "google.com.au")
+        assert user.user_profile_uploadphoto(user1["token"], "https://i.redd.it/8rq2umri7cm51.jpg", 1000, 200, 1100, 100, "google.com.au")
+    other.clear()
+
+
 def test_user_uploadphoto_not_jpg(user1):
     
     with pytest.raises(InputError):

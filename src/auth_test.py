@@ -27,7 +27,7 @@ def get_code_from_email():
     code = None
     # Account credentials
     username = "flockr1531@gmail.com"
-    password = "YUut6H8V"
+    password = "YUut6h8V"
     # create an IMAP4 class with SSL 
     imap = imaplib.IMAP4_SSL("imap.gmail.com")
     # authenticate
@@ -55,7 +55,7 @@ def get_code_from_email():
     if code is None:
         raise InputError(description='Email has no subject')
     return code
-'''
+
 
 # AUTH_LOGIN tests
 # Successful
@@ -332,7 +332,7 @@ def test_invalid_last_name_auth_register():
         )
 
     other.clear()
-'''
+
 def test_successful_passwordreset_request():
     """
     Tests successful uses of password_reset_request
@@ -378,7 +378,6 @@ def test_successful_passwordreset_reset():
     auth.auth_passwordreset_request('flockr1531@gmail.com')
     time.sleep(2)
     code = get_code_from_email()
-    print(code)
     assert auth.auth_passwordreset_reset(code, 'new_password') == {}
     with pytest.raises(InputError):
         assert auth.auth_login('flockr1531@gmail.com', 'thistooksolong')

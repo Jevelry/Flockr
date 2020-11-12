@@ -17,7 +17,7 @@ Global variables containing the state of flockr
 # Users is a dictionary that contains information of every user
 # and uses u_id as the key.
 users = {
-     # u_id = {
+    # u_id = {
         #     "channel_list"  = set()
         #     "name_first" : "",
         #     "name_last" : "",
@@ -59,6 +59,12 @@ channels = {
             #             "message_id" : "",
             #             "u_id" : "",
             #             "date" : ""
+            #             "reacts" = [
+            #               {
+                    #           react_id : '',
+                    #            users : []
+                    #       }
+                    #   ]
             #         }
             #    }
             #}
@@ -70,9 +76,19 @@ channels = {
             #     failures : 0,
             #     status_message : ''
             # }
-        #      
+        #
     #}
 }
+
+# Stores the sendlater messages so that it can be cancelled if clear
+# is called. Is a list of dictionaries containing the end time and
+# timer class to cancel
+sendlater_messages = [
+        # {
+        #   end_time : "",
+        #   timer_class : ""
+        # }
+]
 
 # Message_num is the total number of messages that have been sent.
 # This number does not decrease when a message is removed.
@@ -81,6 +97,9 @@ message_num = 0
 # jwt_secret is the secret string used in jwt encoding.
 # It never changes.
 jwt_secret = "Mango2Team"
+
+# List of existing react_ids (currently only 1)
+react_ids = [1,2,3,4]
 
 
 # Clears the data variable.
@@ -125,19 +144,19 @@ def get_user_secret(u_id):
     user = get_user_info(u_id)
     return user["session_secret"]
 
-def update_user(user,attributes):
+def update_user(user, attributes):
     """
     Given a user(dict) and attribute(dict), updates that user with given new attributes
     """
     for item in attributes:
         user[item] = attributes[item]    
 
-def update_user_channel_list(user,channel_id):
+def update_user_channel_list(user, channel_id):
     """
     Given a user(dict) and channel_id(int), adds the channel id to the users channel list
     """
     user["channel_list"].add(channel_id)  
-          
+
 def register_user(user):
     """
     Given a user(dict), adds it to list of existing users
@@ -180,8 +199,8 @@ def get_hangman_info(channel_id):
     return channel['hangman']
 
 def get_hangman_status_message(channel_id):
-    message_id = list(channels)[-1]
-    return get_message(channel_id, message_id)
+    info = get_hangman_info(channel_id)
+    return get_message(channel_id, info['status_message'])
 
 def channel_add_member(channel_id, u_id):
     """
@@ -366,6 +385,11 @@ def change_permission(u_id, permission):
     user = get_user_info(u_id)
     user["permission_id"] = permission
 
+def update_user_img(host_url,token):
+    u_id = validation.check_valid_token(token)
+    user = get_user_info(u_id)
+    user["profile_img_url"] = host_url + f"static/{u_id}.jpg"
+    
 def create_standup(channel_id, u_id, timer_class, time_finish):
     """
     Will add a new standup to a channel
@@ -381,7 +405,7 @@ def add_message_standup(u_id, message, channel_id):
     Will add the message to the end of the standup message string
     """
     handle = users[u_id]["handle_str"]
-    channels[channel_id]["standup"]["message"] += handle + ": " + message + " "
+    channels[channel_id]["standup"]["message"] += handle + ": " + message + "\n"
 
 def check_standup_running(channel_id):
     """
@@ -407,10 +431,6 @@ def get_standup_timer_finish(channel_id):
     Will return the time the standup finishes at
     """
     return channels[channel_id]["standup"]["time_finish"]
-def update_user_img(host_url,token):
-    u_id = validation.check_valid_token(token)
-    user = get_user_info(u_id)
-    user["profile_img_url"] = host_url + f"static/{u_id}.jpg"
 
 def get_channel_from_message(message_id):
     """
@@ -433,3 +453,65 @@ def unpin_message(message_id, channel_id):
     """
     message = get_message(channel_id, message_id)
     message['is_pinned'] = False
+
+def check_valid_react(react_id):
+    """
+    Checks if react id is valid (exists)
+    """
+    if react_id in react_ids:
+        return True
+    return False
+        
+def check_user_already_reacted(channel_id, message_id, react_id, u_id):
+    """
+    Check if user has existing react to message, if so return False
+    """
+    messages = channels[channel_id]["messages"]
+    for react_id in messages[message_id]["reacts"]:
+        if u_id in react_id["u_ids"]:
+            return True
+    return False
+
+def react_message(message_id, channel_id, react_id, u_id):
+    """
+    Adds user to list of users who have reacted to message
+    """
+    messages = channels[channel_id]["messages"]
+    for react in messages[message_id]['reacts']:
+        if react['react_id'] == react_id:
+            react['u_ids'].append(u_id)
+
+def unreact_message(message_id, channel_id, react_id, u_id):
+    """
+    Removes user from list of users who have reacted to message
+    """
+    messages = channels[channel_id]["messages"]
+    for react in messages[message_id]['reacts']:
+        if react['react_id'] == react_id:
+            react['u_ids'].remove(u_id)
+
+def add_sendlater(timer_class, end_time):
+    """
+    Will add the new sendlater timer_class and unix end_time so
+    They can be cancelled by other.clear
+    """
+    sendlater = {
+        "end_time" : end_time,
+        "timer_class" : timer_class
+    }
+    sendlater_messages.append(sendlater)
+
+def remove_sendlater():
+    """
+    Will remove and return an element form the list
+    """
+
+    return sendlater_messages.pop()
+
+def sendlater_not_empty():
+    """
+    Will return true if the list sendlater_messages is not empty
+    """
+    if sendlater_messages == []:
+        return False
+    return True

@@ -9,8 +9,8 @@ from error import AccessError, InputError
 import data
 import validation
 import hangman
+import weather
 import threading
-
 
 def find_channel_with_message(message_id, u_id):
     """
@@ -66,9 +66,31 @@ def message_send(token, channel_id, message):
     new_message["time_created"] = datetime.datetime.now().replace().timestamp()
     new_message["message_id"] = new_message_id
     new_message["is_pinned"] = False
+    new_message["reacts"] = [
+            {
+        "react_id": 1,
+        "u_ids": []
+            },
+            {
+        "react_id": 2,
+        "u_ids": []
+            },
+            {
+        "react_id": 3,
+        "u_ids": []
+            },
+            {
+        "react_id": 4,
+        "u_ids": []
+            }
+    ]
+    
+    # Check if message is calling weather API
+    if validation.check_weather_call(message):
+        new_message['message'] = weather.get_weather(message)
 
     # Check if message will start a hangman session
-    if validation.check_start_hangman(channel_id, message): # pass token if pin
+    if validation.check_start_hangman(channel_id, message):
         return hangman.start(user_input_id, channel_id, new_message, new_message_id)
         
     # Check if hangman is active and message is a guess
@@ -159,25 +181,26 @@ def message_sendlater(token, channel_id, message, time_sent):
 
     # Check that the token is valid
     user_input_id = validation.check_valid_token(token)
- 
+
     # Check that the message is valid.
     validation.valid_message(message)
 
     # Check that the channel_id is valid
     validation.check_valid_channel_id(channel_id)
-    
+
     # Check that user is in channel
     validation.check_user_in_channel(user_input_id, channel_id)
-    
+
     current_timestamp = round(datetime.datetime.now().timestamp())
-    set_timestamp = time_sent
-    set_timer = set_timestamp - current_timestamp
-    if set_timer <= 0:
+    delta = time_sent - current_timestamp
+    if round(delta) <= 0:
         raise InputError(description="Can't send to the past")
 
-    t = threading.Timer(set_timer, message_send(token, channel_id, message))
+
+    t = threading.Timer(delta, message_send(token, channel_id, message))
     t.start()
 
+    data.add_sendlater(t, time_sent)
     new_message_id = data.get_message_num()
     return {
         "message_id": new_message_id,
@@ -214,5 +237,39 @@ def message_unpin(token, message_id):
     validation.check_is_channel_owner(u_id, channel_id) # CHANGE TO ACCESSERROR
 
     data.unpin_message(message_id, channel_id)
+
+    return {}
+
+def message_react(token, message_id, react_id):
+    # Check that the token is valid
+    u_id = validation.check_valid_token(token)
+
+    # Check that the message exists
+    channel_id = validation.check_message_exists(message_id)
+
+    # Check react id is valid
+    validation.check_valid_react(react_id)
+
+    # Check that message has already been reacted
+    validation.check_is_reacted_already(channel_id, message_id, react_id, u_id)
+
+    data.react_message(message_id, channel_id, react_id, u_id)
+
+    return {}
+
+def message_unreact(token, message_id, react_id):
+    # Check that the token is valid
+    u_id = validation.check_valid_token(token)
+
+    # Check that the message exists
+    channel_id = validation.check_message_exists(message_id)
+
+    # Check react id is valid
+    validation.check_valid_react(react_id)
+
+    # Check that message has already been reacted
+    validation.check_has_not_reacted(channel_id, message_id, react_id, u_id)
+
+    data.unreact_message(message_id, channel_id, react_id, u_id)
 
     return {}

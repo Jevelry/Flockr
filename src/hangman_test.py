@@ -154,8 +154,9 @@ def test_stop_hangman():
 
 def test_changing_status_message():
     user1, _user2, _chan_id = start_hangman('cameraman')
-    find_message = other.search(user1['token'], 'hangman')
-    message_id = find_message['messages'][0]['message_id']
+    find_message = other.search(user1['token'], 'hangman')['messages']
+    for found_message in find_message:
+        message_id = found_message['message_id']
     with pytest.raises(InputError):
         assert message.message_edit(user1['token'], message_id, 'No more hangman')
         assert message.message_remove(user1['token'], message_id)
@@ -196,12 +197,11 @@ def test_invalid_guess():
     focusing on invalid guesses
     """
     _creator, guesser, chan_id = start_hangman('froot loops')
-    message.message_send(guesser['token'], chan_id, 'f')
+    message.message_send(guesser['token'], chan_id, '/guess f')
     with pytest.raises(InputError):
         assert message.message_send(guesser['token'], chan_id, '/guess froot')
         assert message.message_send(guesser['token'], chan_id, '/guess')
         assert message.message_send(guesser['token'], chan_id, '/guess oo')
-        assert message.message_send(guesser['token'], chan_id, '/guess f') # f is already correct
         assert message.message_send(guesser['token'], chan_id, '/guess ')
         assert message.message_send(guesser['token'], chan_id, '/guess ?')
     other.clear()
@@ -230,9 +230,6 @@ def test_invalid_hangman_stop():
         message.message_send(guesser['token'], channel2, '/hangman stop') # Not creator/admin
     other.clear()
 
-# def test_pin_message_while_hangman():
-#     pass
-
 
 def test_guess_not_during_hangman():
     """
@@ -247,17 +244,36 @@ def test_guess_not_during_hangman():
     
 def test_remove_status_message():
     user1, _user2, _chan = start_hangman('baboon')
-    find_message = other.search(user1['token'], 'hangman')
-    message_id = find_message['messages'][0]['message_id']
+    find_message = other.search(user1['token'], 'hangman')['messages']
+    for found_message in find_message:
+        message_id = found_message['message_id']
     with pytest.raises(InputError):
         assert message.message_remove(user1['token'], message_id)
     other.clear()
 
 def test_edit_status_message():
     user1, _user2, _chan = start_hangman('dogsandcats')
-    find_message = other.search(user1['token'], 'hangman')
-    message_id = find_message['messages'][0]['message_id']
+    find_message = other.search(user1['token'], 'hangman')['messages']
+    for found_message in find_message:
+        message_id = found_message['message_id']
     msg = "Pacman > Hangman"
     with pytest.raises(InputError):
         assert message.message_edit(user1['token'], message_id, msg)
+    other.clear()
+
+def test_start_hangman_during_hangman():
+    user1, user2, chan = start_hangman('csebbqtomorrow')
+    send_hangman_guesses(user2, chan, "HeLlO")
+    with pytest.raises(InputError):
+        assert message.message_send(user1['token'], chan, "/hangman start johhnny")
+        assert message.message_send(user2['token'], chan, "/hangman stop")
+    other.clear()
+
+def test_guess_successful_letters_again():
+    _user1, user2, chan = start_hangman("plsfixcoverage")
+    send_hangman_guesses(user2, chan, "pls")
+    with pytest.raises(InputError):
+        assert message.message_send(user2['token'], chan, '/guess p')
+        assert message.message_send(user2['token'], chan, '/guess l')
+        assert message.message_send(user2['token'], chan, '/guess s')
     other.clear()

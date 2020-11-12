@@ -23,6 +23,7 @@ import user
 import other
 import data
 import sys
+import standup
 
 
 def defaultHandler(err):
@@ -64,7 +65,6 @@ def echo():
         "data": data
     })
 
-message.message_send
 @APP.route("/auth/register", methods = ["POST"])
 def register():
     """
@@ -75,7 +75,8 @@ def register():
     last = data["name_last"]
     email = data["email"]
     password = data["password"]
-    return auth.auth_register(email, password, first, last)
+    ret = auth.auth_register(email, password, first, last)
+    return ret
 
 @APP.route("/auth/logout", methods = ["POST"])
 def logout():
@@ -95,6 +96,25 @@ def login():
     email = data["email"]
     password = data["password"]
     return auth.auth_login(email, password)
+
+@APP.route("/auth/passwordreset/request", methods = ["POST"])
+def reset_request():
+    """
+    Sends user email using http
+    """
+    data = request.get_json()
+    email = data['email']
+    return auth.auth_passwordreset_request(email)
+
+@APP.route("/auth/passwordreset/reset", methods = ["POST"])
+def reset_reset():
+    """
+    Resets user's password using http
+    """
+    data = request.get_json()
+    code = data['reset_code']
+    password = data['new_password']
+    return auth.auth_passwordreset_reset(code, password)
 
 @APP.route("/channel/invite", methods = ["POST"])
 def invite():
@@ -145,7 +165,7 @@ def join():
     """
     data = request.get_json()
     token = data["token"]
-    channel_id = int(data["channel_id"])
+    channel_id = convert_to_int(data["channel_id"])
     return channel.channel_join(token, channel_id)
 
 @APP.route("/channel/addowner", methods = ["POST"])
@@ -228,6 +248,37 @@ def edit_message():
     message_str = data["message"]
     return message.message_edit(token, message_id, message_str)
 
+@APP.route("/standup/start", methods = ["POST"]) # MAY NEED TO TURN LENGTH INTO AN INT
+def start_standup():
+    """
+    Starts a stuandup using http
+    """
+    data = request.get_json()
+    token = data['token']
+    channel_id = convert_to_int(data['channel_id'])
+    length = convert_to_int(data['length'])
+    return standup.standup_start(token, channel_id, length)
+
+@APP.route("/standup/active", methods = ["GET"])
+def active():
+    """
+    Checks whether standup is active using http
+    """
+    token = request.args.get("token")
+    channel_id = convert_to_int(request.args.get("channel_id"))
+    return standup.standup_active(token, channel_id)
+
+@APP.route("/standup/send", methods = ["POST"])
+def standup_send():
+    """
+    Sends a message to the standup using http
+    """
+    data = request.get_json()
+    token = data['token']
+    channel_id = convert_to_int(data['channel_id'])
+    message = data['message']
+    return standup.standup_send(token, channel_id, message)
+
 @APP.route("/users/all", methods = ["GET"])
 def users_all():
     """
@@ -254,7 +305,7 @@ def search_query():
     """
     token = request.args.get("token")
     query_str = request.args.get("query_str")
-    return dumps(other.search(token, query_str))
+    return other.search(token, query_str)
 
 @APP.route("/user/profile", methods = ["GET"])
 def profile():
@@ -304,16 +355,72 @@ def upload_photo():
     data = request.get_json()
     token = data["token"]
     img_url = data["img_url"]
-    x_start = int(data["x_start"])
-    x_end = int(data["x_end"])
-    y_start = int(data["y_start"])
-    y_end = int(data["y_end"])
+    x_start = convert_to_int(data["x_start"])
+    x_end = convert_to_int(data["x_end"])
+    y_start = convert_to_int(data["y_start"])
+    y_end = convert_to_int(data["y_end"])
     host_url = request.url_root
     return user.user_profile_uploadphoto(token, img_url, x_start, y_start, x_end, y_end, host_url)
 
 @APP.route('/static/<path:path>')
 def send_js(path):
     return send_from_directory("src/static/",path)
+
+@APP.route('/message/pin', methods = ["POST"])
+def pin():
+    """
+    Calls message_pin using http
+    """
+    data = request.get_json()
+    token = data['token']
+    message_id = convert_to_int(data['message_id'])
+    return message.message_pin(token, message_id)
+
+@APP.route('/message/unpin', methods = ["POST"])
+def unpin():
+    """
+    Calls message_unpin using http
+    """
+    data = request.get_json()
+    token = data['token']
+    message_id = convert_to_int(data['message_id'])
+    return message.message_unpin(token, message_id)
+import datetime
+@APP.route('/message/sendlater', methods = ["POST"])
+def sendlater():
+    """
+    Calls message_sendlater using http
+    """
+    data = request.get_json()
+    token = data['token']
+    channel_id = convert_to_int(data['channel_id'])
+    msg = data['message']
+    time_sent = float(data['time_sent'])
+    return message.message_sendlater(token, channel_id, msg, time_sent)
+
+@APP.route("/message/react", methods = ["POST"])
+def react():
+    """
+    Calls message_react using http
+    """
+    data = request.get_json()
+    token = data['token']
+    message_id = convert_to_int(data['message_id'])
+    react_id = convert_to_int(data['react_id'])
+    return message.message_react(token, message_id, react_id)
+
+@APP.route("/message/unreact", methods = ["POST"])
+def unreact():
+    """
+    Calls message_unreact using http
+    """
+    data = request.get_json()
+    token = data['token']
+    message_id = convert_to_int(data['message_id'])
+    react_id = convert_to_int(data['react_id'])
+    return message.message_unreact(token, message_id, react_id)
+
+
 
 
 if __name__ == "__main__":

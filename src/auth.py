@@ -65,7 +65,7 @@ def send_email(email, reset_code):
         Nothing
     """
     sender_email = "flockr1531@gmail.com"
-    password = 'YUut6H8V'
+    password = 'YUut6h8V'
     msg = MIMEText('Enter code to reset email')
     msg['Subject'] = reset_code
     msg['From'] = sender_email
@@ -115,9 +115,10 @@ def auth_login(email, password):
         "u_id" : user["u_id"],
         "session_secret" : user["session_secret"]
     }
+    token = str(jwt.encode(payload, data.get_jwt_secret(), algorithm = "HS256"))
     return {
         "u_id" : user["u_id"],
-        "token" : jwt.encode(payload, data.get_jwt_secret(), algorithm = "HS256")
+        "token": token[2:-1]
     }
 
 
@@ -204,9 +205,10 @@ def auth_register(email, password, name_first, name_last):
         "u_id" : new["u_id"],
         "session_secret" : new["session_secret"]
     }
+    token = str(jwt.encode(payload, data.get_jwt_secret(), algorithm = "HS256"))
     return {
         "u_id" : new["u_id"],
-        "token": jwt.encode(payload, data.get_jwt_secret(), algorithm = "HS256")
+        "token": token[2:-1]
     }
 
 def auth_passwordreset_request(email):
@@ -257,15 +259,3 @@ def auth_passwordreset_reset(reset_code, new_password):
     })
 
     return {}
-
-import other
-if __name__ == '__main__':
-    user1 = auth_register('flockr1531@gmail.com', 'password', 'name', 'name')
-    auth_logout(user1['token'])
-    info = data.get_user_info(user1['u_id'])
-    print (info['password'])
-    auth_passwordreset_request('flockr1531@gmail.com')
-    code = input('Type code: ')
-    auth_passwordreset_reset(code, 'new_password')
-    print (info['password'])
-    other.clear()
