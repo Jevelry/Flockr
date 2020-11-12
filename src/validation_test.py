@@ -475,3 +475,65 @@ def test_check_has_not_reacted():
     message.message_react(user1["token"], message_id1["message_id"], 1)   
     assert validation.check_has_not_reacted(chan['channel_id'], message_id1["message_id"], 1, user1['u_id']) == None
     other.clear()
+
+def test_message_stage():
+    """
+    Checks if an error is raised if given over 3
+    """
+    with pytest.raises(InputError):
+        validation.check_kahio_message_stage(3)
+
+def test_check_kahio_time():
+    """
+    Checks that it raises an error when given an invalid time
+    """
+    assert validation.check_kahio_time(" 5") == 5
+    with pytest.raises(InputError):
+        validation.check_kahio_time("-5")
+
+def test_check_kahio_question():
+    """
+    Checks it returns an input error when given an empty string
+    """
+    with pytest.raises(InputError):
+        validation.check_kahio_question("")
+
+def test_check_kahio_answer():
+    """
+    Checks it converts a no space between the first and last when given an two empty spaces
+    """
+    assert validation.check_kahio_answer(" A ") == "a"
+    with pytest.raises(InputError):
+        validation.check_kahio_question("")
+
+def test_check_kahio_not_running():
+    """
+    Checks that it returns an error if a kahio is game is running
+    """
+    user = auth.auth_register("Test@subject.com", "Testing123", "Hello", "There")
+    chan = channels.channels_create(user["token"], "test_channel", True)
+    test_message1 = "/KAHIO/ question / A/ 201"
+    message.message_send(user["token"], chan['channel_id'], test_message1)
+    with pytest.raises(InputError):
+        validation.check_kahio_not_running(chan["channel_id"])
+
+def test_check_kahio_running():
+    """
+    Checks that it returns an error if a kahio is game is not running
+    """
+    user = auth.auth_register("Test@subject.com", "Testing123", "Hello", "There")
+    chan = channels.channels_create(user["token"], "test_channel", True)
+    with pytest.raises(InputError):
+        validation.check_kahio_not_running(chan["channel_id"])
+
+def test_check_kahio_user_has_answer():
+    """
+    Checks that it returns an error if a kahio is game is running
+    """
+    user = auth.auth_register("Test@subject.com", "Testing123", "Hello", "There")
+    u_id = validation.check_valid_token(user["token"])
+    chan = channels.channels_create(user["token"], "test_channel", True)
+    test_message1 = "/KAHIO/ question / A/ 201"
+    message.message_send(user["token"], chan['channel_id'], test_message1)
+    with pytest.raises(InputError):
+        validation.check_kahio_user_has_answer(chan["channel_id"], u_id)

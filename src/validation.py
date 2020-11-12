@@ -616,8 +616,6 @@ def check_kahio_time(time):
     if not time.isdigit():
         raise InputError(description="Time given is invalid")
     time = int(time)
-    if time <= 0:
-        raise InputError(description="Time given is invalid")
     return time
 
 def check_kahio_question(question):

@@ -31,7 +31,7 @@ def users():
     return users_and_channel
 
 @pytest.fixture
-def user1():
+def users1():
     """
     Pytest fixture that automatically registers a user and returns their info
     """
@@ -49,11 +49,11 @@ def time_from_now(seconds):
     return future.timestamp()
 
 #Successful
-def test_send_valid(user1):
+def test_send_valid(users1):
     """
     Testing if a single message can be sent and be stored
     """
-    user1, chan = user1
+    user1, chan = users1
     message_exp = "/KAHIO/Question/ A/ 1"
     message_id = message.message_send(user1["token"], chan['channel_id'], message_exp)
     message_from_channel = channel.channel_messages(user1["token"], chan['channel_id'], 0)
@@ -120,7 +120,7 @@ def test_send_answer_incorrect(users):
     time.sleep(2)
 
     message_from_channel = channel.channel_messages(user1["token"], chan['channel_id'], 0)
-    message_exp =  "Kahio game has ended.\nThe correct answer was a\nNo correct answers"
+    message_exp = "Kahio game has ended.\nThe correct answer was a\nNo correct answers"
     assert message_from_channel["messages"][0]["message"] == message_exp
     assert user1["u_id"] == message_from_channel["messages"][0]["u_id"]
     bling = True
@@ -132,11 +132,11 @@ def test_send_answer_incorrect(users):
     assert bling is False
     other.clear()
 
-def test_timer_messages(user1):
+def test_timer_messages(users1):
     """
     Testing The correct series of messages is printed in the channel
     """
-    user1, chan = user1
+    user1, chan = users1
     message_exp = "/KAHIO/Question/ A/ 6"
     message_id = message.message_send(user1["token"], chan['channel_id'], message_exp)
     message_from_channel = channel.channel_messages(user1["token"], chan['channel_id'], 0)
@@ -191,22 +191,22 @@ def test_already_answer_answers(users):
         message.message_send(user2["token"], chan['channel_id'], "a")
     other.clear()
 
-def test_kahio_game_already_started(user1):
+def test_kahio_game_already_started(users1):
     """
     Testing that when a kahio game is tried to start it has already been started an error is raised
     """
-    user1, chan = user1
+    user1, chan = users1
     message_exp = "/KAHIO/Question/ A/ 5"
     message.message_send(user1["token"], chan['channel_id'], message_exp)
     with pytest.raises(InputError):
         message.message_send(user1["token"], chan['channel_id'], message_exp)
     other.clear()
 
-def test_kahio_stop_valid(user1):
+def test_kahio_stop_valid(users1):
     """
     Testing that the kahio game can be stopped by a valid owner
     """
-    user1, chan = user1
+    user1, chan = users1
     message_exp = "/KAHIO/Question/ A/ 5"
     message.message_send(user1["token"], chan['channel_id'], message_exp)
 
@@ -230,22 +230,22 @@ def test_kahio_stop_not_owner(users):
         message.message_send(user2["token"], chan['channel_id'], "/KAHIO/END")
     other.clear()
 
-def test_kahio_stop_no_game(user1):
+def test_kahio_stop_no_game(users1):
     """
     Testing that an error is raised when not an owner tries to stop the kahio game
     """
-    user1, chan = user1
+    user1, chan = users1
 
     with pytest.raises(InputError):
         message.message_send(user1["token"], chan['channel_id'], "/KAHIO/END")
     other.clear()
 
-def test_kahio_input_no_answer(user1):
+def test_kahio_input_no_answer(users1):
     """
     Testing an input error is raised if no answer is given to the question in the inital
     start statement
     """
-    user1, chan = user1
+    user1, chan = users1
 
     with pytest.raises(InputError):
         message.message_send(user1["token"], chan['channel_id'], "/KAHIO/ question")
