@@ -279,14 +279,6 @@ def change_email(token, email, url):
     resp = requests.put(url + "/user/profile/setemail", json = email_info)
     return resp.json()
 
-def change_password(token, password, url):
-    password_info = {
-        "token" : token, 
-        "password" : password
-    }
-    resp = requests.put(url + "/user/profile/setpassword", json = password_info)
-    return resp.json()
-
 def search_message(token, query, url):
     search_info = {
         "token" : token, 
