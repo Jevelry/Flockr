@@ -115,9 +115,10 @@ def auth_login(email, password):
         "u_id" : user["u_id"],
         "session_secret" : user["session_secret"]
     }
+    token = str(jwt.encode(payload, data.get_jwt_secret(), algorithm = "HS256"))
     return {
         "u_id" : user["u_id"],
-        "token" : jwt.encode(payload, data.get_jwt_secret(), algorithm = "HS256")
+        "token": token[2:-1]
     }
 
 
