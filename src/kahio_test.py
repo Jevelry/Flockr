@@ -162,17 +162,17 @@ def test_not_user_kahio_start(users):
     """
     Will test an error is raised when not an owner tries to start a kahio game
     """
-    user1, user2, chan = users
+    _user1, user2, chan = users
     message_exp = "/KAHIO/Question/ A/ 1"
     with pytest.raises(AccessError):
         message.message_send(user2["token"], chan['channel_id'], message_exp)
     other.clear()
 
-def test_starter_answers(users):
+def test_starter_answers(users1):
     """
     Will test if an error is raised when the kahio game starter tries to answer the question
     """
-    user1, user2, chan = users
+    user1, chan = users1
     message_exp = "/KAHIO/Question/ A/ 10"
     message.message_send(user1["token"], chan['channel_id'], message_exp)
     with pytest.raises(InputError):
