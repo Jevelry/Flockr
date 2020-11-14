@@ -446,14 +446,6 @@ def get_standup_timer_finish(channel_id):
     """
     return channels[channel_id]["standup"]["time_finish"]
 
-def update_user_img(host_url, token):
-    """
-    Given a valid token, updates corresponding user's image_url
-    """
-    u_id = validation.check_valid_token(token)
-    user = get_user_info(u_id)
-    user["profile_img_url"] = host_url + f"static/{u_id}.jpg"
-
 def get_channel_from_message(message_id):
     """
     Returns channel_id of channel that contains message_id
