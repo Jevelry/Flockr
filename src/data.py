@@ -249,9 +249,11 @@ def channel_remove_member(channel_id, u_id):
     Given a channel_id(int) and u_id(int), removes that member from the channel
     """
     channel = channels[channel_id]
+    user = get_user_info(u_id)
     if u_id in channel["owners"]:
         channel["owners"].remove(u_id)
     channel["members"].remove(u_id)
+    user['channel_list'].remove(channel_id)
 
 def channel_remove_owner(channel_id,u_id):
     """

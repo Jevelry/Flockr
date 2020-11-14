@@ -105,11 +105,14 @@ def victory_message(info):
     """
     user = data.get_user_info(info['u_id'])
     name = user['name_first']
+    plural = 'es'
+    if info['guesses'] == 1:
+        plural = ''
     return f"""
     =======================================
-    ----------------YOU WIN----------------
+    ---------------------------YOU WIN---------------------------
     =======================================
-    Congratulations! You won {name}\'s hangman in {info['guesses']} guesses!
+    Congratulations! You won {name}\'s hangman in {info['guesses']} guess{plural}!
     The word was {info['word']}.
     {generate_picture(info)}
     """
@@ -122,8 +125,8 @@ def loss_message(info):
     name = user['name_first']
     info['failures'] = 9
     return f"""
-    =======================================
-    ---------------GAME OVER---------------
+     =======================================
+    --------------------------GAME OVER-----------------------
     =======================================
     Oh well. You lost {name}\'s hangman in {info['guesses']} guesses :(
     The word was "{info['word']}".

@@ -882,3 +882,19 @@ def test_message_sendlater_not_in_channel():
         assert message.message_sendlater(user2['token'], chan, msg, time)
   
     other.clear()
+
+def test_successful_weather():
+    user = auth.auth_register('firework@gmail.com', 'wouldntyouliketoknow', 'waether', 'boy')
+    chan = channels.channels_create(user['token'], 'customer', True)['channel_id']
+    msg = '/weather Sydney'
+    mess = message.message_send(user['token'], chan, msg)['message_id']
+    assert mess == 1
+    other.clear()
+
+def test_unsucessful_weather():
+    user = auth.auth_register('james@james.com', 'Jmaesjames', 'James', 'james')
+    chan = channels.channels_create(user['token'], 'jam', True)['channel_id']
+    msg = '/weather 123'
+    with pytest.raises(InputError):
+        assert message.message_send(user['token'], chan, msg)
+    other.clear()
