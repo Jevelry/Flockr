@@ -3,6 +3,7 @@ datetime: Gives access to the datetime functions
 error(error.py): Gives access to error classes
 data(data.py): Gives access to global data variable
 validation(validation.py): Gives access to the premade validations
+hangman(hangman.py): Gives access to hangman functions
 """
 import datetime
 from error import AccessError, InputError
@@ -216,6 +217,17 @@ def message_sendlater(token, channel_id, message, time_sent):
     }
 
 def message_pin(token, message_id):
+    """
+    Given a message within a channel, mark it as "pinned" to 
+    be given special display treatment by the frontend
+
+    Parameters:
+        token(string): An authorisation hash
+        message_id(int): Identifier for message in channel
+        
+    Returns:
+        Nothing
+    """
     # Check that the token is valid
     u_id = validation.check_valid_token(token)
 
@@ -233,6 +245,16 @@ def message_pin(token, message_id):
     return {}
 
 def message_unpin(token, message_id):
+    """
+    Given a message within a channel, remove it's mark as unpinned
+
+    Parameters:
+        token(string): An authorisation hash
+        message_id(int): Identifier for message in channel
+        
+    Returns:
+        Nothing
+    """
     # Check that the token is valid
     u_id = validation.check_valid_token(token)
 
@@ -250,6 +272,18 @@ def message_unpin(token, message_id):
     return {}
 
 def message_react(token, message_id, react_id):
+    """
+    Given a message within a channel the authorised user is part of, 
+    add a "react" to that particular message
+
+    Parameters:
+        token(string): An authorisation hash
+        message_id(int): Identifier for message in channel
+        react_id(int): identifier for react in list of reacts
+        
+    Returns:
+        Nothing
+    """
     # Check that the token is valid
     u_id = validation.check_valid_token(token)
 
@@ -267,6 +301,18 @@ def message_react(token, message_id, react_id):
     return {}
 
 def message_unreact(token, message_id, react_id):
+    """
+    Given a message within a channel the authorised user is part of, 
+    remove a "react" to that particular message
+
+    Parameters:
+        token(string): An authorisation hash
+        message_id(int): Identifier for message in channel
+        react_id(int): identifier for react in list of reacts
+        
+    Returns:
+        Nothing
+    """ 
     # Check that the token is valid
     u_id = validation.check_valid_token(token)
 

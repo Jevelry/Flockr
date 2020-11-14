@@ -86,7 +86,6 @@ def user_profile_setemail(token, email):
     #Check for valid email
     validation.check_valid_email(email.lower())
         
-        
     #Everything valid, proceed with changing email
         
     user = data.get_user_info(u_id) 
@@ -115,7 +114,6 @@ def user_profile_sethandle(token, handle_str):
     validation.check_existing_handle(handle_str)
         
     #Everything valid, proceed with changing handle
-
     user = data.get_user_info(u_id) 
     data.update_user(user, {"handle_str": handle_str})
     return {}

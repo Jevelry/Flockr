@@ -30,6 +30,9 @@ def init():
     }
 
 def print_start(info):
+    """
+    Prints starting message of hangman
+    """
     user = data.get_user_info(info['u_id'])
     return f"""
     {user['name_first']} has started a game of hangman!
@@ -37,6 +40,9 @@ def print_start(info):
     """
     
 def update_info(info, u_id, message_id, word):
+    """
+    Updates the infomation of hangman game
+    """
     info['is_active'] = True
     info['word'] = word
     info['status_message'] = message_id
@@ -49,6 +55,9 @@ def update_info(info, u_id, message_id, word):
     info['letters'] = []
 
 def start(u_id, channel_id, message, message_id):
+    """
+    Checks if no standups are in progess and initiates hangman
+    """
     # Check can start
     validation.check_can_start_hangman(channel_id)
 
@@ -60,27 +69,40 @@ def start(u_id, channel_id, message, message_id):
     # Check valid word
     validation.check_valid_word(word)
 
+    # Updates hangman info with that word
     info = data.get_hangman_info(channel_id)
     update_info(info, u_id, message_id, word)
     
+    # Prints hangman starting message
     message['message'] = print_start(info)
     data.add_message(message, channel_id)
 
     message_info = data.get_message(channel_id, message_id)
     message_info['is_pinned'] = True
     return {'message_id' : message_id}
-    # message.message_pin(data.get_hangman_status_message['message_id])
 
 def get_guess(message):
+    """
+    Lowers numbers of guesses
+    """
     return message[7].lower()
 
 def check_hangman_won(word, revealed_word):
+    """
+    Returns True if word is guessed
+    """
     return word == ''.join(revealed_word)
 
 def check_hangman_lost(failures):
+    """
+    Returns true if failed 9 guesses
+    """
     return failures == 9
 
 def victory_message(info):
+    """
+    Returns victory message
+    """
     user = data.get_user_info(info['u_id'])
     name = user['name_first']
     return f"""
@@ -93,6 +115,9 @@ def victory_message(info):
     """
 
 def loss_message(info):
+    """
+    Returns loss message
+    """
     user = data.get_user_info(info['u_id'])
     name = user['name_first']
     info['failures'] = 9
@@ -105,8 +130,10 @@ def loss_message(info):
     {generate_picture(info)}
     """
 
-
 def execute_victory(info):
+    """
+    Ends hangman session and prints victory message
+    """
     message_id = info['status_message']
     info['is_active'] = False
     channel_id = data.find_channel(message_id)
@@ -115,6 +142,9 @@ def execute_victory(info):
     info['letters'] = []
 
 def execute_loss(info):
+    """
+    Ends hangman session and prints loss message
+    """
     info['is_active'] = False
     info['failures'] += 1
     message_id = info['status_message']
@@ -124,14 +154,23 @@ def execute_loss(info):
     info['letters'] = []
 
 def execute_correct_guess(info, letter):
+    """
+    Reveals a letter in guessing word
+    """
     for i,c in enumerate(info['word']):
         if c == letter:
             info['revealed_word'][i] = letter
         
 def generate_picture(info):
+    """
+    Prints the hangman picture for each different stage 
+    """
     return hangman_draw.draw(info['failures'])
 
 def edit_status(info):
+    """
+    Changes the status message with updated picture and incorrect letters 
+    """
     user = data.get_user_info(info['u_id'])
     msg =  f"""
     {user['name_first']} has started a hangman!
@@ -145,12 +184,18 @@ def edit_status(info):
 
 
 def execute_incorrect_guess(hangman_info, letter):
+    """
+    Adds letter to list of guessed letters and adds 1 to failed guesses
+    """
     if letter not in hangman_info['letters']:
         hangman_info['letters'].append(letter)
     hangman_info['failures'] += 1
 
     
 def print_updated_status(info):
+    """
+    Prints the updated status message
+    """
     if check_hangman_won(info['word'], info['revealed_word']):
         execute_victory(info)
     elif check_hangman_lost(info['failures']):
@@ -159,6 +204,9 @@ def print_updated_status(info):
         edit_status(info)
 
 def guess(u_id, channel_id, message):
+    """
+    Takes in a guess, if correct, execute correct guess, if not, execute incorrect guess
+    """
     hang_info = data.get_hangman_info(channel_id)
 
     # Check to make sure user didn't start hangman session
@@ -180,6 +228,9 @@ def guess(u_id, channel_id, message):
     print_updated_status(hang_info)
 
 def stop(u_id, channel_id):
+    """
+    Stops current game of hangman
+    """
     info = data.get_hangman_info(channel_id)
 
     # Check if hangman is currently active

@@ -106,12 +106,11 @@ message_num = 0
 # It never changes.
 jwt_secret = "Mango2Team"
 
-# List of existing react_ids (currently only 1)
+# List of existing react_ids
 react_ids = [1,2,3,4]
 
 
-# Clears the data variable.
-# Removes all users, channels, etc.
+
 def clear_data():
     """
     Restarts the global variable to it"s default state (empty)
@@ -207,6 +206,9 @@ def get_hangman_info(channel_id):
     return channel['hangman']
 
 def get_hangman_status_message(channel_id):
+    """
+    Given a channel_id, gives the status of hangman in a message
+    """
     info = get_hangman_info(channel_id)
     return get_message(channel_id, info['status_message'])
 
@@ -438,6 +440,9 @@ def get_standup_timer_finish(channel_id):
     return channels[channel_id]["standup"]["time_finish"]
 
 def update_user_img(host_url, token):
+    """
+    Given a valid token, updates corresponding user's image_url
+    """
     u_id = validation.check_valid_token(token)
     user = get_user_info(u_id)
     user["profile_img_url"] = host_url + f"static/{u_id}.jpg"

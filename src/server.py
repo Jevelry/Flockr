@@ -364,6 +364,9 @@ def upload_photo():
 
 @APP.route('/static/<path:path>')
 def send_js(path):
+    """
+    Serves back profile image from src/static
+    """
     return send_from_directory("src/static/",path)
 
 @APP.route('/message/pin', methods = ["POST"])
@@ -419,8 +422,6 @@ def unreact():
     message_id = convert_to_int(data['message_id'])
     react_id = convert_to_int(data['react_id'])
     return message.message_unreact(token, message_id, react_id)
-
-
 
 
 if __name__ == "__main__":

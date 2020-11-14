@@ -322,14 +322,15 @@ def valid_message(message):
     Parameters:
         message(string): The string of the message to be sent
     Returns:
+        Raises error if length of message is too long
+        Otherwise nothing
     """
     if len(message) > 1000:
         raise InputError(description = "Invalid message")
 
 def valid_message_id(message_id):
     """
-    Check that message_id given has a message it refers to in the global variable will 
-    raise an InputError
+    Check that message_id given has a message it refers to in the global variable 
 
     Parameters:
         message_id(int): The message_id of the channel being checked
@@ -339,18 +340,41 @@ def valid_message_id(message_id):
         raise InputError(description="Invalid message_id")
 
 def check_message_exists(message_id):
+    """
+    Checks if message from a channel exists
+    
+    Parameters:
+        message_id(int): The message_id of the channel being checked
+    Returns:
+        Raises error if message does not exist
+        Otherwise return nothing
+    """
     chan = data.get_channel_from_message(message_id)
     if chan == None:
         raise InputError(description="Message does not exist")
     return chan
 
 def check_not_pinned(message_id):
+    """
+    Checks if message is not already pinned
+    
+    Parameters:
+        message_id(int): The message_id of the channel being checked
+    Returns: Nothing
+    """
     chan = data.get_channel_from_message(message_id)
     message = data.get_message(chan, message_id)
     if message['is_pinned']:
         raise InputError(description="Message is already pinned")
 
 def check_is_pinned(message_id):
+    """
+    Checks if message is already pinned
+    
+    Parameters:
+        message_id(int): The message_id of the channel being checked
+    Returns: Nothing
+    """
     chan = data.get_channel_from_message(message_id)
     message = data.get_message(chan, message_id)
     if not message['is_pinned']:
@@ -371,11 +395,26 @@ def check_channel_is_public(channel_id):
         raise AccessError(description = "Cannot join private channel")
 
 def check_valid_url(url):
+    """
+    Check if url given returns a http status of 200
+
+    Parameters:
+        url(str): Url to online page
+    Returns:
+    """
     request = requests.get(url)
     if request.status_code != 200:
         raise InputError(description = "Invalid url")
 
 def check_jpg_in_url(url):
+    """
+    Check if given url refers to a .jpg file
+
+    Parameters:
+        url(str): Url to online page
+
+    Returns:
+    """
     request = requests.get(url)
     if request.headers['content-type'] != "image/jpeg":
         raise InputError(description = "Url not a jpg")
@@ -439,11 +478,29 @@ def check_dimensions(image,x_start, y_start, x_end, y_end):
         raise InputError(description = "Invalid dimensions")
 
 def check_can_start_hangman(channel_id):
+    """
+    Checks if its ok to start hangman session
+
+    Parameters:
+        channel_id(int): The id of channel
+    Returns:
+        Raises error if not enough members
+        If it is valid it returns nothing
+    """
     channel = data.get_channel_info(channel_id)
     if len(channel['members']) < 2:
         raise InputError(description="Not enough people to start hangman")
 
 def check_not_status_message(message_id):
+    """
+    Checks to make sure that the targeted message isn't the pinned 
+    hangman message with the game state
+    Parameters:
+        message_id(int): unique identifier of message
+    returns:
+        error if status message is pinned message
+        otherwise nothing
+    """
     channel_id = data.get_channel_from_message(message_id)
     # Message does not exist
     if channel_id is None:
@@ -453,6 +510,9 @@ def check_not_status_message(message_id):
         raise InputError(description="Can't edit/delete hangman status message")
 
 def check_valid_word(word):
+    """
+    Checks if hangman word is valid
+    """
     new_word = re.sub(r'[ \-\']', '', word)
     if not new_word.isalpha() or len(new_word) < 3:
         raise InputError(description="Word is invalid") 
@@ -550,6 +610,9 @@ def check_guesser_not_creator(u_id, channel_id):
         raise InputError(description='Users can not guess their own word')
 
 def check_valid_guess(message):
+    """
+    Checks that the message is '/guess ' and then a letter
+    """
     if len(message) != 8 or not message[7].isalpha():
         raise InputError(description='Guess is not valid')
 
@@ -600,17 +663,29 @@ def check_has_not_reacted(channel_id, message_id, react_id, u_id):
         raise InputError(description='User has already reacted to this message')
 
 def check_time_in_future(time):
+    """
+    verify input sendlater time is not negative
+    """
     if time <= 0:
         raise InputError(description="Can't send message to the past")
 
 def check_weather_call(message):
+    """
+    checks whether the user is calling for the weather
+    """
     return message.startswith("/weather ")
 
 def check_kahio_message_stage(message_stage):
+    """
+
+    """
     if (message_stage > 3):
         raise InputError(description="Invalid kahio start message")
 
 def check_kahio_time(time):
+    """
+    Check if valid time has been inputed
+    """
     if time[0] == " ":
         time = time[1:]
     if not time.isdigit():
@@ -619,10 +694,16 @@ def check_kahio_time(time):
     return time
 
 def check_kahio_question(question):
+    """
+    Checks if valid question has been inputed
+    """
     if question == "":
         raise InputError(description="Question given is invalid")
 
 def check_kahio_answer(answer):
+    """
+    Check if answer is correct
+    """
     if answer == "":
         raise InputError(description="Answer given is invalid")
     if answer[0] == " ":
