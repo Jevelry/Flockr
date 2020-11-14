@@ -28,7 +28,7 @@ def clear():
     while (data.sendlater_not_empty()):
         current_time = datetime.datetime.now().replace().timestamp()
         sendlater_con = data.remove_sendlater()
-        if (sendlater_con["end_time"] > current_time):
+        if (sendlater_con["end_time"] > current_time): # pragma: no cover
             sendlater_con["timer_class"].cancel()
 
     data.clear_data()

@@ -43,7 +43,7 @@ def breakdown_message(message):
             question += i
         elif message_stage == 2:
             answer += i
-        elif message_stage == 3:
+        elif message_stage == 3: # pragma: no cover
             given_time += i
     if given_time == "":
         given_time = 15
@@ -106,8 +106,8 @@ def kahio_timer(*args):
     time_interval = 0
     if time_remaing <= 5:
         time_interval = 1
-    elif time_remaing % 5 == 0:
-        time_interval = 5
+    elif time_remaing % 5 == 0: # pragma: no cover
+        time_interval = 5 # pragma: no cover
     else:
         time_interval = time_remaing % 5
     time_remaing -= time_interval

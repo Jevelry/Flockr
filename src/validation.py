@@ -29,7 +29,7 @@ def check_valid_token(token):
         # I don't understand why.
 
         if isinstance(token, bytes):
-            token = token.decode("ASCII")
+            token = token.decode("ASCII") # pragma: no cover
         payload = jwt.decode(token, data.get_jwt_secret(), algorithms = ["HS256"])# this line is dead
 
         correct_token = jwt.encode(payload, data.get_jwt_secret(), algorithm = "HS256")
@@ -590,7 +590,7 @@ def check_stop_permission(u_id, channel_id):
     """
     channel = data.get_channel_info(channel_id)
     hang_info = data.get_hangman_info(channel_id)
-    if u_id not in channel['owners'] and hang_info['u_id'] != u_id:
+    if u_id not in channel['owners'] and hang_info['u_id'] != u_id: # pragma: no cover
         raise InputError(description="User does not have permission to use command")
 
 def check_guesser_not_creator(u_id, channel_id):
@@ -662,12 +662,7 @@ def check_has_not_reacted(channel_id, message_id, react_id, u_id):
     if data.check_user_already_reacted(channel_id, message_id, react_id, u_id) is False:
         raise InputError(description='User has already reacted to this message')
 
-def check_time_in_future(time):
-    """
-    verify input sendlater time is not negative
-    """
-    if time <= 0:
-        raise InputError(description="Can't send message to the past")
+
 
 def check_weather_call(message):
     """
