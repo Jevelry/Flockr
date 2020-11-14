@@ -3,6 +3,7 @@ datetime: Gives access to the datetime functions
 error(error.py): Gives access to error classes
 data(data.py): Gives access to global data variable
 validation(validation.py): Gives access to the premade validations
+hangman(hangman.py): Gives access to hangman functions
 """
 import datetime
 from error import AccessError, InputError
@@ -10,6 +11,7 @@ import data
 import validation
 import hangman
 import weather
+import kahio
 import threading
 
 def find_channel_with_message(message_id, u_id):
@@ -101,7 +103,15 @@ def message_send(token, channel_id, message):
     if validation.check_if_stop_message(message):
         return hangman.stop(user_input_id, channel_id)
 
-    data.add_message(new_message, channel_id)    
+    if message.startswith("/KAHIO/END"):
+        kahio.kahio_end(user_input_id, channel_id)
+        new_message["message"] = "The KAHIO game has been stopped"
+    elif message.startswith("/KAHIO"):
+        new_message["message"] = kahio.start_kahio(user_input_id, channel_id, message)
+    elif data.check_kahio_running(channel_id):
+        return kahio.kahio_guess(user_input_id, channel_id, new_message)
+
+    data.add_message(new_message, channel_id)
 
     return {
         "message_id": new_message_id,
@@ -207,6 +217,17 @@ def message_sendlater(token, channel_id, message, time_sent):
     }
 
 def message_pin(token, message_id):
+    """
+    Given a message within a channel, mark it as "pinned" to 
+    be given special display treatment by the frontend
+
+    Parameters:
+        token(string): An authorisation hash
+        message_id(int): Identifier for message in channel
+        
+    Returns:
+        Nothing
+    """
     # Check that the token is valid
     u_id = validation.check_valid_token(token)
 
@@ -224,6 +245,16 @@ def message_pin(token, message_id):
     return {}
 
 def message_unpin(token, message_id):
+    """
+    Given a message within a channel, remove it's mark as unpinned
+
+    Parameters:
+        token(string): An authorisation hash
+        message_id(int): Identifier for message in channel
+        
+    Returns:
+        Nothing
+    """
     # Check that the token is valid
     u_id = validation.check_valid_token(token)
 
@@ -241,6 +272,18 @@ def message_unpin(token, message_id):
     return {}
 
 def message_react(token, message_id, react_id):
+    """
+    Given a message within a channel the authorised user is part of, 
+    add a "react" to that particular message
+
+    Parameters:
+        token(string): An authorisation hash
+        message_id(int): Identifier for message in channel
+        react_id(int): identifier for react in list of reacts
+        
+    Returns:
+        Nothing
+    """
     # Check that the token is valid
     u_id = validation.check_valid_token(token)
 
@@ -258,6 +301,18 @@ def message_react(token, message_id, react_id):
     return {}
 
 def message_unreact(token, message_id, react_id):
+    """
+    Given a message within a channel the authorised user is part of, 
+    remove a "react" to that particular message
+
+    Parameters:
+        token(string): An authorisation hash
+        message_id(int): Identifier for message in channel
+        react_id(int): identifier for react in list of reacts
+        
+    Returns:
+        Nothing
+    """ 
     # Check that the token is valid
     u_id = validation.check_valid_token(token)
 

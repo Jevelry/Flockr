@@ -7,8 +7,6 @@ import data
 import validation
 from error import InputError, AccessError
 
-
-
 def channel_invite(token, channel_id, u_id):
     """
     Invites a user (with user id u_id) to join a channel with ID channel_id.
@@ -169,8 +167,7 @@ def channel_leave(token, channel_id):
 
     # Everything valid, Proceed with leaving channel
     data.channel_remove_member(channel_id, u_id)
-    return {
-    }
+    return {}
 
 def channel_join(token, channel_id):
     """
@@ -190,7 +187,6 @@ def channel_join(token, channel_id):
     # Checks channel exists
     validation.check_valid_channel_id(channel_id)
 
-
     #Checks the person wasn"t already in the channel
     validation.check_is_not_existing_channel_member(user_id, channel_id)
        
@@ -198,8 +194,6 @@ def channel_join(token, channel_id):
     #Checks the channel is public and adds the user to the members
     data.channel_add_member(channel_id, user_id)
     return {}
-
-
 
 def channel_addowner(token, channel_id, u_id):
     """
@@ -220,20 +214,16 @@ def channel_addowner(token, channel_id, u_id):
     #checks the owner is an owner of the channel
     validation.check_is_channel_owner(owner_id, channel_id)
 
-
     #checks the member is a member of the channel
     validation.check_user_in_channel(u_id, channel_id)
-
 
     #checks the member is not already an owner
     validation.check_isnot_channel_owner(u_id, channel_id)
 
     #Will change the u_id from member to owner
     data.channel_add_owner(channel_id, u_id)
-
     return {}
-    
-    
+
 def channel_removeowner(token, channel_id, u_id):
     """
     Remove user with user id u_id an owner of this channel

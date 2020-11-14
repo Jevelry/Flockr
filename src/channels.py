@@ -1,6 +1,8 @@
 """
 data(data.py): Gives access to global data variable
 error(error.py): Gives access to error classes
+validation(validation.py): Gives access to validate functions
+hangman(hangman.py): Gives access to hangman functions
 """
 import data
 from error import InputError, AccessError
@@ -37,7 +39,6 @@ def channels_listall(token):
 
     return data.channels_list_all()
 
-
 def channels_create(token, name, is_public):
     """
     Checks information given is valid, then creates a new channel
@@ -56,9 +57,8 @@ def channels_create(token, name, is_public):
     # Returns InputError if channel name is more than 20 characters
     if len(name) > 20:
         raise InputError(description = "Name cannot be more than 20 characters long")
-    
+
     # Creates a new channel and stores to "channels" in data.py
-    
     new_channel = {
         "channel_id" : data.get_num_channels() + 1,
         "name" : name,
@@ -72,8 +72,8 @@ def channels_create(token, name, is_public):
 
     # Stores channel as part of the user"s channel list
     user = data.get_user_info(u_id)
-    data.update_user_channel_list(user, new_channel["channel_id"])    
-    
+    data.update_user_channel_list(user, new_channel["channel_id"])
+
     return {
         "channel_id": new_channel["channel_id"]
     }

@@ -5,6 +5,7 @@ error(error.py): Gives access to error classes
 haslip (hash module): Gives access to sha256 hashing (for password)
 jwt (Pyjwt module): Gives access to jwts (for storing tokens)
 Random(Random module): GIvess access to randrange() (used for generating session ids)
+smptplib and email libraries: Used for email purposes
 """
 
 import data
@@ -16,8 +17,6 @@ import random
 import smtplib, ssl
 from email.mime.text import MIMEText
 
-# Used in auth_register
-# Generates a unique handle (username) for each user
 def generate_handle(first, last):
     """
     Generates a unique handle based on first and last name
@@ -32,6 +31,7 @@ def generate_handle(first, last):
     names = first + last
     # Handle is 20 letters max.
     handle = names[:20]
+    # Check if handle already exists
     if data.get_user_with({ "handle_str" : handle}) is not None:
         length = str(data.get_num_users())
         handle = handle[:len(length) * -1] + length
@@ -76,7 +76,6 @@ def send_email(email, reset_code):
     s.send_message(msg)
     s.quit()
 
-# Logs user in (must be an existing account)
 def auth_login(email, password):
     """
     Attempts to log user in by checking whether
@@ -121,8 +120,6 @@ def auth_login(email, password):
         "token": token[2:-1]
     }
 
-
-# Logs an active user out.
 def auth_logout(token):
     """
     Logs the user out after checking
@@ -146,10 +143,6 @@ def auth_logout(token):
     data.update_user(data.get_user_info(u_id), {"session_secret" : ""})
     return {"is_success" : True}
 
-    
-
-
-# Create an account for a new user.
 def auth_register(email, password, name_first, name_last):
     """
     Registers the user after checking to make sure
@@ -233,7 +226,6 @@ def auth_passwordreset_request(email):
     code = generate_reset_code(user)
     
     send_email(email, code)
-
     return {}
 
 def auth_passwordreset_reset(reset_code, new_password):

@@ -22,10 +22,13 @@ def clear():
         if data.check_standup_running(channel["channel_id"]):
             timer_class = data.get_timer_class(channel["channel_id"])
             timer_class.cancel()
+        if data.check_kahio_running(channel["channel_id"]):
+            timer_class = data.get_kahio_timer_class(channel["channel_id"])
+            timer_class.cancel()
     while (data.sendlater_not_empty()):
         current_time = datetime.datetime.now().replace().timestamp()
         sendlater_con = data.remove_sendlater()
-        if (sendlater_con["end_time"] > current_time):
+        if (sendlater_con["end_time"] > current_time): # pragma: no cover
             sendlater_con["timer_class"].cancel()
 
     data.clear_data()
@@ -47,7 +50,6 @@ def users_all(token):
     # Accesses data.py and appends user info of each user to users
     return {"users" : data.user_list()}
     
-
 def admin_userpermission_change(token, u_id, permission_id):
     """
     Sets a user's permissions described by permission_id
@@ -83,9 +85,6 @@ def admin_userpermission_change(token, u_id, permission_id):
         return {}
 
     raise InputError(description = "Permission id is not a valid value")
-
-
-
 
 def search(token, query_str):
     """

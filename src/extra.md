@@ -50,6 +50,7 @@ Weather
 
 Reacts
     * Added 3 new reacts (heart, star and thumbDown)
+    * Learnt (some) npm and very basic NodeJS
     * Made the heart red
     * Made the star yellow
     * Can only react once on each message 

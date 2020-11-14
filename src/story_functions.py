@@ -189,17 +189,6 @@ def edit_message(token, message_id, message, url):
     resp = requests.put(url + "/message/edit", json = edit_info)
     return resp.json()
 
-def sendlater(token, channel_id, message, time, url):
-    later_info = {
-        "token" : token,
-        "channel_id" : channel_id,
-        "message" : message,
-        "time" : time
-    }
-    resp = requests.post(url + "/message/sendlater", json = later_info)
-    later_dict = resp.json()
-    return later_dict['message_id']
-
 def react_message(token, message_id, react_id, url):
     react_info = {
         "token" : token,
