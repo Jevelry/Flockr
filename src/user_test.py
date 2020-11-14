@@ -16,6 +16,34 @@ from error import InputError, AccessError
 import data
 import os
 import shutil
+from time import sleep
+import re
+from subprocess import Popen, PIPE
+import signal
+
+@pytest.fixture
+def url():
+    """
+    Allows pytest to create a new server.
+    Returns url for new server.
+    """
+    url_re = re.compile(r" \* Running on ([^ ]*)")
+    server = Popen(["python3", "src/server.py"], stderr = PIPE, stdout = PIPE)
+    line = server.stderr.readline()
+    local_url = url_re.match(line.decode())
+    if local_url:
+        yield local_url.group(1)
+        # Terminate the server
+        server.send_signal(signal.SIGINT)
+        waited = 0
+        while server.poll() is None and waited < 5:
+            sleep(0.1)
+            waited += 0.1
+        if server.poll() is None:
+            server.kill()
+    else:
+        server.kill()
+        raise Exception("Couldn't get URL from local server")
 
 @pytest.fixture
 def user1():
@@ -323,9 +351,11 @@ def test_user_uploadphoto_invalid_token(user1):
     other.clear()
 
 #Code assumes user at least enters a valid url
-def test_user_uploadphoto_invalid_http_status(user1):
+def test_user_uploadphoto_invalid_http_status(url):
+    user1 = auth.auth_register("kevin@gmail.com", "kh12345", "Kevin", "Huang")
+    web = url + "/channels/list?token=apple"
     with pytest.raises(InputError):
-        assert user.user_profile_uploadphoto(user1["token"], "https://samsung-redemption.com/au/customer/redemption/details/204262", 0, 0, 10, 10, "google.com.au")
+        assert user.user_profile_uploadphoto(user1["token"], web, 0, 0, 10, 10, "google.com.au")
     other.clear()
     
 def test_user_uploadphoto_invalid_dimensions(user1):
