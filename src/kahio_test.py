@@ -76,7 +76,7 @@ def test_send_answer_valid(users):
     Testing if a single message can be sent and be stored
     """
     user1, user2, chan = users
-    message_exp = "/KAHIO/Question/ A/ 1"
+    message_exp = "/KAHIO/Question/ A/ 10"
     message_id = message.message_send(user1["token"], chan['channel_id'], message_exp)
     message_from_channel = channel.channel_messages(user1["token"], chan['channel_id'], 0)
 
@@ -87,7 +87,7 @@ def test_send_answer_valid(users):
     message_ans = " A"
     message_id2 = message.message_send(user2["token"], chan['channel_id'], message_ans)
 
-    time.sleep(2)
+    time.sleep(11)
 
     message_from_channel = channel.channel_messages(user1["token"], chan['channel_id'], 0)
     assert user1["u_id"] == message_from_channel["messages"][0]["u_id"]

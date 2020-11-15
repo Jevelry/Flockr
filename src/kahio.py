@@ -1,9 +1,11 @@
 """
+math: Gives access to the remainder function
 threading: Gives access to multi threading
 datetime: Gives access to the datetime functions
 data(data.py): Gives access to global data variable
 validation(validation.py): Gives access to the premade validations
 """
+import math
 import threading
 import datetime
 import data
@@ -140,10 +142,10 @@ def kahio_timer(*args):
 
     if time_remaing <= 5:
         time_interval = 1
-    elif time_remaing % 5 == 0:
+    elif math.remainder(time_remaing, 5) == 0:
         time_interval = 5
     else:
-        time_interval = time_remaing % 5
+        time_interval = int(math.remainder(time_remaing, 5))
 
     #Removes how long the timer will wait from the time remaining
     time_remaing -= time_interval
