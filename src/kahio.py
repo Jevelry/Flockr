@@ -4,7 +4,6 @@ datetime: Gives access to the datetime functions
 data(data.py): Gives access to global data variable
 validation(validation.py): Gives access to the premade validations
 """
-
 import threading
 import datetime
 import data
