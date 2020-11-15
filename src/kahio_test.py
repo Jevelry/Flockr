@@ -175,6 +175,7 @@ def test_starter_answers(users1):
     user1, chan = users1
     message_exp = "/KAHIO/Question/ A/ 10"
     message.message_send(user1["token"], chan['channel_id'], message_exp)
+    time.sleep(1)
     with pytest.raises(InputError):
         message.message_send(user1["token"], chan['channel_id'], "a")
     other.clear()
