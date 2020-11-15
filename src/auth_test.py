@@ -23,6 +23,8 @@ def get_code_from_email():
     Used in tests for password_reset_request.
     This function checks that an email was sent to flockr1531@gmail.com.
     Check test_successful_password_reset_request for why it must be this email
+    Code below inspired by: https://www.thepythoncode.com/article/reading-emails
+    -in-python?fbclid=IwAR3qWXw4paLH-VbqlxLdptR9GdgGRqqaVrK9fiXi5hwulreT09Ghy5fM-4E
     """
     code = None
     # Account credentials
