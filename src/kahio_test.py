@@ -70,13 +70,23 @@ def test_send_valid(users1):
     assert user1["u_id"] == message_from_channel["messages"][0]["u_id"]
     other.clear()
 
+def test_send_invalid_start_no_question(users1):
+    """
+    Tests an error is returned when given a message with no question
+    """
+    user1, chan = users1
+    message_exp = "/KAHIO no_invaldad quezs"
+    with pytest.raises(InputError):
+        message.message_send(user1["token"], chan['channel_id'], message_exp)
+    other.clear()
+
 #Successful
 def test_send_answer_valid(users):
     """
     Testing if a single message can be sent and be stored
     """
     user1, user2, chan = users
-    message_exp = "/KAHIO/Question/ A/ 1"
+    message_exp = "/KAHIO/Question/ A/ 10"
     message_id = message.message_send(user1["token"], chan['channel_id'], message_exp)
     message_from_channel = channel.channel_messages(user1["token"], chan['channel_id'], 0)
 
@@ -87,7 +97,7 @@ def test_send_answer_valid(users):
     message_ans = " A"
     message_id2 = message.message_send(user2["token"], chan['channel_id'], message_ans)
 
-    time.sleep(2)
+    time.sleep(11)
 
     message_from_channel = channel.channel_messages(user1["token"], chan['channel_id'], 0)
     assert user1["u_id"] == message_from_channel["messages"][0]["u_id"]
@@ -175,6 +185,7 @@ def test_starter_answers(users1):
     user1, chan = users1
     message_exp = "/KAHIO/Question/ A/ 10"
     message.message_send(user1["token"], chan['channel_id'], message_exp)
+    time.sleep(1)
     with pytest.raises(InputError):
         message.message_send(user1["token"], chan['channel_id'], "a")
     other.clear()

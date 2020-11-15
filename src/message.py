@@ -104,8 +104,7 @@ def message_send(token, channel_id, message):
         return hangman.stop(user_input_id, channel_id)
 
     if message.startswith("/KAHIO/END"):
-        kahio.kahio_end(user_input_id, channel_id)
-        new_message["message"] = "The KAHIO game has been stopped"
+        new_message["message"] = kahio.kahio_end(user_input_id, channel_id)
     elif message.startswith("/KAHIO"):
         new_message["message"] = kahio.start_kahio(user_input_id, channel_id, message)
     elif data.check_kahio_running(channel_id):
